@@ -8,6 +8,5 @@ export interface TicketFilterRequest {
   attendeeId: string[] // массив Guid в виде строк
   attendeeName?: string | null
   status: TicketStatus[]
-  contactPhone?: string | null
   paymentIds: string[] // массив Guid в виде строк
 }

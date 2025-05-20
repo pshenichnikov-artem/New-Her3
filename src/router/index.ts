@@ -46,10 +46,19 @@ const router = createRouter({
     {
       path: '/filters-test',
       name: 'filters-test',
-      component: () => import('@/views/FilterTestPage.vue'),
+      component: () => import('@/views/testPage/FilterTestPage.vue'),
       meta: {
         requiresAuth: false,
         title: 'Filters Test',
+      },
+    },
+    {
+      path: '/notifications-test',
+      name: 'notifications-test',
+      component: () => import('@/views/testPage/NotificationTestPage.vue'),
+      meta: {
+        requiresAuth: false,
+        title: 'Notifications Test',
       },
     },
   ],

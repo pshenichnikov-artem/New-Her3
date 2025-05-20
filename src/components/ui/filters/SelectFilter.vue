@@ -14,7 +14,7 @@
             <select v-model="localValue"
                 class="w-full appearance-none border border-gray-300 rounded-lg px-3 py-2.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-300 transition-all hover:bg-white hover:border-indigo-300"
                 @change="onChange">
-                <option v-if="multipleSelect" value="" disabled>{{ $t('filters.select') }}</option>
+                <option v-if="multipleSelect" value="" disabled>{{ t('filters.select') }}</option>
                 <option v-for="option in filteredOptions" :key="option.value === null ? 'null' : option.value"
                     :value="option.value">
                     {{ option.label }}
@@ -44,7 +44,7 @@ interface Option {
 interface SelectFilterProps {
     title: string;
     options: Option[];
-    modelValue: string | number | null | (string | number)[];
+    modelValue: string | number | null | (string | number | null)[];
     multipleSelect?: boolean;
 }
 
@@ -52,9 +52,10 @@ const props = withDefaults(defineProps<SelectFilterProps>(), {
     multipleSelect: false
 });
 
+// Исправленное определение emit с корректными типами
 const emit = defineEmits<{
-    'update:modelValue': [value: string | number | null | (string | number)[]];
-    'change': [value: string | number | null | (string | number)[]];
+    'update:modelValue': [value: string | number | null | (string | number | null)[]];
+    'change': [value: string | number | null | (string | number | null)[]];
 }>();
 
 const { t } = useI18n();

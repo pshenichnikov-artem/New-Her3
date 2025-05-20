@@ -42,7 +42,7 @@ export default function useApiRequest() {
         if (onSuccess) onSuccess(data.value)
         return { success: true, data: data.value }
       } else {
-        error.value = response.message || t('common.errorOccurred')
+        error.value = response.message || t('common.errors.general')
 
         if (showErrorNotification && notificationRef?.value) {
           notificationRef.value.error(error.value)
@@ -52,7 +52,7 @@ export default function useApiRequest() {
         return { success: false, error: error.value }
       }
     } catch (err) {
-      const errorMessage = err.message || t('common.unexpectedError')
+      const errorMessage = err.message || t('common.errors.unexpected')
       error.value = errorMessage
 
       if (showErrorNotification && notificationRef?.value) {

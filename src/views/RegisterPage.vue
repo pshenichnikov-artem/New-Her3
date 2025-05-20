@@ -7,130 +7,62 @@
         </div>
         <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ $t('register.title') }}</h2>
         <form @submit.prevent="handleRegister">
-          <ValidationInput 
-            id="firstName" 
-            :label="$t('register.firstName')" 
-            type="text" 
-            v-model="firstName"
-            validationRules="required|name" 
-            :error-messages="{
-              required: $t('validation.name.required'),
-              name: $t('validation.name.pattern')
-            }" 
-            ref="firstNameInput" 
-            @validateInput="updateValidationState('firstName', $event)"
-          />
+          <ValidationInput id="fullName" :label="$t('fields.fullName')" type="text" v-model="fullName"
+            validationRules="required|fullName" :error-messages="{
+              required: $t('validation.fullName.required'),
+              fullName: $t('validation.fullName.pattern')
+            }" @valid="updateValidationState('fullName', $event)" :triggerValidation="validationTrigger.fullName" />
 
-        <ValidationInput 
-          id="lastName" 
-          :label="$t('register.lastName')" 
-          type="text" 
-          v-model="lastName"
-          validationRules="required|name" 
-          :error-messages="{
-            required: $t('validation.lastName.required'),
-            name: $t('validation.lastName.pattern')
-          }" 
-          ref="lastNameInput" 
-          @validateInput="updateValidationState('lastName', $event)"
-        />
+          <ValidationInput id="email" :label="$t('fields.email')" type="email" v-model="email"
+            validationRules="required|email" :error-messages="{
+              required: $t('validation.email.required'),
+              email: $t('validation.email.invalid')
+            }" @valid="updateValidationState('email', $event)" :triggerValidation="validationTrigger.email" />
 
-        <ValidationInput 
-          id="email" 
-          :label="$t('register.email')" 
-          type="email" 
-          v-model="email"
-          validationRules="required|email"
-          ref="emailInput" 
-          @validateInput="updateValidationState('email', $event)"
-        />
+          <ValidationInput id="phone" :label="$t('fields.phone')" type="tel" v-model="phone"
+            validationRules="required|phone" :error-messages="{
+              required: $t('validation.phone.required'),
+              phone: $t('validation.phone.pattern')
+            }" @valid="updateValidationState('phone', $event)" :triggerValidation="validationTrigger.phone" />
 
-        <ValidationInput 
-          id="phone" 
-          :label="$t('register.phone')" 
-          type="tel" 
-          v-model="phone"
-          validationRules="required|phone" 
-          :error-messages="{
-            required: $t('validation.phone.required'),
-            phone: $t('validation.phone.pattern')
-          }" 
-          ref="phoneInput" 
-          @validateInput="updateValidationState('phone', $event)"
-        />
+          <ValidationInput id="password" :label="$t('fields.password')" type="password" v-model="password"
+            validationRules="required|password" :error-messages="{
+              required: $t('validation.password.required'),
+              password: $t('validation.password.pattern')
+            }" @valid="updateValidationState('password', $event)" :triggerValidation="validationTrigger.password" />
 
-        <ValidationInput 
-          id="password" 
-          :label="$t('register.password')" 
-          type="password" 
-          v-model="password"
-          validationRules="required|password" 
-          :error-messages="{
-            required: $t('validation.password.required'),
-            password: $t('validation.password.pattern')
-          }" 
-          ref="passwordInput" 
-          @validateInput="updateValidationState('password', $event)"
-        />
+          <ValidationInput id="confirmPassword" :label="$t('fields.confirmPassword')" type="password"
+            v-model="confirmPassword" validationRules="required|match" :error-messages="{
+              required: $t('validation.password.confirmRequired'),
+              match: $t('validation.password.mismatch'),
+            }" :compareWith="password" @valid="updateValidationState('confirmPassword', $event)"
+            :triggerValidation="validationTrigger.confirmPassword" />
 
-        <ValidationInput 
-          id="confirmPassword" 
-          :label="$t('register.confirmPassword')" 
-          type="password" 
-          v-model="confirmPassword"
-          validationRules="required|match" 
-          :error-messages="{
-            required: $t('validation.password.confirmRequired'),
-            match: $t('validation.password.mismatch'),
-          }"
-          :compareWith="password"
-          ref="confirmPasswordInput" 
-          @validateInput="updateValidationState('confirmPassword', $event)"
-        />
-        
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700">{{ $t('register.selectRole') }}</label>
-          <select 
-            v-model="role" 
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          >
-            <option value="user">{{ $t('register.roleUser') }}</option>
-            <option value="seller">{{ $t('register.roleSeller') }}</option>
-          </select>
-        </div>
-
-        <div v-if="errorMessage" class="mb-4 mt-2 text-red-600 text-sm p-2 bg-red-50 border border-red-200 rounded">
-          {{ errorMessage }}
-        </div>
-
-        <div class="flex items-center justify-between mt-6">
-          <button 
-            type="submit"
-            class="w-full px-4 py-2 bg-indigo-600 text-white font-medium text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            {{ $t('register.registerButton') }}
+          <div class="flex items-center justify-between mt-6">
+            <button type="submit"
+              class="w-full px-4 py-2 bg-indigo-600 text-white font-medium text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              {{ $t('register.registerButton') }}
+            </button>
+          </div>
+        </form>
+        <div class="mt-4 text-center">
+          <button @click="$router.push('/login')"
+            class="w-full px-4 py-2 bg-gray-600 text-white font-medium text-sm rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            {{ $t('register.loginButton') }}
           </button>
         </div>
-      </form>
-      <div class="mt-4 text-center">
-        <button 
-          @click="$router.push('/login')"
-          class="w-full px-4 py-2 bg-gray-600 text-white font-medium text-sm rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-        >
-          {{ $t('register.loginButton') }}
-        </button>
       </div>
     </div>
-  </div>
   </div>
   <AppFooter />
 </template>
 
 <script>
-import authService from '@/services/api/authService';
+//import authService from '@/services/api/authService';
 import ValidationInput from '@/components/ui/ValidationInput.vue';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
 import AppFooter from "@/components/layout/AppFooter.vue";
+import { notificationService } from '@/composables/useNotification';
 
 export default {
   name: 'RegisterPage',
@@ -141,78 +73,140 @@ export default {
   },
   data() {
     return {
-      firstName: '',
-      lastName: '',
+      fullName: '',
       email: '',
       phone: '',
       password: '',
       confirmPassword: '',
-      role: 'user',
-      errorMessage: '',
-      passwordMismatch: false,
       validationState: {
-        firstName: false,
-        lastName: false,
+        fullName: false,
         email: false,
-        phone: false, // Необязательное поле, поэтому по умолчанию true
+        phone: false,
         password: false,
         confirmPassword: false
+      },
+      validationTrigger: {
+        fullName: 0,
+        email: 0,
+        phone: 0,
+        password: 0,
+        confirmPassword: 0
       }
     };
   },
+  computed: {
+    allFieldsValid() {
+      const isValid = Object.values(this.validationState).every(state => state === true);
+      console.log('All fields valid check:', isValid, this.validationState);
+      return isValid;
+    }
+  },
   methods: {
     updateValidationState(field, isValid) {
+      console.log(`Field ${field} validation changed to: ${isValid}`);
       this.validationState[field] = isValid;
     },
-    
-    validateForm() {
-      // Сбрасываем флаг несовпадения паролей
-      this.passwordMismatch = false;
 
-      // Валидируем все поля
-      this.$refs.firstNameInput.validate();
-      this.$refs.lastNameInput.validate();
-      this.$refs.emailInput.validate();
-      this.$refs.phoneInput.validate();
-      this.$refs.passwordInput.validate();
-      this.$refs.confirmPasswordInput.validate();
-      
-      // Проверяем состояние валидации всех полей
-      return Object.values(this.validationState).every(state => state === true) && !this.passwordMismatch;
+    validateForm() {
+      console.log('Validating form...');
+      // Увеличиваем счетчики для всех полей, чтобы запустить валидацию
+      const fields = ['fullName', 'email', 'phone', 'password', 'confirmPassword'];
+
+      fields.forEach(field => {
+        this.validationTrigger[field] += 1;
+        console.log(`Triggered validation for ${field}: ${this.validationTrigger[field]}`);
+      });
+
+      // Небольшая задержка, чтобы реактивность успела обновиться
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const isValid = this.allFieldsValid;
+          console.log('Form validation completed. Result:', isValid);
+
+          if (!isValid) {
+            console.log('Invalid fields:',
+              Object.entries(this.validationState)
+                .filter(([_, value]) => !value)
+                .map(([key]) => key)
+            );
+
+            // Ищем первое невалидное поле
+            const firstInvalidField = fields.find(field => !this.validationState[field]);
+            console.log('First invalid field:', firstInvalidField);
+
+            if (firstInvalidField) {
+              const element = document.getElementById(firstInvalidField);
+              if (element) {
+                console.log('Scrolling to invalid field:', firstInvalidField);
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.focus();
+              } else {
+                console.log('Element not found:', firstInvalidField);
+              }
+            }
+          }
+
+          resolve(isValid);
+        }, 200);
+      });
     },
 
     async handleRegister() {
-      // Очищаем предыдущие сообщения об ошибках
-      this.errorMessage = '';
+      console.log('handleRegister called');
 
-      // Проверяем валидацию перед отправкой
-      const isValid = this.validateForm();
-      if (!isValid) {
-        return;
-      }
+      try {
+        // Проверяем валидацию перед отправкой
+        console.log('Starting form validation');
+        const isValid = await this.validateForm();
+        console.log('Form validation result:', isValid);
 
-      const userData = {
-        firstName: this.firstName,
-        lastName: this.lastName,
-        email: this.email,
-        phone: this.phone,
-        password: this.password,
-        role: this.role
-      };
+        if (!isValid) {
+          console.log('Form is invalid, showing errors');
+          notificationService.error(this.$t('forms.hasErrors'));
+          return;
+        }
 
+        console.log('Form is valid, proceeding with submission');
+        // Адаптируем данные под формат RegisterRequest
+        const userData = {
+          fullName: this.fullName,
+          email: this.email,
+          phone: this.phone,
+          password: this.password
+        };
+
+        console.log('User data ready for submission:', userData);
+        // Раскомментируйте реальный вызов API, когда будете готовы
+        /*
         const response = await authService.register(userData);
         if (response.status === 'success') {
+          notificationService.success(this.$t('register.registerSuccess'));
           this.$router.push('/');
         } else if (response.error?.code === 409) {
-          this.errorMessage = this.$t('serverErrors.emailAlreadyExists');
+          notificationService.error(this.$t('serverErrors.emailAlreadyExists'));
         }
-        else if (response.error?.code === 500){
-          this.errorMessage = response.message
+        else if (response.error?.code === 500) {
+          notificationService.error(response.message);
         }
         else {
-          this.errorMessage = this.$t('register.registerError');
+          notificationService.error(this.$t('register.registerError'));
         }
+        */
+
+        // Временное сообщение об успешной регистрации для тестирования
+        notificationService.success(this.$t('forms.submitSuccess'));
+      } catch (error) {
+        console.error('Registration error:', error);
+        notificationService.error(this.$t('register.registerError'));
+      }
     },
+  },
+  // Добавим хук жизненного цикла для дополнительной отладки
+  mounted() {
+    console.log('RegisterPage mounted');
+  },
+  updated() {
+    console.log('RegisterPage updated');
   }
 };
 </script>

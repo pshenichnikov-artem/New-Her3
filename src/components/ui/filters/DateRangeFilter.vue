@@ -34,7 +34,8 @@
                     :class="{ 'right-0': alignRight }">
                     <RangeCalendarPicker v-model="dateRange" :showTime="showTime"
                         :minCurrentTimePlusHour="minCurrentTimePlusHour" :maxCurrentTime="maxCurrentTime"
-                        :minDate="minDate" :maxDate="maxDate" @apply="handleRangeApply" />
+                        :minDate="minDate" :maxDate="maxDate" @apply="handleRangeApply" @clear="handleClear"
+                        ref="calendarPickerRef" />
                 </div>
             </Transition>
         </div>
@@ -46,7 +47,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BaseFilterWrapper from './BaseFilterWrapper.vue';
 import RangeCalendarPicker from '@/components/ui/calendar/RangeCalendarPicker.vue';
-import { formatDate, formatTime, formatDateForServer } from '@/utils/formatterUtils';
+import { formatDate, formatTime, formatDateForServer, isToday } from '@/utils/formatterUtils';
 
 interface DateRangeFilterProps {
     title: string;
@@ -141,8 +142,29 @@ const handleClickOutside = (event: MouseEvent) => {
 
 // Обработчик для диапазона дат
 const handleRangeApply = (range: [Date | null, Date | null] | null) => {
+    // Проверяем на минимальное время (час вперед)
+    if (range && range[0] && props.minCurrentTimePlusHour && isToday(range[0])) {
+        const minTime = new Date();
+        minTime.setHours(minTime.getHours() + 1);
+
+        if (range[0] < minTime) {
+            // Если выбранное время меньше минимального, корректируем его
+            range[0] = new Date(minTime);
+        }
+    }
+
+    // Проверяем на максимальное время (текущее)
+    if (range && range[0] && props.maxCurrentTime && isToday(range[0])) {
+        const maxTime = new Date();
+
+        if (range[0] > maxTime) {
+            // Если выбранное время больше максимального, корректируем его
+            range[0] = new Date(maxTime);
+        }
+    }
+
     emit('update:modelValue', range);
-    showCalendar.value = false;
+    showCalendar.value = false;  // Важно закрывать календарь при применении!
 
     // Преобразуем форматы для сервера
     if (range) {
@@ -154,6 +176,17 @@ const handleRangeApply = (range: [Date | null, Date | null] | null) => {
     } else {
         emit('date-for-server', null);
     }
+};
+
+// Добавляем реф для хранения ссылки на компонент календаря
+import { ref as vueRef } from 'vue';
+const calendarPickerRef = vueRef<InstanceType<typeof RangeCalendarPicker> | null>(null);
+
+// Добавляем новый обработчик для события clear
+const handleClear = () => {
+    emit('update:modelValue', null);
+    emit('date-for-server', null);
+    showCalendar.value = false;
 };
 
 // Отслеживаем изменения modelValue извне

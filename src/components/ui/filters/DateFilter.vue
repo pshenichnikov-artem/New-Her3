@@ -35,12 +35,14 @@
                     :class="{ 'right-0': alignRight }">
                     <!-- Множественный выбор -->
                     <div v-if="multipleSelect" class="mb-2 p-2 bg-white border border-gray-200 rounded-lg shadow">
-                        <MultiDateCalendarPicker v-model="selectedDates" @select-date="handleMultipleDateSelect" />
+                        <MultiDateCalendarPicker v-model="selectedDates" @select-date="handleMultipleDateSelect"
+                            :minDate="minDate" :maxDate="maxDate" @apply="closeMultiCalendar" />
                     </div>
                     <!-- Одиночный выбор -->
                     <div v-else class="bg-white border border-gray-200 rounded-lg shadow">
                         <SingleDateCalendarPicker v-model="singleDate" :showTime="showTime"
-                            @apply="handleSingleDateApply" />
+                            :minCurrentTimePlusHour="minCurrentTimePlusHour" :maxCurrentTime="maxCurrentTime"
+                            :minDate="minDate" :maxDate="maxDate" @apply="handleSingleDateApply" />
                     </div>
                 </div>
             </Transition>
@@ -177,7 +179,32 @@ const handleMultipleDateSelect = (date: Date) => {
 
 // Обработчик для одиночного выбора даты
 const handleSingleDateApply = (date: Date | null) => {
+    // Если включено ограничение на минимальное время
+    if (date && props.showTime && props.minCurrentTimePlusHour) {
+        const minTime = new Date();
+        minTime.setHours(minTime.getHours() + 1);
+
+        // Проверяем, что выбранное время удовлетворяет ограничению
+        if (date.getTime() < minTime.getTime()) {
+            // Корректируем время
+            date = new Date(minTime);
+        }
+    }
+
+    // Если включено ограничение на максимальное время
+    if (date && props.showTime && props.maxCurrentTime) {
+        const maxTime = new Date();
+
+        // Проверяем, что выбранное время удовлетворяет ограничению
+        if (date.getTime() > maxTime.getTime()) {
+            // Корректируем время
+            date = new Date(maxTime);
+        }
+    }
+
     emit('update:modelValue', date);
+
+    // Закрываем календарь после применения даты
     showCalendar.value = false;
 
     // Преобразуем формат для сервера
@@ -186,6 +213,11 @@ const handleSingleDateApply = (date: Date | null) => {
     } else {
         emit('date-for-server', null);
     }
+};
+
+// Добавляем метод для закрытия календаря множественного выбора
+const closeMultiCalendar = () => {
+    showCalendar.value = false;
 };
 
 // Отслеживаем изменения modelValue извне

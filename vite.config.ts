@@ -6,14 +6,15 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueDevTools(),
-  ],
+  plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      'vue': 'vue/dist/vue.esm-bundler.js' // Необходимо для корректной работы ymaps3 Vue компонентов
+      vue: 'vue/dist/vue.esm-bundler.js', // Необходимо для корректной работы ymaps3 Vue компонентов
     },
+  },
+  server: {
+    host: 'localhost',
+    port: 5555,
   },
 })

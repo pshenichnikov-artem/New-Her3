@@ -2,106 +2,113 @@
   <div class="mb-4">
     <label v-if="label" class="block text-sm font-medium text-gray-700">{{ label }}</label>
     <div class="relative flex items-center">
-      <input
-          class="w-full border rounded px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 pr-10"
-          :class="{
-          'border-gray-300 focus:ring-blue-500': !error && !isValid,
-          'border-green-500 focus:ring-green-500': isValid,
-          'border-red-500 focus:ring-red-500': error,
-        }"
-          :id="id"
-          :type="computedInputType"
-          :placeholder="placeholder"
-          :value="modelValue"
-          @input="handleInput"
-          @blur="validate"
-      />
+      <input class="w-full border rounded px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 pr-10" :class="{
+        'border-gray-300 focus:ring-blue-500': !error && !isRed,
+        'border-green-500 focus:ring-green-500': isValid && !error && !isEmpty,
+        'border-red-500 focus:ring-red-500': isRed,
+      }" :id="id" :type="computedInputType" :placeholder="placeholder" :value="modelValue" @input="handleInput"
+        @blur="handleBlur" />
       <!-- Глазик -->
-      <button
-          v-if="type === 'password'"
-          type="button"
-          class="absolute inset-y-0 right-2 text-gray-500 text-sm flex items-center justify-center"
-          @click="togglePasswordVisibility"
-      >
+      <button v-if="type === 'password'" type="button"
+        class="absolute inset-y-0 right-2 text-gray-500 text-sm flex items-center justify-center"
+        @click="togglePasswordVisibility">
         <img :src="showPassword ? '/images/open_eye.png' : 'images/close_eye.png'" alt="eye icon" class="w-6 h-6" />
       </button>
     </div>
-    <p v-if="error" class="text-xs text-red-500 mt-1">{{ error }}</p>
+    <p v-if="error" class="text-xs text-red-500 mt-1">
+      {{ error }}
+    </p>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+
 const { t } = useI18n();
 
-const props = defineProps({
-  id: String,
-  modelValue: {
-    type: String,
-    default: '',
-  },
-  label: String,
-  type: {
-    type: String,
-    default: 'text',
-  },
-  placeholder: String,
-  validationRules: {
-    type: [String, Array],
-    default: '',
-  },
-  errorMessages: {
-    type: Object,
-    default: () => ({}),
-  },
-  compareWith: {
-    type: String,
-    default: null,
-  },
-});
-
-const emit = defineEmits([
-  'update:modelValue',
-  'input',
-  'update:validationErrors',
-  'validateInput',
-]);
-
-const error = ref(null);
-const isValid = ref(false);
-const showPassword = ref(false);
-
-const togglePasswordVisibility = () => {
-  showPassword.value = !showPassword.value;
+// Определение типов
+type ValidationRule = {
+  name: string;
+  param?: string;
 };
 
-const computedInputType = computed(() => {
+export interface ValidationProps {
+  id?: string;
+  modelValue: string;
+  label?: string;
+  type?: string;
+  placeholder?: string;
+  validationRules?: string | ValidationRule[];
+  errorMessages?: Record<string, string>;
+  compareWith?: string | null;
+  triggerValidation?: number; // Новый prop для запуска валидации
+}
+
+// Определяем пропсы и эмиты
+const props = withDefaults(defineProps<ValidationProps>(), {
+  id: '',
+  modelValue: '',
+  label: '',
+  type: 'text',
+  placeholder: '',
+  validationRules: '',
+  errorMessages: () => ({}),
+  compareWith: null,
+  triggerValidation: 0,
+});
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string];
+  'input': [value: string];
+  'update:validationErrors': [error: Record<string, string> | null];
+  'valid': [isValid: boolean];
+}>();
+
+// Состояние компонента
+const error = ref<string | null>(null);
+const isValid = ref<boolean>(false);
+const showPassword = ref<boolean>(false);
+const wasValidated = ref<boolean>(false);  // Отслеживаем, была ли уже выполнена валидация
+const forceShowError = ref<boolean>(false); // Флаг для принудительного отображения ошибок
+const isEmpty = computed(() => !props.modelValue); // Вычисляемое свойство для проверки на пустоту
+
+// Вычисляемое свойство для определения, должен ли инпут быть красным
+const isRed = computed(() => {
+  // Инпут красный, если есть ошибка или если была принудительная валидация и поле невалидно, но не пустое
+  return (error.value !== null) || (forceShowError.value && !isValid.value && !isEmpty.value);
+});
+
+// Вычисляемое свойство для определения видимости пароля
+const computedInputType = computed((): string => {
   if (props.type !== 'password') return props.type;
   return showPassword.value ? 'text' : 'password';
 });
 
-// Вычисляемое свойство, которое возвращает текущий статус валидации
-const isValidated = computed(() => {
-  return isValid.value && !error.value;
-});
-
-// Кастомные паттерны
-const customPatterns = {
+// Кастомные паттерны валидации
+const customPatterns: Record<string, RegExp> = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   phone: /^\+?[0-9]{10,15}$/,
-
-  // Имя и фамилия — одна раскладка, первая буква заглавная, остальные маленькие, длина 3–50
   name: /^(?:[A-Z][a-z]{2,49}|[А-ЯЁ][а-яё]{2,49})$/,
   lastName: /^(?:[A-Z][a-z]{2,49}|[А-ЯЁ][а-яё]{2,49})$/,
-
-  // Пароль — минимум 8 символов, хотя бы одна заглавная и спецсимвол
+  fullName: /^((?:[A-Z][a-z]{2,}|[А-ЯЁ][а-яё]{2,})\s+(?:[A-Z][a-z]{2,}|[А-ЯЁ][а-яё]{2,})(?:\s+(?:[A-Z][a-z]{2,}|[А-ЯЁ][а-яё]{2,}))?)$/,
   password: /^(?=.*[a-zа-яё])(?=.*[A-ZА-ЯЁ])(?=.*\d)(?=.*[!@#$%^&*]).{8,100}$/,
   onlyRussian: /^[А-ЯЁа-яё\s]+$/,
   onlyEnglish: /^[A-Za-z\s]+$/,
 };
 
-function parseRules(rules) {
+// Функция отображения/скрытия пароля
+const togglePasswordVisibility = (): void => {
+  showPassword.value = !showPassword.value;
+};
+
+// Вычисляемое свойство, возвращающее статус валидации
+const isValidated = computed((): boolean => {
+  return isValid.value && !error.value;
+});
+
+// Функция парсинга правил валидации
+function parseRules(rules: string | ValidationRule[] | undefined): ValidationRule[] {
   if (!rules) return [];
 
   if (Array.isArray(rules)) return rules;
@@ -112,34 +119,37 @@ function parseRules(rules) {
   });
 }
 
-function getValidators() {
+// Определение валидаторов
+function getValidators(): Record<string, (v: string, p?: string) => string | boolean> {
   return {
-    required: v => !!v || props.errorMessages.required || t('validation.required'),
-    minLength: (v, p) => (v.length >= +p) || props.errorMessages.minLength || t('validation.minLength', { length: p }),
-    maxLength: (v, p) => (v.length <= +p) || props.errorMessages.maxLength || t('validation.maxLength', { length: p }),
-    pattern: (v, p) => new RegExp(p).test(v) || props.errorMessages.pattern || t('validation.pattern'),
-    match: v => {
+    required: (v) => !!v || props.errorMessages.required || t('validation.required'),
+    minLength: (v, p) => (v.length >= +(p || 0)) ||
+      props.errorMessages.minLength || t('validation.minLength', { length: p }),
+    maxLength: (v, p) => (v.length <= +(p || 0)) ||
+      props.errorMessages.maxLength || t('validation.maxLength', { length: p }),
+    pattern: (v, p) => new RegExp(p || '').test(v) || props.errorMessages.pattern || t('validation.pattern'),
+    match: (v) => {
       if (props.compareWith == null) return props.errorMessages.match || 'No reference value for comparison';
       if (v !== props.compareWith) return props.errorMessages.match || t('validation.password.mismatch');
       return true;
     },
-    name: v => {
+    name: (v) => {
       if (v.length < 3) return props.errorMessages.nameMinLength || t('validation.name.minLength');
       if (v.length > 50) return props.errorMessages.nameMaxLength || t('validation.name.maxLength');
       if (!/^[A-ZА-ЯЁ]/.test(v)) return props.errorMessages.nameUppercase || t('validation.name.uppercase');
       if (!customPatterns.name.test(v)) return props.errorMessages.namePattern || t('validation.name.pattern');
       return true;
     },
-    lastName: v => {
+    lastName: (v) => {
       if (v.length < 3) return props.errorMessages.lastNameMinLength || t('validation.minLength', { length: 3 });
       if (v.length > 50) return props.errorMessages.lastNameMaxLength || t('validation.name.maxLength');
       if (!/^[A-ZА-ЯЁ]/.test(v)) return props.errorMessages.lastNameUppercase || t('validation.lastName.uppercase');
       if (!customPatterns.lastName.test(v)) return props.errorMessages.lastNamePattern || t('validation.lastName.pattern');
       return true;
     },
-    email: v => customPatterns.email.test(v) || props.errorMessages.email || t('validation.email.invalid'),
-    phone: v => customPatterns.phone.test(v) || props.errorMessages.phone || t('validation.phone.pattern'),
-    password: v => {
+    email: (v) => customPatterns.email.test(v) || props.errorMessages.email || t('validation.email.invalid'),
+    phone: (v) => customPatterns.phone.test(v) || props.errorMessages.phone || t('validation.phone.pattern'),
+    password: (v) => {
       if (v.length < 8) return props.errorMessages.passwordMinLength || t('validation.password.minLength', { length: 8 });
       if (!/[A-ZА-ЯЁ]/.test(v)) return props.errorMessages.passwordUppercase || t('validation.password.uppercase');
       if (!/[!@#$%^&*]/.test(v)) return props.errorMessages.passwordSpecial || t('validation.password.special');
@@ -149,24 +159,70 @@ function getValidators() {
     },
     onlyRussian: (v) => customPatterns.onlyRussian.test(v) || t('validation.onlyRussian'),
     onlyEnglish: (v) => customPatterns.onlyEnglish.test(v) || t('validation.onlyEnglish'),
+    fullName: (v) => {
+      const words = v.trim().split(/\s+/);
+
+      // Проверка на количество слов (от 2 до 3)
+      if (words.length < 2 || words.length > 3) {
+        return props.errorMessages.fullNameWordsCount || t('validation.fullName.wordsCount');
+      }
+
+      // Проверка каждого слова
+      for (const word of words) {
+        // Проверка длины слова (минимум 3 символа)
+        if (word.length < 3) {
+          return props.errorMessages.fullNameWordLength || t('validation.fullName.wordLength');
+        }
+
+        // Проверка первой буквы (должна быть заглавной)
+        if (!/^[A-ZА-ЯЁ]/.test(word)) {
+          return props.errorMessages.fullNameUppercase || t('validation.fullName.uppercase');
+        }
+
+        // Проверка, что слово содержит только буквы
+        if (!/^[A-Za-zА-ЯЁа-яё]+$/.test(word)) {
+          return props.errorMessages.fullNameLettersOnly || t('validation.fullName.lettersOnly');
+        }
+      }
+
+      // Проверка по регулярному выражению (для дополнительной валидации)
+      if (!customPatterns.fullName.test(v)) {
+        return props.errorMessages.fullNamePattern || t('validation.fullName.pattern');
+      }
+
+      return true;
+    },
   };
 }
 
-function validate() {
+// Функция валидации ввода
+function validate(): boolean {
   error.value = null;
   isValid.value = false;
-  
-  // Если значение пустое и нет правила required, считаем валидным
-  if (!props.modelValue) {
+  wasValidated.value = true;
+
+  // Если значение пустое
+  if (isEmpty.value) {
     const rules = parseRules(props.validationRules);
+    // Если поле не обязательное
     if (!rules.some(r => r.name === 'required')) {
       isValid.value = true;
       emit('update:validationErrors', null);
-      emit('validateInput', true);
+      emit('valid', true);
+      forceShowError.value = false; // Сбрасываем флаг принудительного показа ошибок
       return true;
+    } else if (forceShowError.value) {
+      // Если поле обязательное и нужно показать ошибки
+      error.value = props.errorMessages.required || t('validation.required');
+      emit('update:validationErrors', { [props.id]: error.value });
+      emit('valid', false);
+      return false;
     }
+    // Если просто пусто и не нужно показывать ошибки, то ничего не делаем
+    emit('valid', false);
+    return false;
   }
-  
+
   const rules = parseRules(props.validationRules);
   const validators = getValidators();
 
@@ -176,9 +232,9 @@ function validate() {
       const result = validator(props.modelValue, param);
       if (result !== true) {
         // Используем переданные сообщения об ошибках или берем из локализации
-        error.value = result;
+        error.value = result as string;
         emit('update:validationErrors', { [props.id]: error.value });
-        emit('validateInput', false);
+        emit('valid', false);
         return false;
       }
     }
@@ -186,28 +242,104 @@ function validate() {
 
   isValid.value = true;
   emit('update:validationErrors', null);
-  emit('validateInput', true);
+  emit('valid', true);
   return true;
 }
 
-function handleInput(e) {
-  const value = e.target.value;
-  emit('update:modelValue', value);
-  emit('input', value);
-  validate();
+// Получаем стандартное сообщение об ошибке, если требуется
+function getDefaultErrorMessage(): string {
+  const rules = parseRules(props.validationRules);
+  if (rules.some(r => r.name === 'required')) {
+    return props.errorMessages.required || t('validation.required');
+  }
+  return '';
 }
 
-// Экспортируем метод validate для использования извне
+// Обработчик потери фокуса
+function handleBlur(): void {
+  wasValidated.value = true;
+
+  // При потере фокуса выполняем валидацию только если поле не пустое или обязательное
+  if (!isEmpty.value || parseRules(props.validationRules).some(r => r.name === 'required')) {
+    validate();
+  }
+}
+
+// Обработчик ввода значений
+function handleInput(e: Event): void {
+  const target = e.target as HTMLInputElement;
+  const value = target.value;
+  emit('update:modelValue', value);
+  emit('input', value);
+
+  // Если значение полностью стерли
+  if (value === '') {
+    const rules = parseRules(props.validationRules);
+    error.value = null; // Всегда сбрасываем ошибку при пустом поле
+
+    if (!rules.some(r => r.name === 'required')) {
+      // Если поле не обязательное, считаем его валидным
+      isValid.value = true;
+      forceShowError.value = false; // Сбрасываем показ ошибок
+      wasValidated.value = false;   // Сбрасываем флаг валидации
+      emit('valid', true);
+    } else {
+      // Если поле обязательное, но мы только что стерли значение - не показываем ошибку сразу
+      isValid.value = false;
+      forceShowError.value = false; // Скрываем ошибки, пока поле пустое
+      emit('valid', false);
+    }
+  }
+  // Проверяем валидацию при любом вводе, если значение не пустое
+  else {
+    // Если пользователь начал вводить, считаем что поле было валидировано
+    wasValidated.value = true;
+    validate();
+  }
+}
+
+// Экспортируем метод validate и состояние isValidated для использования извне
 defineExpose({
   validate,
   isValidated
 });
 
+// Валидируем значение при монтировании компонента
 onMounted(() => {
-  if (props.modelValue) validate();
+  if (props.modelValue) {
+    wasValidated.value = true; // Устанавливаем флаг валидации, если есть начальное значение
+    validate();
+  }
 });
 
-watch(() => props.modelValue, (newVal) => {
-  validate();
+// Следим за изменениями triggerValidation для запуска валидации
+watch(() => props.triggerValidation, () => {
+  if (props.triggerValidation > 0) {
+    forceShowError.value = true; // Показываем ошибки при принудительной валидации
+    validate();
+  }
+});
+
+// Следим за изменениями modelValue для автоматической валидации
+watch(() => props.modelValue, () => {
+  // Если поле не пустое и было уже провалидировано, то продолжаем валидацию
+  if (!isEmpty.value && wasValidated.value) {
+    validate();
+  } else if (isEmpty.value) {
+    // При пустом поле сбрасываем ошибки, но сохраняем состояние валидации
+    error.value = null;
+    if (!parseRules(props.validationRules).some(r => r.name === 'required')) {
+      isValid.value = true;
+      emit('valid', true);
+    }
+  }
+});
+
+// Следим за изменениями compareWith для перевалидации полей, зависящих от других значений
+watch(() => props.compareWith, () => {
+  if (wasValidated.value && !isEmpty.value) {
+    // Если поле уже было валидировано и не пустое, перепроверяем
+    validate();
+  }
 });
 </script>

@@ -5,10 +5,7 @@
             <div class="flex justify-between items-center mb-4">
                 <button @click="prevMonth" class="p-1 rounded hover:bg-gray-100 focus:outline-none"
                     :disabled="isPrevMonthDisabled" :class="{ 'opacity-50 cursor-not-allowed': isPrevMonthDisabled }">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
+                    <IconsSet name="chevron-left" class="h-5 w-5" />
                 </button>
                 <div>
                     <select v-model="currentMonth"
@@ -24,10 +21,7 @@
                 </div>
                 <button @click="nextMonth" class="p-1 rounded hover:bg-gray-100 focus:outline-none"
                     :disabled="isNextMonthDisabled" :class="{ 'opacity-50 cursor-not-allowed': isNextMonthDisabled }">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
+                    <IconsSet name="chevron-right" class="h-5 w-5" />
                 </button>
             </div>
 
@@ -106,6 +100,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getMonthNames, getWeekdayNames, isSameDay, isToday } from '@/utils/formatterUtils';
+import IconsSet from '@/components/ui/icons/IconsSet.vue';
 
 const { t } = useI18n();
 
@@ -140,6 +135,7 @@ const props = withDefaults(defineProps<RangeCalendarPickerProps>(), {
 const emit = defineEmits<{
     'update:modelValue': [value: [Date | null, Date | null] | null];
     'apply': [value: [Date | null, Date | null] | null];
+    'clear': []; // Добавляем новое событие для очистки
 }>();
 
 // Состояние календаря
@@ -175,14 +171,14 @@ const effectiveMinDate = computed(() => {
         minDate.setHours(minDate.getHours() + 1);
         return minDate;
     }
-    return props.minDate;
+    return props.minDate ? new Date(props.minDate) : null;
 });
 
 const effectiveMaxDate = computed(() => {
     if (props.maxCurrentTime) {
         return new Date();
     }
-    return props.maxDate;
+    return props.maxDate ? new Date(props.maxDate) : null;
 });
 
 const canApply = computed(() => {
@@ -339,78 +335,188 @@ function updateCalendar(): void {
 function selectDate(date: Date, isDisabled: boolean): void {
     if (isDisabled) return;
 
-    if (!selectingEndDate.value) {
+    if (!selectingEndDate.value || (startDate.value && endDate.value)) {
         // Выбираем начальную дату
         startDate.value = new Date(date);
         endDate.value = null;
         selectingEndDate.value = true;
-    } else {
-        // Выбираем конечную дату
-        const newEndDate = new Date(date);
 
-        // Если конечная дата раньше начальной, меняем их местами
-        if (startDate.value && newEndDate < startDate.value) {
-            endDate.value = startDate.value;
-            startDate.value = newEndDate;
+        // При выборе начальной даты, устанавливаем текущее время
+        const now = new Date();
+        startHours.value = now.getHours();
+        startMinutes.value = now.getMinutes();
+
+        // Устанавливаем конечное время на час больше
+        if (startHours.value < 23) {
+            endHours.value = startHours.value + 1;
+            endMinutes.value = startMinutes.value;
         } else {
-            endDate.value = newEndDate;
+            endHours.value = 0;
+            endMinutes.value = startMinutes.value;
         }
 
+        // Проверяем временные ограничения
+        validateMinTimeConstraint();
+    } else {
+        // Выбираем конечную дату
+        endDate.value = new Date(date);
         selectingEndDate.value = false;
+
+        // Проверяем порядок дат и меняем их местами при необходимости
+        if (startDate.value && endDate.value && endDate.value < startDate.value) {
+            const temp = startDate.value;
+            startDate.value = endDate.value;
+            endDate.value = temp;
+
+            // Также меняем местами время
+            [startHours.value, endHours.value] = [endHours.value, startHours.value];
+            [startMinutes.value, endMinutes.value] = [endMinutes.value, startMinutes.value];
+
+            // После перестановки проверяем минимальное время
+            validateMinTimeConstraint();
+        }
+
+        // Проверяем, что конечная дата не раньше начальной
+        if (startDate.value && endDate.value && isSameDay(startDate.value, endDate.value)) {
+            validateEndTime();
+        }
     }
 }
 
+// Улучшенная функция проверки времени
+function validateEndTime(): void {
+    // Проверяем только если выбрана одна и та же дата для начала и конца
+    if (startDate.value && endDate.value && isSameDay(startDate.value, endDate.value)) {
+        // Вычисляем полное время в минутах для корректного сравнения
+        const startTimeInMinutes = startHours.value * 60 + startMinutes.value;
+        const endTimeInMinutes = endHours.value * 60 + endMinutes.value;
+
+        // Если время окончания меньше времени начала + 60 минут
+        if (endTimeInMinutes < startTimeInMinutes + 60) {
+            // Проверяем специальный случай для перехода через полночь
+            if (startHours.value >= 23) {
+                // Переходим на следующий день и сохраняем те же минуты
+                const nextDay = new Date(endDate.value);
+                nextDay.setDate(nextDay.getDate() + 1);
+
+                // Устанавливаем время: 00:XX, где XX - те же минуты, что и в startMinutes
+                endDate.value = nextDay;
+                endHours.value = 0;
+                endMinutes.value = startMinutes.value;
+            } else {
+                // В обычном случае просто добавляем 1 час
+                endHours.value = startHours.value + 1;
+                endMinutes.value = startMinutes.value;
+            }
+        }
+    }
+}
+
+// Обработчик изменения времени в инпуте для обеспечения разницы в час
 function validateTimeInput(field: string): void {
     switch (field) {
         case 'startHours':
             if (startHours.value < 0) startHours.value = 0;
             if (startHours.value > 23) startHours.value = 23;
             validateEndTime();
+            validateMinTimeConstraint();
             break;
         case 'startMinutes':
             if (startMinutes.value < 0) startMinutes.value = 0;
             if (startMinutes.value > 59) startMinutes.value = 59;
             validateEndTime();
+            validateMinTimeConstraint();
             break;
         case 'endHours':
             if (endHours.value < 0) endHours.value = 0;
             if (endHours.value > 23) endHours.value = 23;
-            validateEndTime();
+
+            // Проверяем минимальную разницу для одного дня
+            if (startDate.value && endDate.value && isSameDay(startDate.value, endDate.value)) {
+                const startTimeInMinutes = startHours.value * 60 + startMinutes.value;
+                const endTimeInMinutes = endHours.value * 60 + endMinutes.value;
+
+                if (endTimeInMinutes < startTimeInMinutes + 60) {
+                    // Если после изменения часов разница меньше часа
+                    if (startHours.value >= 23) {
+                        // Переходим на следующий день
+                        const nextDay = new Date(endDate.value);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        endDate.value = nextDay;
+                        endHours.value = 0;
+                    } else {
+                        endHours.value = startHours.value + 1;
+                    }
+                }
+            }
             break;
         case 'endMinutes':
             if (endMinutes.value < 0) endMinutes.value = 0;
             if (endMinutes.value > 59) endMinutes.value = 59;
-            validateEndTime();
+
+            // Проверяем минимальную разницу для одного дня
+            if (startDate.value && endDate.value && isSameDay(startDate.value, endDate.value)) {
+                const startTimeInMinutes = startHours.value * 60 + startMinutes.value;
+                const endTimeInMinutes = endHours.value * 60 + endMinutes.value;
+
+                if (endTimeInMinutes < startTimeInMinutes + 60) {
+                    // Если после изменения минут разница меньше часа
+                    if (endHours.value === startHours.value) {
+                        // Если часы равны, нужно увеличить час окончания
+                        if (startHours.value >= 23) {
+                            // Переходим на следующий день
+                            const nextDay = new Date(endDate.value);
+                            nextDay.setDate(nextDay.getDate() + 1);
+                            endDate.value = nextDay;
+                            endHours.value = 0;
+                            endMinutes.value = startMinutes.value;
+                        } else {
+                            endHours.value = startHours.value + 1;
+                            endMinutes.value = startMinutes.value;
+                        }
+                    } else if (endHours.value === startHours.value + 1 &&
+                        endMinutes.value < startMinutes.value) {
+                        // Если час на 1 больше, но минуты меньше
+                        endMinutes.value = startMinutes.value;
+                    }
+                }
+            }
             break;
     }
 }
 
-function validateEndTime(): void {
-    // Проверяем, что время окончания не меньше времени начала в один день
-    if (startDate.value && endDate.value && isSameDay(startDate.value, endDate.value)) {
-        const startTime = startHours.value * 60 + startMinutes.value;
-        const endTime = endHours.value * 60 + endMinutes.value;
-
-        if (endTime < startTime) {
-            endHours.value = startHours.value;
-            endMinutes.value = startMinutes.value;
-        }
-    }
-}
-
-function clearSelection(): void {
-    startDate.value = null;
-    endDate.value = null;
-    selectingEndDate.value = false;
-    emit('update:modelValue', null);
-}
-
+// Обработчик применения выбора
 function applySelection(): void {
     if (startDate.value) {
         const start = new Date(startDate.value);
 
         if (props.showTime) {
             start.setHours(startHours.value, startMinutes.value, 0);
+
+            // Проверка минимального времени
+            if (props.minCurrentTimePlusHour && isToday(start)) {
+                const minTime = new Date();
+                minTime.setHours(minTime.getHours() + 1);
+
+                if (start < minTime) {
+                    // Корректируем время
+                    start.setHours(minTime.getHours(), minTime.getMinutes(), 0);
+                    startHours.value = minTime.getHours();
+                    startMinutes.value = minTime.getMinutes();
+                }
+            }
+
+            // Проверяем ограничение на максимальное время
+            if (props.maxCurrentTime && isToday(start)) {
+                const maxTime = new Date();
+
+                if (start > maxTime) {
+                    // Корректируем время
+                    start.setHours(maxTime.getHours(), maxTime.getMinutes(), 0);
+                    startHours.value = maxTime.getHours();
+                    startMinutes.value = maxTime.getMinutes();
+                }
+            }
         } else {
             start.setHours(0, 0, 0);
         }
@@ -418,16 +524,34 @@ function applySelection(): void {
         let end = null;
         if (endDate.value) {
             end = new Date(endDate.value);
-            if (props.showTime) {
-                end.setHours(endHours.value, endMinutes.value, 0);
 
-                // Проверяем, что это одна и та же дата и время окончания не раньше времени начала
-                if (isSameDay(start, end) && end.getTime() < start.getTime()) {
-                    // Корректируем время до, чтобы оно было не меньше времени от
-                    end.setHours(start.getHours(), start.getMinutes(), 0);
-                    endHours.value = start.getHours();
-                    endMinutes.value = start.getMinutes();
+            if (props.showTime) {
+                // Проверяем минимальную разницу для одного дня непосредственно перед применением
+                if (isSameDay(start, end)) {
+                    const startTimeInMinutes = startHours.value * 60 + startMinutes.value;
+                    const endTimeInMinutes = endHours.value * 60 + endMinutes.value;
+
+                    if (endTimeInMinutes < startTimeInMinutes + 60) {
+                        // Если время окончания меньше времени начала + 1 час
+                        if (startHours.value >= 23) {
+                            // Создаем новую дату для следующего дня
+                            end = new Date(start);
+                            end.setDate(end.getDate() + 1);
+                            end.setHours(0, startMinutes.value, 0);
+                            endHours.value = 0;
+                            endMinutes.value = startMinutes.value;
+                        } else {
+                            // Устанавливаем время на час больше
+                            end = new Date(start);
+                            end.setHours(startHours.value + 1, startMinutes.value, 0);
+                            endHours.value = startHours.value + 1;
+                            endMinutes.value = startMinutes.value;
+                        }
+                    }
                 }
+
+                // Применяем обновленное время
+                end.setHours(endHours.value, endMinutes.value, 0);
             } else {
                 end.setHours(23, 59, 59);
             }
@@ -436,7 +560,19 @@ function applySelection(): void {
         const result: [Date, Date | null] = [start, end];
         emit('update:modelValue', result);
         emit('apply', result);
+    } else {
+        emit('update:modelValue', null);
+        emit('apply', null);
     }
+}
+
+// Сброс выбора дат
+function clearSelection(): void {
+    startDate.value = null;
+    endDate.value = null;
+    selectingEndDate.value = false;
+    emit('update:modelValue', null);
+    emit('clear'); // Добавляем эмит нового события
 }
 
 // Инициализация компонента
@@ -494,9 +630,44 @@ watch(() => props.modelValue, (newValue) => {
     }
 });
 
-// Дополнительная проверка при изменении времени
+// Улучшенный обработчик наблюдения за временем
 watch([startHours, startMinutes, endHours, endMinutes], () => {
-    validateEndTime();
+    if (startDate.value && endDate.value && isSameDay(startDate.value, endDate.value)) {
+        // Проверяем разницу времени
+        const startTimeInMinutes = startHours.value * 60 + startMinutes.value;
+        const endTimeInMinutes = endHours.value * 60 + endMinutes.value;
+
+        if (endTimeInMinutes < startTimeInMinutes + 60) {
+            validateEndTime();
+        }
+    }
+});
+
+function validateMinTimeConstraint(): void {
+    // Проверяем только если включено ограничение минимального времени и выбран текущий день
+    if (props.minCurrentTimePlusHour && startDate.value && isToday(startDate.value)) {
+        const now = new Date();
+
+        // Получаем текущее время без увеличения на час
+        const startTime = new Date(startDate.value);
+        startTime.setHours(startHours.value, startMinutes.value, 0);
+
+        // Сравниваем с текущим временем
+        if (startTime.getTime() <= now.getTime()) {
+            // Устанавливаем текущее время
+            startHours.value = now.getHours();
+            startMinutes.value = now.getMinutes();
+
+            // После изменения начального времени проверяем конечное время
+            validateEndTime();
+        }
+    }
+}
+
+// Экспортируем методы, которые нужны извне
+defineExpose({
+    clearSelection,
+    applySelection
 });
 </script>
 

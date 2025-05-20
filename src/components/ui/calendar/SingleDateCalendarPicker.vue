@@ -147,14 +147,14 @@ const effectiveMinDate = computed(() => {
         minDate.setHours(minDate.getHours() + 1);
         return minDate;
     }
-    return props.minDate;
+    return props.minDate ? new Date(props.minDate) : null;
 });
 
 const effectiveMaxDate = computed(() => {
     if (props.maxCurrentTime) {
         return new Date();
     }
-    return props.maxDate;
+    return props.maxDate ? new Date(props.maxDate) : null;
 });
 
 const canApply = computed(() => {
@@ -280,9 +280,29 @@ function validateTimeInput(field: string): void {
     if (field === 'hours') {
         if (hours.value < 0) hours.value = 0;
         if (hours.value > 23) hours.value = 23;
+        validateMinTimeConstraint();
     } else if (field === 'minutes') {
         if (minutes.value < 0) minutes.value = 0;
         if (minutes.value > 59) minutes.value = 59;
+        validateMinTimeConstraint();
+    }
+}
+
+// Добавляем функцию для проверки ограничения минимального времени
+function validateMinTimeConstraint(): void {
+    // Проверка на минимальное время (час вперед)
+    if (props.minCurrentTimePlusHour && selectedDate.value && isToday(selectedDate.value)) {
+        const minTime = new Date();
+        minTime.setHours(minTime.getHours() + 1);
+
+        const currentSelectedTime = new Date(selectedDate.value);
+        currentSelectedTime.setHours(hours.value, minutes.value, 0);
+
+        if (currentSelectedTime < minTime) {
+            // Если выбранное время меньше минимального, корректируем его
+            hours.value = minTime.getHours();
+            minutes.value = minTime.getMinutes();
+        }
     }
 }
 
@@ -296,6 +316,31 @@ function applySelection(): void {
         const result = new Date(selectedDate.value);
         if (props.showTime) {
             result.setHours(hours.value, minutes.value, 0);
+
+            // Проверяем ограничение на минимальное время (час вперед)
+            if (props.minCurrentTimePlusHour && isToday(result)) {
+                const minTime = new Date();
+                minTime.setHours(minTime.getHours() + 1);
+
+                if (result < minTime) {
+                    // Если выбранное время меньше минимального, корректируем его
+                    result.setHours(minTime.getHours(), minTime.getMinutes(), 0);
+                    hours.value = minTime.getHours();
+                    minutes.value = minTime.getMinutes();
+                }
+            }
+
+            // Проверяем ограничение на максимальное время (текущее)
+            if (props.maxCurrentTime && isToday(result)) {
+                const maxTime = new Date();
+
+                if (result > maxTime) {
+                    // Если выбранное время больше максимального, корректируем его
+                    result.setHours(maxTime.getHours(), maxTime.getMinutes(), 0);
+                    hours.value = maxTime.getHours();
+                    minutes.value = maxTime.getMinutes();
+                }
+            }
         } else {
             result.setHours(0, 0, 0);
         }
@@ -329,6 +374,13 @@ watch(() => props.modelValue, (newValue) => {
         }
     } else {
         selectedDate.value = null;
+    }
+});
+
+// При изменении выбранной даты проверяем ограничения
+watch(selectedDate, (newVal) => {
+    if (newVal && props.showTime && props.minCurrentTimePlusHour) {
+        validateMinTimeConstraint();
     }
 });
 </script>

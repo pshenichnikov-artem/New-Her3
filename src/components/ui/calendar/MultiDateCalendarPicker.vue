@@ -41,10 +41,11 @@
             <div class="grid grid-cols-7 gap-1">
                 <div v-for="day in calendarDays"
                     :key="`${day.date.getFullYear()}-${day.date.getMonth()}-${day.date.getDate()}`"
-                    @click="toggleDateSelection(day.date)" class="calendar-day cursor-pointer" :class="{
+                    @click="toggleDateSelection(day.date)" class="calendar-day" :class="{
                         'text-gray-400': !day.isCurrentMonth,
                         'bg-indigo-600 text-white': day.isSelected,
-                        'cursor-pointer hover:bg-indigo-50': true,
+                        'cursor-pointer hover:bg-indigo-50': !day.isDisabled,
+                        'cursor-not-allowed opacity-50': day.isDisabled,
                         'border border-indigo-400': day.isToday && !day.isSelected
                     }">
                     <span>{{ day.dayNumber }}</span>
@@ -79,6 +80,7 @@ interface DateObject {
     isCurrentMonth: boolean;
     isToday: boolean;
     isSelected: boolean;
+    isDisabled: boolean;
     dayNumber: number;
 }
 
@@ -87,11 +89,20 @@ const props = defineProps({
         type: Array as PropType<Date[] | string[]>,
         default: () => []
     },
+    minDate: {
+        type: Date as PropType<Date | null>,
+        default: null
+    },
+    maxDate: {
+        type: Date as PropType<Date | null>,
+        default: null
+    }
 });
 
 const emit = defineEmits<{
     'update:modelValue': [value: Date[]];
     'select-date': [date: Date];
+    'apply': []; // Добавляем событие apply без аргументов
 }>();
 
 // Состояние календаря
@@ -151,14 +162,54 @@ const calendarDays = computed((): DateObject[] => {
 function createDateObject(date: Date, isCurrentMonth: boolean): DateObject {
     const checkToday = isToday(date);
     const isDateSelected = isDateInSelectedDates(date);
+    const isDisabled = isDateDisabled(date);
 
     return {
         date: new Date(date),
         isCurrentMonth,
         isToday: checkToday,
         isSelected: isDateSelected,
+        isDisabled,
         dayNumber: date.getDate()
     };
+}
+
+function isDateDisabled(date: Date): boolean {
+    // Проверяем ограничения по минимальной дате
+    if (props.minDate) {
+        const minDateWithoutTime = new Date(
+            props.minDate.getFullYear(),
+            props.minDate.getMonth(),
+            props.minDate.getDate()
+        );
+        const dateWithoutTime = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()
+        );
+        if (dateWithoutTime < minDateWithoutTime) {
+            return true;
+        }
+    }
+
+    // Проверяем ограничения по максимальной дате
+    if (props.maxDate) {
+        const maxDateWithoutTime = new Date(
+            props.maxDate.getFullYear(),
+            props.maxDate.getMonth(),
+            props.maxDate.getDate()
+        );
+        const dateWithoutTime = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()
+        );
+        if (dateWithoutTime > maxDateWithoutTime) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function isDateInSelectedDates(date: Date): boolean {
@@ -166,6 +217,11 @@ function isDateInSelectedDates(date: Date): boolean {
 }
 
 function toggleDateSelection(date: Date): void {
+    // Если дата неактивна, пропускаем
+    if (isDateDisabled(date)) {
+        return;
+    }
+
     const index = selectedDates.value.findIndex(selectedDate => isSameDay(selectedDate, date));
 
     if (index !== -1) {
@@ -205,10 +261,16 @@ function updateCalendar(): void {
 function clearSelection(): void {
     selectedDates.value = [];
     emit('update:modelValue', []);
+    // Также отправляем событие выбора даты для синхронизации с родительским компонентом
+    emit('select-date', new Date());
 }
 
 function applySelection(): void {
-    emit('update:modelValue', selectedDates.value);
+    // Отправляем текущие выбранные даты и закрываем календарь
+    emit('update:modelValue', [...selectedDates.value]);
+
+    // Эмитим событие apply для закрытия календаря в родительском компоненте
+    emit('apply');
 }
 
 // Инициализация компонента

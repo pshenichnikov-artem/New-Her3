@@ -64,7 +64,6 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-// import authService from '@/services/api/authService';
 import ValidationInput from '@/components/ui/ValidationInput.vue';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
 import AppFooter from "@/components/layout/AppFooter.vue";
@@ -73,9 +72,11 @@ import { useFormValidation } from '@/composables/useFormValidation';
 import type { RegisterRequest } from '@/types/auth/RegisterRequest';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { useAuthApi } from '@/composables/api/useAuthApi'; // Импортируем useAuthApi
 
 const { t } = useI18n();
 const router = useRouter();
+const authApi = useAuthApi(); // Используем composable
 
 // Поля формы
 const formData = reactive<RegisterRequest>({
@@ -93,19 +94,19 @@ const form = useFormValidation(['fullName', 'email', 'phone', 'password', 'confi
 
 // Обработчик отправки формы
 const onSubmit = async () => {
-  // Здесь код для отправки данных в API
-  console.log('Form data ready for submission:', formData);
-
-  // Временное сообщение об успешной регистрации для тестирования
-  notificationService.success(t('common.success.registerSuccess'));
-
-  // Реальный пример вызова API:
-  /*
-  const response = await authService.register(formData);
-  if (response.status === 'success') {
-    notificationService.success(t('common.success.registerSuccess'));
-    router.push('/');
-  }
-  */
+  // Используем authApi без try-catch
+  await authApi.register(formData, {
+    showSuccessNotification: true,
+    successMessage: t('common.success.registerSuccess'),
+    // router.push('/') будет вызван автоматически в useAuthApi при успешной регистрации
+    onError: (error) => {
+      console.error('Registration error:', error);
+      if (error.code === 409) {
+        notificationService.error(t('serverErrors.auth.emailAlreadyExists'));
+      } else {
+        notificationService.error(t('auth.register.error'));
+      }
+    }
+  });
 };
 </script>

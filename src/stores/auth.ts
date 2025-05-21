@@ -1,72 +1,71 @@
 import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import axios from 'axios'
 
-interface AuthState {
-  token: string | null
-  userRole: string | null
-  isAuthenticated: boolean
-}
+export const useAuthStore = defineStore('auth', () => {
+  // Состояние
+  const token = ref<string | null>(localStorage.getItem('auth_token'))
+  const role = ref<string | null>(localStorage.getItem('user_role'))
 
-const TOKEN_KEY = 'auth_token'
-const USER_ROLE_KEY = 'user_role'
+  // Геттеры
+  const isAuthenticated = computed(() => !!token.value)
+  const getToken = computed(() => token.value)
+  const isAdmin = computed(() => role.value === 'admin')
+  const isUser = computed(() => role.value === 'user')
 
-export const useAuthStore = defineStore('auth', {
-  state: (): AuthState => ({
-    token: localStorage.getItem(TOKEN_KEY),
-    userRole: localStorage.getItem(USER_ROLE_KEY),
-    isAuthenticated: !!localStorage.getItem(TOKEN_KEY),
-  }),
+  // Действия
+  function setToken(newToken: string) {
+    token.value = newToken
+    localStorage.setItem('auth_token', newToken)
+    setAuthHeader(newToken)
+  }
 
-  getters: {
-    getToken: (state) => state.token,
-    getUserRole: (state) => state.userRole,
-    getIsAuthenticated: (state) => state.isAuthenticated,
-  },
+  function setRole(newRole: string) {
+    role.value = newRole
+    localStorage.setItem('user_role', newRole)
+  }
 
-  actions: {
-    setAuth(token: string, role: string) {
-      this.token = token
-      this.userRole = role
-      this.isAuthenticated = true
+  function clearToken() {
+    token.value = null
+    role.value = null
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_role')
+    delete axios.defaults.headers.common['Authorization']
+  }
 
-      // Сохраняем в localStorage
-      localStorage.setItem(TOKEN_KEY, token)
-      localStorage.setItem(USER_ROLE_KEY, role)
-
-      // Устанавливаем заголовок для axios
-      this.setAuthHeader(token)
-    },
-
-    setAuthHeader(token: string | null) {
-      if (token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      } else {
-        delete axios.defaults.headers.common['Authorization']
-      }
-    },
-
-    logout() {
-      this.token = null
-      this.userRole = null
-      this.isAuthenticated = false
-
-      // Удаляем из localStorage
-      localStorage.removeItem(TOKEN_KEY)
-      localStorage.removeItem(USER_ROLE_KEY)
-
-      // Удаляем заголовок авторизации из axios
+  function setAuthHeader(token: string | null) {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    } else {
       delete axios.defaults.headers.common['Authorization']
-    },
+    }
+  }
 
-    // Инициализация состояния при загрузке приложения
-    initializeAuth() {
-      const token = localStorage.getItem(TOKEN_KEY)
-      if (token) {
-        this.token = token
-        this.userRole = localStorage.getItem(USER_ROLE_KEY)
-        this.isAuthenticated = true
-        this.setAuthHeader(token)
-      }
-    },
-  },
+  // Инициализация состояния при загрузке приложения
+  function initializeAuth() {
+    const savedToken = localStorage.getItem('auth_token')
+    if (savedToken) {
+      token.value = savedToken
+      role.value = localStorage.getItem('user_role')
+      setAuthHeader(savedToken)
+    }
+  }
+
+  return {
+    // Состояние
+    token,
+    role,
+
+    // Геттеры
+    isAuthenticated,
+    getToken,
+    isAdmin,
+    isUser,
+
+    // Действия
+    setToken,
+    setRole,
+    clearToken,
+    initializeAuth,
+  }
 })

@@ -67,7 +67,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const isAuthenticated = true // authStore.getIsAuthenticated
-  const userRole = authStore.getUserRole
+  const userRole = authStore.role
   const allowedRoles = Array.isArray(to.meta.roles) ? to.meta.roles : []
 
   if (to.meta.requiresAuth) {

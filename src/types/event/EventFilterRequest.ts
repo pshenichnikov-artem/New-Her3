@@ -1,6 +1,7 @@
 export interface EventFilterRequest {
   eventIds: string[] // массив Guid в виде строк
-  date?: string | null // ISO формат даты
+  dateFrom?: string | null
+  dateTo?: string | null
   minPrice?: number | null
   maxPrice?: number | null
   title?: string | null

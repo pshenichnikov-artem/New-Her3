@@ -162,11 +162,29 @@ const messages = {
 
     // Авторизация
     auth: {
+      passwordChanged: 'Пароль успешно изменен',
+      passwordChangeFailed: 'Не удалось изменить пароль',
+      logout: 'Вы вышли из системы',
+      sessionExpired: 'Сессия истекла, войдите снова',
+      unauthenticated: 'Необходимо войти в систему',
       login: {
         error: 'Ошибка при входе',
+        title: 'Вход в систему',
+        submit: 'Войти',
+        forgotPassword: 'Забыли пароль?',
       },
       register: {
         error: 'Ошибка при регистрации',
+        title: 'Регистрация',
+        submit: 'Зарегистрироваться',
+        termsAgreement: 'Я принимаю условия использования',
+      },
+      changePassword: {
+        title: 'Изменение пароля',
+        oldPassword: 'Текущий пароль',
+        newPassword: 'Новый пароль',
+        confirmPassword: 'Подтверждение нового пароля',
+        submit: 'Изменить пароль',
       },
     },
 
@@ -245,6 +263,101 @@ const messages = {
         EUR: '€',
       },
     },
+
+    // Участники
+    attendee: {
+      createSuccess: 'Участник успешно добавлен',
+      updateSuccess: 'Данные участника обновлены',
+      deleteSuccess: 'Участник удален',
+      notFound: 'Участник не найден',
+      loadError: 'Не удалось загрузить участников',
+    },
+
+    // События
+    event: {
+      createSuccess: 'Событие успешно создано',
+      updateSuccess: 'Событие обновлено',
+      deleteSuccess: 'Событие удалено',
+      notFound: 'Событие не найдено',
+      loadError: 'Ошибка при загрузке событий',
+      createError: 'Ошибка при создании события',
+      updateError: 'Ошибка при обновлении события',
+      deleteError: 'Ошибка при удалении события',
+    },
+
+    // Изображения
+    image: {
+      uploadSuccess: 'Изображение успешно загружено',
+      updateSuccess: 'Изображение обновлено',
+      deleteSuccess: 'Изображение удалено',
+      notFound: 'Изображение не найдено',
+      loadError: 'Ошибка при загрузке изображений',
+      uploadError: 'Ошибка при загрузке изображения',
+      updateError: 'Ошибка при обновлении изображения',
+      deleteError: 'Ошибка при удалении изображения',
+      invalidFileType: 'Неверный тип файла. Поддерживаются только изображения',
+      fileSizeExceeded: 'Размер файла превышает допустимый',
+    },
+
+    // Платежи
+    payment: {
+      createSuccess: 'Платеж успешно создан',
+      updateSuccess: 'Платеж обновлен',
+      deleteSuccess: 'Платеж удален',
+      notFound: 'Платеж не найден',
+      loadError: 'Ошибка при загрузке платежей',
+      createError: 'Ошибка при создании платежа',
+      updateError: 'Ошибка при обновлении платежа',
+      deleteError: 'Ошибка при удалении платежа',
+      paymentSuccessful: 'Оплата успешно выполнена',
+      paymentFailed: 'Ошибка при оплате',
+      awaitingPayment: 'Ожидание платежа',
+      paymentCanceled: 'Платеж отменен',
+    },
+
+    // Пользователи
+    user: {
+      updateSuccess: 'Данные пользователя обновлены',
+      deleteSuccess: 'Пользователь удален',
+      notFound: 'Пользователь не найден',
+      loadError: 'Ошибка при загрузке пользователей',
+      updateError: 'Ошибка при обновлении пользователя',
+      deleteError: 'Ошибка при удалении пользователя',
+      profileUpdated: 'Профиль успешно обновлен',
+      accountDeleted: 'Аккаунт успешно удален',
+      deleteConfirmation:
+        'Вы уверены, что хотите удалить свой аккаунт? Это действие невозможно отменить.',
+    },
+
+    // Билеты
+    ticket: {
+      createSuccess: 'Билет успешно создан',
+      updateSuccess: 'Билет успешно обновлен',
+      deleteSuccess: 'Билет удален',
+      notFound: 'Билет не найден',
+      loadError: 'Ошибка при загрузке билетов',
+      createError: 'Ошибка при создании билета',
+      updateError: 'Ошибка при обновлении билета',
+      deleteError: 'Ошибка при удалении билета',
+      reserveSuccess: 'Билет успешно забронирован',
+      reserveError: 'Ошибка при бронировании билета',
+      alreadyReserved: 'Этот билет уже забронирован',
+      alreadyPaid: 'Этот билет уже оплачен',
+      alreadyUsed: 'Этот билет уже использован',
+    },
+
+    // Календарь пользователя
+    calendar: {
+      eventAddSuccess: 'Событие успешно добавлено в календарь',
+      eventUpdateSuccess: 'Событие в календаре обновлено',
+      eventDeleteSuccess: 'Событие удалено из календаря',
+      notFound: 'Календарь не найден',
+      eventNotFound: 'Событие в календаре не найдено',
+      loadError: 'Ошибка при загрузке календаря',
+      addError: 'Ошибка при добавлении события в календарь',
+      updateError: 'Ошибка при обновлении события в календаре',
+      deleteError: 'Ошибка при удалении события из календаря',
+    },
   },
 
   en: {
@@ -282,7 +395,7 @@ const messages = {
         unexpected: 'Unexpected error',
         formHasErrors: 'Please fix the errors in the form',
         submitError: 'Error submitting data',
-        operationFailed: 'Failed to perform operation',
+        operationFailed: 'Operation failed',
       },
       // Success messages
       success: {
@@ -408,11 +521,29 @@ const messages = {
 
     // Authentication
     auth: {
+      passwordChanged: 'Password changed successfully',
+      passwordChangeFailed: 'Failed to change password',
+      logout: 'You have been logged out',
+      sessionExpired: 'Your session has expired, please log in again',
+      unauthenticated: 'Authentication required',
       login: {
         error: 'Login error',
+        title: 'Sign In',
+        submit: 'Sign In',
+        forgotPassword: 'Forgot password?',
       },
       register: {
         error: 'Registration error',
+        title: 'Sign Up',
+        submit: 'Sign Up',
+        termsAgreement: 'I agree to the terms of service',
+      },
+      changePassword: {
+        title: 'Change Password',
+        oldPassword: 'Current Password',
+        newPassword: 'New Password',
+        confirmPassword: 'Confirm New Password',
+        submit: 'Change Password',
       },
     },
 
@@ -490,6 +621,101 @@ const messages = {
         USD: '$',
         EUR: '€',
       },
+    },
+
+    // Attendees
+    attendee: {
+      createSuccess: 'Attendee successfully added',
+      updateSuccess: 'Attendee data updated',
+      deleteSuccess: 'Attendee removed',
+      notFound: 'Attendee not found',
+      loadError: 'Failed to load attendees',
+    },
+
+    // Events
+    event: {
+      createSuccess: 'Event created successfully',
+      updateSuccess: 'Event updated successfully',
+      deleteSuccess: 'Event deleted',
+      notFound: 'Event not found',
+      loadError: 'Failed to load events',
+      createError: 'Error creating event',
+      updateError: 'Error updating event',
+      deleteError: 'Error deleting event',
+    },
+
+    // Images
+    image: {
+      uploadSuccess: 'Image uploaded successfully',
+      updateSuccess: 'Image updated successfully',
+      deleteSuccess: 'Image deleted',
+      notFound: 'Image not found',
+      loadError: 'Error loading images',
+      uploadError: 'Error uploading image',
+      updateError: 'Error updating image',
+      deleteError: 'Error deleting image',
+      invalidFileType: 'Invalid file type. Only images are supported',
+      fileSizeExceeded: 'File size exceeded',
+    },
+
+    // Payments
+    payment: {
+      createSuccess: 'Payment created successfully',
+      updateSuccess: 'Payment updated successfully',
+      deleteSuccess: 'Payment deleted',
+      notFound: 'Payment not found',
+      loadError: 'Error loading payments',
+      createError: 'Error creating payment',
+      updateError: 'Error updating payment',
+      deleteError: 'Error deleting payment',
+      paymentSuccessful: 'Payment successful',
+      paymentFailed: 'Payment failed',
+      awaitingPayment: 'Awaiting payment',
+      paymentCanceled: 'Payment canceled',
+    },
+
+    // Users
+    user: {
+      updateSuccess: 'User data updated',
+      deleteSuccess: 'User deleted',
+      notFound: 'User not found',
+      loadError: 'Error loading users',
+      updateError: 'Error updating user',
+      deleteError: 'Error deleting user',
+      profileUpdated: 'Profile updated successfully',
+      accountDeleted: 'Account deleted successfully',
+      deleteConfirmation:
+        'Are you sure you want to delete your account? This action cannot be undone.',
+    },
+
+    // Tickets
+    ticket: {
+      createSuccess: 'Ticket created successfully',
+      updateSuccess: 'Ticket updated successfully',
+      deleteSuccess: 'Ticket deleted',
+      notFound: 'Ticket not found',
+      loadError: 'Error loading tickets',
+      createError: 'Error creating ticket',
+      updateError: 'Error updating ticket',
+      deleteError: 'Error deleting ticket',
+      reserveSuccess: 'Ticket reserved successfully',
+      reserveError: 'Error reserving ticket',
+      alreadyReserved: 'This ticket is already reserved',
+      alreadyPaid: 'This ticket is already paid',
+      alreadyUsed: 'This ticket is already used',
+    },
+
+    // User calendar
+    calendar: {
+      eventAddSuccess: 'Event added to calendar successfully',
+      eventUpdateSuccess: 'Calendar event updated successfully',
+      eventDeleteSuccess: 'Event removed from calendar',
+      notFound: 'Calendar not found',
+      eventNotFound: 'Calendar event not found',
+      loadError: 'Error loading calendar',
+      addError: 'Error adding event to calendar',
+      updateError: 'Error updating calendar event',
+      deleteError: 'Error removing event from calendar',
     },
   },
 }

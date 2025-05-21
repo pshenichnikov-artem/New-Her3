@@ -11,7 +11,8 @@ axios.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${token}`
     }
 
-    const lang = i18n.global.locale || 'ru' // Получаем текущий язык
+    // Исправляем получение локали
+    const lang = i18n.global.locale.value || 'ru' // Получаем текущий язык
     config.headers['Accept-Language'] = lang
     return config
   },

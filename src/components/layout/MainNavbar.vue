@@ -6,74 +6,39 @@
         <div class="flex items-center">
           <router-link to="/"
             class="flex items-center text-2xl font-bold text-indigo-600 hover:text-indigo-800 transition-colors duration-300">
-            <svg class="h-8 w-8 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" />
-              <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" />
-              <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" />
-            </svg>
-            <span class="hidden sm:block">iMarket</span>
+            <img src="https://static.tildacdn.com/tild3634-3764-4564-b734-633837646565/logo.svg" alt="Logo"
+              class="h-16 w-auto max-w-[220px] mr-2 logo-image" />
           </router-link>
         </div>
 
         <!-- Поиск - всегда виден -->
-        <div class="flex-1 mx-6">
+        <div class="flex-1 mx-6 navbar-search">
           <NavbarSearch />
         </div>
 
-        <!-- Кнопки навигации - показаны на десктопе (теперь только от 1024px и выше) -->
+        <!-- Кнопки навигации - показаны на десктопе (от 1024px и выше) -->
         <nav class="hidden lg:flex items-center space-x-1">
-          <router-link to="/catalog"
+          <router-link to="/events"
             class="px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors duration-200 flex items-center font-medium"
             active-class="bg-indigo-50 text-indigo-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-            {{ $t('navbar.catalog') }}
+            <IconsSet name="calendar" class="h-5 w-5 mr-1" />
+            {{ t('navbar.events') }}
           </router-link>
 
-          <!-- Добавляем ссылку на панель управления для seller -->
-          <router-link v-if="isSeller || isAdmin" to="/dashboard"
+          <!-- Добавляем ссылку на панель управления для админа -->
+          <router-link v-if="isAdmin" to="/dashboard"
             class="px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors duration-200 flex items-center font-medium"
             active-class="bg-indigo-50 text-indigo-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            {{ $t('navbar.dashboard') }}
+            <IconsSet name="dashboard" class="h-5 w-5 mr-1" />
+            {{ t('navbar.dashboard') }}
           </router-link>
 
-          <!-- Скрыть ссылку на профиль для админа -->
-          <router-link v-if="isAuthenticated && !isAdmin" to="/profile"
+          <!-- Отображаем профиль только для обычного пользователя -->
+          <router-link v-if="isAuthenticated && isUser" to="/profile"
             class="px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors duration-200 flex items-center font-medium"
             active-class="bg-indigo-50 text-indigo-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            {{ $t('navbar.profile') }}
-          </router-link>
-
-          <!-- Отображаем корзину только для обычных пользователей -->
-          <router-link v-if="!isSellerOrAdmin" to="/cart"
-            class="relative px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors duration-200 flex items-center font-medium"
-            active-class="bg-indigo-50 text-indigo-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            {{ $t('navbar.cart') }}
-            <span v-if="cartItemsCount > 0"
-              class="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-              {{ cartItemsCount }}
-            </span>
+            <IconsSet name="user" class="h-5 w-5 mr-1" />
+            {{ t('navbar.profile') }}
           </router-link>
 
           <!-- Переключатель языка -->
@@ -83,94 +48,52 @@
 
           <button v-if="!isAuthenticated" @click="goToLogin"
             class="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium shadow-sm hover:shadow flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-            </svg>
-            {{ $t('navbar.login') }}
+            <IconsSet name="login" class="h-5 w-5 mr-1" />
+            {{ t('navbar.login') }}
           </button>
 
           <button v-else @click="logout"
             class="ml-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 font-medium flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            {{ $t('navbar.logout') }}
+            <IconsSet name="logout" class="h-5 w-5 mr-1" />
+            {{ t('navbar.logout') }}
           </button>
         </nav>
 
-        <!-- Мобильные иконки (теперь отображаются на экранах до 1024px) -->
+        <!-- Мобильные иконки (отображаются на экранах до 1024px) -->
         <div class="flex items-center lg:hidden space-x-2">
-          <!-- Иконка корзины только для обычных пользователей -->
-          <router-link v-if="!isSellerOrAdmin" to="/cart"
-            class="relative p-2 rounded-full hover:bg-indigo-50 transition-colors duration-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span v-if="cartItemsCount > 0"
-              class="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-              {{ cartItemsCount }}
-            </span>
-          </router-link>
-
-          <!-- Кнопка меню (теперь отображается на экранах до 1024px) -->
+          <!-- Кнопка меню (отображается на экранах до 1024px) -->
           <button @click="toggleMobileMenu" class="p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
             data-menu-btn type="button" aria-label="Меню">
-            <svg v-if="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none"
-              viewBox="0 0 24 24" stroke="currentColor" pointer-events="none">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"
-                pointer-events="none" />
-            </svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor" pointer-events="none">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"
-                pointer-events="none" />
-            </svg>
+            <IconsSet v-if="!mobileMenuOpen" name="menu" class="h-6 w-6 text-gray-700" />
+            <IconsSet v-else name="close" class="h-6 w-6 text-gray-700" />
           </button>
         </div>
       </div>
 
-      <!-- Мобильное меню (теперь отображается на экранах до 1024px) -->
+      <!-- Мобильное меню (отображается на экранах до 1024px) -->
       <div v-if="mobileMenuOpen" class="lg:hidden pb-4 animate-fadeIn">
         <nav class="flex flex-col space-y-3 mt-2">
-          <router-link to="/catalog" @click="mobileMenuOpen = false"
+          <router-link to="/events" @click="mobileMenuOpen = false"
             class="px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center font-medium"
             active-class="bg-indigo-50 text-indigo-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-            </svg>
-            {{ $t('navbar.catalog') }}
+            <IconsSet name="calendar" class="h-5 w-5 mr-3" />
+            {{ t('navbar.events') }}
           </router-link>
 
-          <!-- Добавляем ссылку на панель управления для seller в мобильном меню -->
-          <router-link v-if="isSeller" to="/dashboard" @click="mobileMenuOpen = false"
+          <!-- Добавляем ссылку на панель управления для админа в мобильном меню -->
+          <router-link v-if="isAdmin" to="/dashboard" @click="mobileMenuOpen = false"
             class="px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center font-medium"
             active-class="bg-indigo-50 text-indigo-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            {{ $t('navbar.dashboard') }}
+            <IconsSet name="dashboard" class="h-5 w-5 mr-3" />
+            {{ t('navbar.dashboard') }}
           </router-link>
 
-          <!-- Скрыть ссылку на профиль для админа в мобильном меню -->
-          <router-link v-if="isAuthenticated && !isAdmin" to="/profile" @click="mobileMenuOpen = false"
+          <!-- Отображаем профиль только для обычного пользователя в мобильном меню -->
+          <router-link v-if="isAuthenticated && isUser" to="/profile" @click="mobileMenuOpen = false"
             class="px-4 py-3 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors flex items-center font-medium"
             active-class="bg-indigo-50 text-indigo-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            {{ $t('navbar.profile') }}
+            <IconsSet name="user" class="h-5 w-5 mr-3" />
+            {{ t('navbar.profile') }}
           </router-link>
 
           <!-- Переключатель языка в мобильном меню -->
@@ -180,22 +103,14 @@
 
           <button v-if="!isAuthenticated" @click="goToLogin"
             class="w-full flex items-center px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-            </svg>
-            {{ $t('navbar.login') }}
+            <IconsSet name="login" class="h-5 w-5 mr-3" />
+            {{ t('navbar.login') }}
           </button>
 
           <button v-else @click="logout"
             class="w-full flex items-center px-4 py-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors font-medium">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            {{ $t('navbar.logout') }}
+            <IconsSet name="logout" class="h-5 w-5 mr-3" />
+            {{ t('navbar.logout') }}
           </button>
         </nav>
       </div>
@@ -203,125 +118,80 @@
   </header>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import NavbarSearch from '@/components/layout/NavbarSearch.vue';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
+import IconsSet from '@/components/ui/icons/IconsSet.vue';
 import { useAuthStore } from '@/stores/auth';
-import { watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useAuthApi } from '@/composables/api/useAuthApi';
 
-export default {
-  name: 'MainNavbar',
-  components: {
-    NavbarSearch,
-    LanguageSwitcher
-  },
-  data() {
-    return {
-      mobileMenuOpen: false,
-      cartItemsCount: 0
-    };
-  },
-  computed: {
-    isAuthenticated() {
-      const authStore = useAuthStore();
-      return authStore.getIsAuthenticated;
-    },
-    currentUserRole() {
-      const authStore = useAuthStore();
-      return authStore.getUserRole;
-    },
-    isAdmin() {
-      return this.currentUserRole === 'admin';
-    },
-    isSeller() {
-      return this.currentUserRole === 'seller';
-    },
-    isSellerOrAdmin() {
-      return this.isAdmin || this.isSeller;
-    }
-  },
-  mounted() {
-    this.getCartItemsCount();
-    window.addEventListener('resize', this.handleResize);
-    document.addEventListener('click', this.handleOutsideClick);
+const { t } = useI18n();
+const router = useRouter();
+const authStore = useAuthStore();
+const authApi = useAuthApi();
 
-    // Инициализация и настройка отслеживания через Pinia
-    this.setupCartWatcher();
-  },
-  beforeUnmount() {
-    window.removeEventListener('resize', this.handleResize);
-    document.removeEventListener('click', this.handleOutsideClick);
-  },
-  methods: {
-    setupCartWatcher() {
-      const cartStore = {}
+// Состояние компонента
+const mobileMenuOpen = ref(false);
 
-      // Отслеживаем изменения в хранилище корзины
-      watch(() => cartStore.cartItemsCountDelta, (newDelta) => {
-        if (newDelta !== 0) {
-          // Обновляем счетчик товаров в корзине на величину дельты
-          this.cartItemsCount += newDelta;
+// Вычисляемые свойства для авторизации
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const isAdmin = computed(() => authStore.isAdmin);
+const isUser = computed(() => authStore.isUser);
 
-          // Сбрасываем дельту в 0
-          cartStore.$patch({ cartItemsCountDelta: 0 });
-        }
-      });
-    },
+// Методы навигации
+const goToLogin = () => {
+  router.push('/login');
+  mobileMenuOpen.value = false;
+};
 
-    toggleMobileMenu() {
-      this.mobileMenuOpen = !this.mobileMenuOpen;
-      console.log('Toggled mobile menu, now:', this.mobileMenuOpen);
-    },
-    logout() {
-      const authStore = useAuthStore();
-      authStore.logout();
-      this.$router.push('/login');
-      this.mobileMenuOpen = false;
-    },
-    goToLogin() {
-      this.$router.push('/login');
-      this.mobileMenuOpen = false;
-    },
-    handleResize() {
-      if (window.innerWidth >= 1024) {
-        this.mobileMenuOpen = false;
-      }
-    },
-    handleOutsideClick(event) {
-      const header = document.querySelector('header');
-      const menuBtn = document.querySelector('[data-menu-btn]');
+// Выход из системы
+const logout = () => {
+  authApi.logout();
+  mobileMenuOpen.value = false;
+};
 
-      // Пропускаем обработку клика по самой кнопке меню и её дочерним элементам
-      if (menuBtn && (menuBtn === event.target || menuBtn.contains(event.target))) {
-        return;
-      }
+// Переключение мобильного меню
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value;
+};
 
-      // Закрываем меню, если клик был вне заголовка
-      if (this.mobileMenuOpen && !header.contains(event.target)) {
-        this.mobileMenuOpen = false;
-      }
-    },
-    async getCartItemsCount() {
-      // Не выполняем запрос для seller и admin
-      if (!this.isAuthenticated || this.isSellerOrAdmin) {
-        this.cartItemsCount = 0;
-        return;
-      }
-
-      try {
-        const response = await cartService.getCart("self");
-        if (response.status === 'success' && response.data && response.data.items) {
-          this.cartItemsCount = response.data.items.length;
-        } else {
-          this.cartItemsCount = 0;
-        }
-      } catch (error) {
-        console.error('Ошибка при получении данных корзины:', error);
-        this.cartItemsCount = 0;
-      }
-    }
+// Обработка изменения размера окна
+const handleResize = () => {
+  if (window.innerWidth >= 1024) {
+    mobileMenuOpen.value = false;
   }
 };
+
+// Обработка клика вне меню
+const handleOutsideClick = (event: MouseEvent) => {
+  const header = document.querySelector('header');
+  const menuBtn = document.querySelector('[data-menu-btn]');
+
+  // Пропускаем обработку клика по самой кнопке меню и её дочерним элементам
+  if (menuBtn && (menuBtn === event.target || menuBtn.contains(event.target as Node))) {
+    return;
+  }
+
+  // Закрываем меню, если клик был вне заголовка
+  if (mobileMenuOpen.value && header && !header.contains(event.target as Node)) {
+    mobileMenuOpen.value = false;
+  }
+};
+
+// Монтирование компонента
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  document.addEventListener('click', handleOutsideClick);
+});
+
+// Размонтирование компонента
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+  document.removeEventListener('click', handleOutsideClick);
+});
 </script>
 
 <style scoped>
@@ -361,5 +231,19 @@ export default {
     padding: 12px 16px;
     margin-bottom: 8px;
   }
+}
+
+/* Стиль для логотипа на белом фоне */
+.logo-image {
+  filter: brightness(0.8) contrast(1.2);
+  /* Делаем изображение темнее для лучшей видимости на белом фоне */
+  background-color: rgba(79, 70, 229, 0.05);
+  /* Добавляем очень легкий фон индиго цвета */
+  padding: 8px 10px;
+  /* Увеличиваем внутренние отступы для лучшей видимости */
+  border-radius: 4px;
+  /* Закругляем края */
+  object-fit: contain;
+  /* Гарантируем, что логотип сохраняет пропорции */
 }
 </style>

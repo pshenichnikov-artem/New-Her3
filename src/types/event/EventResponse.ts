@@ -10,4 +10,5 @@ export interface EventResponse {
   price: number
   isActive: boolean
   images: ImageResponse[]
+  tag: string
 }

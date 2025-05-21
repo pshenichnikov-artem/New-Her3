@@ -2,10 +2,10 @@
   <div class="relative group">
     <input type="text"
       class="w-full py-3 pl-12 pr-10 text-gray-700 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base transition-all duration-300 hover:border-indigo-300 group-hover:shadow-sm"
-      :placeholder="$t('navbar.searchPlaceholder')" v-model="search" @keyup.enter="goToCatalog"
+      :placeholder="t('navbar.searchEvents')" v-model="searchQuery" @keyup.enter="handleSearch"
       @keydown.down.prevent="navigateDropdown(1)" @keydown.up.prevent="navigateDropdown(-1)"
       @keydown.esc="closeDropdown" @input="onSearchInput" @focus="isInputFocused = true" @blur="handleBlur"
-      autocomplete="off" aria-label="Поиск товаров" />
+      autocomplete="off" aria-label="Поиск мероприятий" />
 
     <!-- Иконка поиска (слева) -->
     <div class="absolute inset-y-0 left-0 flex items-center pl-4 transition-colors duration-300"
@@ -18,16 +18,17 @@
     </div>
 
     <!-- Индикатор загрузки (появляется при поиске) -->
-    <div v-if="isLoading" class="absolute inset-y-0 right-0 flex items-center pr-3">
+    <div v-if="eventApi.loading.search" class="absolute inset-y-0 right-0 flex items-center pr-3">
       <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-indigo-500"></div>
     </div>
 
     <!-- Кнопка поиска (справа) -->
     <button v-else
       class="absolute inset-y-0 right-0 flex items-center pr-3 transition-opacity duration-300 text-gray-500 hover:text-indigo-600 focus:outline-none"
-      @click="goToCatalog" type="button" aria-label="Выполнить поиск"
-      :class="{ 'opacity-100': search.length > 0, 'opacity-0': search.length === 0 }">
-      <span v-if="search.length > 0" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-indigo-50">
+      @click="handleSearch" type="button" aria-label="Выполнить поиск"
+      :class="{ 'opacity-100': searchQuery.length > 0, 'opacity-0': searchQuery.length === 0 }">
+      <span v-if="searchQuery.length > 0"
+        class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-indigo-50">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
         </svg>
@@ -35,18 +36,18 @@
     </button>
 
     <!-- Выпадающий список с результатами поиска -->
-    <div v-if="showDropdown && searchResults.length > 0"
+    <div v-if="showDropdown && eventApi.events.length > 0"
       class="absolute z-50 w-full bg-white mt-1 rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-y-auto"
       ref="dropdownRef">
       <ul class="py-1">
-        <li v-for="(product, index) in searchResults" :key="product.id" @click="goToProduct(product.id)"
+        <li v-for="(event, index) in eventApi.events" :key="event.id" @click="goToEvent(event.id)"
           @mouseenter="activeIndex = index"
           class="flex items-center px-4 py-3 cursor-pointer transition-colors hover:bg-indigo-50"
           :class="{ 'bg-indigo-50': activeIndex === index }">
-          <!-- Изображение товара (если есть) -->
+          <!-- Изображение мероприятия (если есть) -->
           <div class="h-10 w-10 flex-shrink-0 mr-3 rounded border border-gray-200 overflow-hidden">
-            <img v-if="product.images && product.images.length > 0" :src="product.images[0].url" :alt="product.name"
-              class="h-full w-full object-contain">
+            <img v-if="event.images && event.images.length > 0" :src="event.images[0].url" :alt="event.title"
+              class="h-full w-full object-cover">
             <div v-else class="h-full w-full bg-gray-100 flex items-center justify-center text-gray-400">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -56,12 +57,13 @@
             </div>
           </div>
 
-          <!-- Информация о товаре -->
+          <!-- Информация о мероприятии -->
           <div class="flex-1 min-w-0">
-            <!-- Название товара с подсветкой совпадения -->
-            <p class="text-sm font-medium text-gray-900 truncate" v-html="highlightMatch(product.name)"></p>
-            <!-- Цена -->
-            <p class="text-sm text-indigo-600 font-semibold">{{ product.price.toLocaleString() }} ₽</p>
+            <!-- Название мероприятия с подсветкой совпадения -->
+            <p class="text-sm font-medium text-gray-900 truncate" v-html="highlightMatch(event.title)"></p>
+            <!-- Место проведения и дата -->
+            <p class="text-xs text-gray-600 truncate">{{ event.location }}</p>
+            <p class="text-xs text-indigo-600">{{ formatDate(event.startTime) }}</p>
           </div>
         </li>
       </ul>
@@ -69,15 +71,17 @@
       <!-- Показать все результаты -->
       <div
         class="border-t border-gray-100 px-4 py-2 bg-gray-50 text-center cursor-pointer hover:bg-indigo-50 transition-colors"
-        @click="goToCatalog">
-        <span class="text-sm font-medium text-indigo-600">{{ $t('navbar.viewAllResults') }} ({{ totalResults }})</span>
+        @click="goToEventsList">
+        <span class="text-sm font-medium text-indigo-600">{{ t('navbar.viewAllResults') }} ({{ eventApi.totalCount
+          }})</span>
       </div>
     </div>
 
     <!-- Сообщение "Нет результатов" -->
-    <div v-else-if="search.length >= 2 && !isLoading && searchAttempted && searchResults.length === 0"
+    <div
+      v-else-if="searchQuery.length >= 2 && !eventApi.loading.search && searchAttempted && eventApi.events.length === 0"
       class="absolute z-50 w-full bg-white mt-1 rounded-lg shadow-lg border border-gray-200 p-4 text-center">
-      <p class="text-sm text-gray-500">{{ $t('navbar.noResults') }}</p>
+      <p class="text-sm text-gray-500">{{ t('navbar.noResults') }}</p>
     </div>
 
     <!-- Подсказка по горячим клавишам -->
@@ -85,7 +89,7 @@
       class="absolute right-3 top-full mt-2 bg-white text-xs text-gray-500 py-1 px-2 rounded shadow-md opacity-0 transition-opacity duration-300 pointer-events-none"
       :class="{ 'opacity-80': isInputFocused && !isMobile && !showDropdown }">
       <span class="flex items-center">
-        {{ $t('navbar.searchHint') }}
+        {{ t('navbar.searchHint') }}
         <kbd
           class="ml-1 px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-gray-800 font-semibold text-xs">Enter</kbd>
       </span>
@@ -93,191 +97,196 @@
   </div>
 </template>
 
-<script>
-import { debounce } from 'lodash';
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter, useRoute } from 'vue-router';
+import { useEventApi } from '@/composables/api/useEventApi';
+import { formatDateTime } from '@/utils/formatterUtils'; // Используем формат даты из наших утилит
 
-export default {
-  name: 'NavbarSearch',
-  data() {
-    return {
-      search: '',
-      isInputFocused: false,
-      isMobile: false,
-      isLoading: false,
-      searchResults: [],
-      totalResults: 0,
-      showDropdown: false,
-      activeIndex: -1,
-      searchAttempted: false
-    };
-  },
-  watch: {
-    '$route.query.search': {
-      immediate: true,
-      handler(newVal) {
-        this.search = newVal || '';
-      }
+const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
+const eventApi = useEventApi();
+
+// Состояния компонента
+const searchQuery = ref('');
+const isInputFocused = ref(false);
+const isMobile = ref(false);
+const showDropdown = ref(false);
+const activeIndex = ref(-1);
+const searchAttempted = ref(false);
+const dropdownRef = ref<HTMLElement | null>(null);
+const isDropdownClicked = ref(false);
+
+// Получаем поисковый запрос из маршрута при загрузке
+watch(() => route.query.search, (newVal) => {
+  searchQuery.value = newVal ? String(newVal) : '';
+}, { immediate: true });
+
+// Обработка ввода в поле поиска
+const onSearchInput = () => {
+  // Если поле пустое или содержит менее 2 символов, не выполняем поиск
+  if (!searchQuery.value || searchQuery.value.length < 2) {
+    showDropdown.value = false;
+    return;
+  }
+
+  // Выполняем поиск с ограниченным количеством результатов для дропдауна
+  performSearch();
+};
+
+// Функция для выполнения поиска
+const performSearch = () => {
+  searchAttempted.value = true;
+
+  eventApi.searchEvents({
+    filter: {
+      eventIds: [],
+      title: searchQuery.value,
+      location: null,
+      dateFrom: null,
+      dateTo: null,
+      minPrice: null,
+      maxPrice: null,
+      isActive: true
     },
-    '$route'() {
-      // Закрываем дропдаун при смене маршрута
-      this.closeDropdown();
+    sort: [{ field: 'startTime', direction: 'asc' }],
+    pagination: { pageNumber: 1, pageSize: 5 } // Ограничиваем количество результатов для дропдауна
+  }).then(() => {
+    showDropdown.value = true;
+    activeIndex.value = -1;
+  });
+};
+
+// Обработка нажатия Enter или клика на кнопке поиска
+const handleSearch = () => {
+  if (searchQuery.value && searchQuery.value.trim().length > 0) {
+    router.push({
+      path: '/events',
+      query: { search: searchQuery.value.trim() }
+    });
+  } else {
+    router.push({ path: '/events' });
+  }
+  closeDropdown();
+};
+
+// Навигация по выпадающему списку
+const navigateDropdown = (direction: number) => {
+  if (!showDropdown.value || eventApi.events.length === 0) return;
+
+  if (direction > 0) {
+    // Навигация вниз
+    activeIndex.value = activeIndex.value < eventApi.events.length - 1
+      ? activeIndex.value + 1
+      : 0;
+  } else {
+    // Навигация вверх
+    activeIndex.value = activeIndex.value > 0
+      ? activeIndex.value - 1
+      : eventApi.events.length - 1;
+  }
+
+  // Обработка Enter для выбора текущего элемента
+  const handleEnterKeypress = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' && activeIndex.value >= 0 && eventApi.events[activeIndex.value]) {
+      goToEvent(eventApi.events[activeIndex.value].id);
+      event.preventDefault();
     }
-  },
-  created() {
-    // Создаем дебаунс функцию для предотвращения слишком частых запросов
-    this.debouncedSearch = debounce(this.fetchSearchResults, 300);
-  },
-  mounted() {
-    // Проверяем, является ли устройство мобильным
-    this.checkIfMobile();
-    window.addEventListener('resize', this.checkIfMobile);
+    document.removeEventListener('keydown', handleEnterKeypress);
+  };
 
-    // Обработчик горячих клавиш для фокуса на поле поиска
-    document.addEventListener('keydown', this.handleHotkeys);
+  document.addEventListener('keydown', handleEnterKeypress, { once: true });
+};
 
-    // Обработчик клика за пределами компонента для закрытия дропдауна
-    document.addEventListener('mousedown', this.handleClickOutside);
-  },
-  beforeUnmount() {
-    window.removeEventListener('resize', this.checkIfMobile);
-    document.removeEventListener('keydown', this.handleHotkeys);
-    document.removeEventListener('mousedown', this.handleClickOutside);
-  },
-  methods: {
-    onSearchInput() {
-      // Если поле пустое или содержит менее 2 символов, не выполняем поиск
-      if (!this.search || this.search.length < 2) {
-        this.searchResults = [];
-        this.showDropdown = false;
-        return;
-      }
+// Закрытие выпадающего списка
+const closeDropdown = () => {
+  showDropdown.value = false;
+};
 
-      // Вызываем дебаунс-функцию с текущим поисковым запросом
-      this.debouncedSearch(this.search);
-    },
+// Обработка потери фокуса
+const handleBlur = () => {
+  isInputFocused.value = false;
+  // Используем setTimeout для предотвращения закрытия дропдауна до обработки клика по элементу
+  setTimeout(() => {
+    if (!isDropdownClicked.value) {
+      closeDropdown();
+    }
+  }, 150);
+};
 
-    async fetchSearchResults(query) {
-      try {
-        this.isLoading = true;
-        this.searchAttempted = true;
+// Переход к деталям мероприятия
+const goToEvent = (eventId: string) => {
+  router.push({ path: `/events/${eventId}` });
+  closeDropdown();
+};
 
-        // Ограничиваем количество результатов для дропдауна
-        const response = {
-          status: 'success',
-          data: {
-            products: [
-              { id: 1, name: 'Товар 1', price: 1000, images: [{ url: 'https://via.placeholder.com/150' }] },
-              { id: 2, name: 'Товар 2', price: 2000, images: [{ url: 'https://via.placeholder.com/150' }] },
-              // Добавьте больше товаров для тестирования
-            ],
-            totalItems: 2
-          }
-        };
-        console.log(response);
-        if (response.status === 'success' && response.data) {
-          this.searchResults = response.data.products || [];
-          this.totalResults = response.data.totalItems || 0;
-          this.showDropdown = true;
-          this.activeIndex = -1; // Сбрасываем активный элемент
-        } else {
-          this.searchResults = [];
-          this.totalResults = 0;
-        }
-      } catch (error) {
-        console.error('Ошибка при поиске:', error);
-        this.searchResults = [];
-        this.totalResults = 0;
-      } finally {
-        this.isLoading = false;
-      }
-    },
+// Переход к списку мероприятий с результатами поиска
+const goToEventsList = () => {
+  router.push({
+    path: '/events',
+    query: { search: searchQuery.value.trim() }
+  });
+  closeDropdown();
+};
 
-    navigateDropdown(direction) {
-      if (!this.showDropdown || this.searchResults.length === 0) return;
+// Подсветка совпадений в тексте
+const highlightMatch = (text: string): string => {
+  if (!searchQuery.value || !text) return text;
 
-      if (direction > 0) {
-        // Навигация вниз
-        this.activeIndex = this.activeIndex < this.searchResults.length - 1
-          ? this.activeIndex + 1
-          : 0;
-      } else {
-        // Навигация вверх
-        this.activeIndex = this.activeIndex > 0
-          ? this.activeIndex - 1
-          : this.searchResults.length - 1;
-      }
+  const regex = new RegExp(`(${searchQuery.value.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+  return text.replace(regex, '<span class="highlight">$1</span>');
+};
 
-      // Добавляем обработчик для Enter - выбор текущего элемента
-      document.addEventListener('keydown', this.handleEnterKeypress, { once: true });
-    },
+// Форматирование даты с использованием нашего форматировщика
+const formatDate = (dateString: string): string => {
+  try {
+    return formatDateTime(dateString, false); // Используем formatDateTime без секунд
+  } catch (error) {
+    return dateString;
+  }
+};
 
-    handleEnterKeypress(event) {
-      if (event.key === 'Enter' && this.activeIndex >= 0 && this.searchResults[this.activeIndex]) {
-        this.goToProduct(this.searchResults[this.activeIndex].id);
-        event.preventDefault();
-      }
-    },
+// Проверка на мобильное устройство
+const checkIfMobile = () => {
+  isMobile.value = window.innerWidth < 768;
+};
 
-    closeDropdown() {
-      this.showDropdown = false;
-      document.removeEventListener('keydown', this.handleEnterKeypress);
-    },
+// Обработчик клика за пределами компонента
+const handleClickOutside = (event: MouseEvent) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node) &&
+    !document.querySelector('.navbar-search')?.contains(event.target as Node)) {
+    closeDropdown();
+  }
+};
 
-    handleBlur() {
-      this.isInputFocused = false;
-      // Используем setTimeout для предотвращения закрытия дропдауна 
-      // до обработки клика по элементу дропдауна
-      setTimeout(() => {
-        if (!this.isDropdownClicked) {
-          this.closeDropdown();
-        }
-      }, 150);
-    },
-
-    goToCatalog() {
-      if (this.search && this.search.trim().length > 0) {
-        this.$router.push({ path: '/catalog', query: { search: this.search.trim() } });
-      } else {
-        this.$router.push({ path: '/catalog' });
-      }
-      this.closeDropdown();
-    },
-
-    goToProduct(productId) {
-      this.$router.push({ path: `/product/${productId}` });
-      this.closeDropdown();
-    },
-
-    handleClickOutside(event) {
-      if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(event.target) &&
-        !this.$el.contains(event.target)) {
-        this.closeDropdown();
-      }
-    },
-
-    checkIfMobile() {
-      this.isMobile = window.innerWidth < 768;
-    },
-
-    handleHotkeys(event) {
-      // Ctrl+K или Cmd+K для фокуса на поле поиска
-      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
-        event.preventDefault();
-        const searchInput = this.$el.querySelector('input');
-        if (searchInput) {
-          searchInput.focus();
-        }
-      }
-    },
-
-    highlightMatch(text) {
-      if (!this.search || !text) return text;
-
-      const regex = new RegExp(`(${this.search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
-      return text.replace(regex, '<span class="highlight">$1</span>');
+// Обработчик горячих клавиш
+const handleHotkeys = (event: KeyboardEvent) => {
+  // Ctrl+K или Cmd+K для фокуса на поле поиска
+  if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+    event.preventDefault();
+    const searchInput = document.querySelector('.navbar-search input');
+    if (searchInput) {
+      (searchInput as HTMLInputElement).focus();
     }
   }
 };
+
+// Монтирование компонента
+onMounted(() => {
+  checkIfMobile();
+  window.addEventListener('resize', checkIfMobile);
+  document.addEventListener('keydown', handleHotkeys);
+  document.addEventListener('mousedown', handleClickOutside);
+});
+
+// Размонтирование компонента
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkIfMobile);
+  document.removeEventListener('keydown', handleHotkeys);
+  document.removeEventListener('mousedown', handleClickOutside);
+});
 </script>
 
 <style scoped>

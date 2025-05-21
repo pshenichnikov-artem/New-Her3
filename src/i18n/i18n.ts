@@ -37,6 +37,8 @@ const messages = {
         formHasErrors: 'Пожалуйста, исправьте ошибки в форме',
         submitError: 'Ошибка при отправке данных',
         operationFailed: 'Не удалось выполнить операцию',
+        networkError:
+          'Не удалось подключиться к серверу. Проверьте подключение к Интернету или попробуйте позже',
       },
       // Сообщения об успехе
       success: {
@@ -358,6 +360,55 @@ const messages = {
       updateError: 'Ошибка при обновлении события в календаре',
       deleteError: 'Ошибка при удалении события из календаря',
     },
+
+    // Навигация
+    navbar: {
+      searchEvents: 'Поиск мероприятий',
+      searchHint: 'Быстрый поиск',
+      viewAllResults: 'Показать все результаты',
+      noResults: 'Мероприятий не найдено',
+      events: 'Мероприятия',
+      dashboard: 'Панель управления',
+      profile: 'Профиль',
+      login: 'Войти',
+      logout: 'Выйти',
+    },
+
+    // Футер
+    footer: {
+      contacts: {
+        title: 'Контакты',
+        address: 'Российская Федерация,',
+        city: 'г. Москва, ул. Событийная, д. 123',
+        general: 'Общие вопросы, сотрудничество и отзывы:',
+        support: 'Служба поддержки:',
+        website: 'Официальный сайт:',
+      },
+      hours: {
+        title: 'Часы работы',
+        summer: 'С мая по сентябрь:',
+        summerTime: 'С 08:00 до 24:00',
+        summerEntry: 'Вход на территорию возможен до 23:00',
+        winter: 'С октября по апрель:',
+        winterTime: 'С 09:00 до 22:00',
+        winterEntry: 'Вход на территорию возможен до 21:00',
+      },
+      legal: {
+        title: 'Правовая информация',
+        fullName:
+          'Полное наименование: Автономная некоммерческая организация «Центр событийных мероприятий»',
+        shortName: 'Сокращенное наименование: АНО «ЦСМ»',
+        address: 'Адрес: 123456, г. Москва, ул. Событийная, д. 123',
+        ogrnTitle: 'ОГРН:',
+        ogrn: '1234567890123',
+        kppTitle: 'КПП:',
+        kpp: '123456789',
+        innTitle: 'ИНН:',
+        inn: '1234567890',
+      },
+      copyright: 'Все права защищены.',
+      allRightsReserved: 'Все права защищены.',
+    },
   },
 
   en: {
@@ -396,6 +447,8 @@ const messages = {
         formHasErrors: 'Please fix the errors in the form',
         submitError: 'Error submitting data',
         operationFailed: 'Operation failed',
+        networkError:
+          'Could not connect to server. Check your Internet connection or try again later',
       },
       // Success messages
       success: {
@@ -716,6 +769,54 @@ const messages = {
       addError: 'Error adding event to calendar',
       updateError: 'Error updating calendar event',
       deleteError: 'Error removing event from calendar',
+    },
+
+    // Navigation
+    navbar: {
+      searchEvents: 'Search events',
+      searchHint: 'Quick search',
+      viewAllResults: 'View all results',
+      noResults: 'No events found',
+      events: 'Events',
+      dashboard: 'Dashboard',
+      profile: 'Profile',
+      login: 'Login',
+      logout: 'Logout',
+    },
+
+    // Footer
+    footer: {
+      contacts: {
+        title: 'Contacts',
+        address: 'Russian Federation,',
+        city: 'Moscow, 123 Event Street',
+        general: 'General inquiries, cooperation and feedback:',
+        support: 'Support service:',
+        website: 'Official website:',
+      },
+      hours: {
+        title: 'Working Hours',
+        summer: 'May to September:',
+        summerTime: 'From 8:00 AM to 12:00 AM',
+        summerEntry: 'Entrance possible until 11:00 PM',
+        winter: 'October to April:',
+        winterTime: 'From 9:00 AM to 10:00 PM',
+        winterEntry: 'Entrance possible until 9:00 PM',
+      },
+      legal: {
+        title: 'Legal Information',
+        fullName: 'Full name: Autonomous Non-profit Organization "Event Center"',
+        shortName: 'Short name: ANO "Event Center"',
+        address: 'Address: 123456, Moscow, 123 Event Street',
+        ogrnTitle: 'OGRN:',
+        ogrn: '1234567890123',
+        kppTitle: 'KPP:',
+        kpp: '123456789',
+        innTitle: 'INN:',
+        inn: '1234567890',
+      },
+      copyright: 'All rights reserved.',
+      allRightsReserved: 'All rights reserved.',
     },
   },
 }

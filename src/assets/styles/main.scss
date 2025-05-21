@@ -1,0 +1,36 @@
+// Импортируем переменные
+@import './_variables';
+
+// Глобальные стили для приложения
+body {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Дополнительные стили для улучшения адаптивности на различных устройствах
+@include mobile {
+  html {
+    font-size: 14px;
+  }
+}
+
+@include tablet {
+  html {
+    font-size: 15px;
+  }
+}
+
+@include desktop {
+  html {
+    font-size: 16px;
+  }
+}

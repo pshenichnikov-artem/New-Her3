@@ -11,9 +11,7 @@ export interface Notification {
   type: 'success' | 'error' | 'info' | 'warning'
   timeout: number
   visible: boolean
-  progress: number
   timer: number | null
-  progressInterval: number | null
 }
 
 const notifications = reactive<Notification[]>([])
@@ -31,20 +29,12 @@ export function useNotification() {
       type,
       timeout,
       visible: true,
-      progress: 100,
       timer: null,
-      progressInterval: null,
     }
 
     notifications.unshift(notification)
 
     if (timeout > 0) {
-      notification.progressInterval = window.setInterval(() => {
-        if (notification.progress > 0) {
-          notification.progress -= 0.5
-        }
-      }, timeout / 200) as unknown as number
-
       notification.timer = window.setTimeout(() => {
         closeNotification(id)
       }, timeout) as unknown as number
@@ -74,9 +64,7 @@ export function useNotification() {
     if (index !== -1) {
       const notification = notifications[index]
       if (notification.timer) clearTimeout(notification.timer)
-      if (notification.progressInterval) clearInterval(notification.progressInterval)
       notification.visible = false
-      notification.progress = 0
       setTimeout(() => {
         const index = notifications.findIndex((n) => n.id === id)
         if (index !== -1) {

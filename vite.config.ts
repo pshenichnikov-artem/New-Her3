@@ -10,11 +10,19 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      vue: 'vue/dist/vue.esm-bundler.js', // Необходимо для корректной работы ymaps3 Vue компонентов
+      '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
+      vue: 'vue/dist/vue.esm-bundler.js',
     },
   },
   server: {
     host: 'localhost',
     port: 5555,
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "@/assets/styles/_variables.scss" as *;`,
+      },
+    },
   },
 })

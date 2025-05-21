@@ -20,7 +20,7 @@
                     :class="{ 'right-0': alignRight }">
                     <div class="bg-white border border-gray-200 rounded-lg shadow">
                         <SingleDateCalendarPicker v-model="singleDate" :showTime="false" :minDate="minDate"
-                            :maxDate="maxDate" @apply="handleDateSelect" />
+                            :maxDate="maxDate" :initialDate="initialCalendarDate" @apply="handleDateSelect" />
                     </div>
                 </div>
             </Transition>
@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import IconsSet from '@/components/ui/icons/IconsSet.vue';
 import SingleDateCalendarPicker from '@/components/ui/calendar/SingleDateCalendarPicker.vue';
@@ -71,6 +71,22 @@ const showCalendar = ref(false);
 const calendarRef = ref<HTMLDivElement | null>(null);
 const singleDate = ref<Date | null>(null);
 const selectedDate = ref<Date | null>(null);
+
+// Вычисляем начальную дату для календаря
+const initialCalendarDate = computed(() => {
+    // Если есть максимальная дата и она меньше текущей даты
+    if (props.maxDate && props.maxDate < new Date()) {
+        return props.maxDate;
+    }
+
+    // Если есть выбранная дата, используем ее
+    if (selectedDate.value) {
+        return selectedDate.value;
+    }
+
+    // В противном случае используем текущую дату
+    return new Date();
+});
 
 // Инициализация
 onMounted(() => {

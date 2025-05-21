@@ -103,6 +103,7 @@ interface SingleDateCalendarProps {
     maxCurrentTime?: boolean;
     minDate?: Date | null;
     maxDate?: Date | null;
+    initialDate?: Date | null;
 }
 
 const props = withDefaults(defineProps<SingleDateCalendarProps>(), {
@@ -110,7 +111,8 @@ const props = withDefaults(defineProps<SingleDateCalendarProps>(), {
     minCurrentTimePlusHour: false,
     maxCurrentTime: false,
     minDate: null,
-    maxDate: null
+    maxDate: null,
+    initialDate: undefined
 });
 
 const emit = defineEmits<{
@@ -360,6 +362,12 @@ onMounted(() => {
             hours.value = selectedDate.value.getHours();
             minutes.value = selectedDate.value.getMinutes();
         }
+        console.log('Selected date:', props.initialDate);
+    }
+    if (props.initialDate) {
+        // Используем initialDate для установки отображаемого месяца и года, если она передана
+        currentYear.value = props.initialDate.getFullYear();
+        currentMonth.value = props.initialDate.getMonth();
     }
 });
 

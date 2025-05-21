@@ -1,11 +1,12 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <div class="flex-grow flex items-center justify-center bg-gray-100">
-      <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+    <MainNavbar />
+    <div class="flex-grow flex items-center justify-center bg-content py-16 px-8">
+      <div class="w-full max-w-md p-8 bg-form border border-form-border rounded-lg shadow-lg">
         <div class="flex justify-end mb-4">
           <LanguageSwitcher />
         </div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ t('pages.register') }}</h2>
+        <h2 class="text-2xl font-bold text-text-accent mb-6">{{ t('pages.register') }}</h2>
         <form @submit.prevent="form.handleSubmit(onSubmit)">
           <ValidationInput id="fullName" :label="t('fields.fullName')" type="text" v-model="formData.fullName"
             validationRules="required|fullName" :error-messages="{
@@ -44,7 +45,7 @@
 
           <div class="flex items-center justify-between mt-6">
             <button type="submit"
-              class="w-full px-4 py-2 bg-indigo-600 text-white font-medium text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              class="w-full px-4 py-3 bg-primary-500 text-text font-medium text-sm rounded-md hover:bg-primary-400 focus:outline-none focus:ring-2 focus:ring-form-focus focus:ring-offset-2 focus:ring-offset-form border border-primary-400 shadow-md transition-colors"
               :disabled="form.isValidating">
               {{ t('common.buttons.register') }}
             </button>
@@ -52,12 +53,13 @@
         </form>
         <div class="mt-4 text-center">
           <button @click="router.push('/login')"
-            class="w-full px-4 py-2 bg-gray-600 text-white font-medium text-sm rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            class="w-full px-4 py-3 bg-form-light text-text font-medium text-sm rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-form-focus focus:ring-offset-2 focus:ring-offset-form border border-form-border shadow-md transition-colors">
             {{ t('common.buttons.goToLogin') }}
           </button>
         </div>
       </div>
     </div>
+
   </div>
   <AppFooter />
 </template>
@@ -66,17 +68,18 @@
 import { ref, reactive } from 'vue';
 import ValidationInput from '@/components/ui/ValidationInput.vue';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
+import MainNavbar from '@/components/layout/MainNavbar.vue';
 import AppFooter from "@/components/layout/AppFooter.vue";
 import { notificationService } from '@/composables/useNotification';
 import { useFormValidation } from '@/composables/useFormValidation';
 import type { RegisterRequest } from '@/types/auth/RegisterRequest';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { useAuthApi } from '@/composables/api/useAuthApi'; // Импортируем useAuthApi
+import { useAuthApi } from '@/composables/api/useAuthApi';
 
 const { t } = useI18n();
 const router = useRouter();
-const authApi = useAuthApi(); // Используем composable
+const authApi = useAuthApi();
 
 // Поля формы
 const formData = reactive<RegisterRequest>({
@@ -98,7 +101,6 @@ const onSubmit = async () => {
   await authApi.register(formData, {
     showSuccessNotification: true,
     successMessage: t('common.success.registerSuccess'),
-    // router.push('/') будет вызван автоматически в useAuthApi при успешной регистрации
     onError: (error) => {
       if (error.code === 409) {
         notificationService.error(t('serverErrors.auth.emailAlreadyExists'));

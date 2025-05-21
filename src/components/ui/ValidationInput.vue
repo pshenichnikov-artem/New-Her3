@@ -1,16 +1,18 @@
 <template>
   <div class="mb-4">
-    <label v-if="label" class="block text-sm font-medium text-gray-700">{{ label }}</label>
+    <label v-if="label" class="block text-sm font-medium text-text-form mb-1">{{ label }}</label>
     <div class="relative flex items-center">
-      <input class="w-full border rounded px-3 py-2 mt-1 text-sm focus:outline-none focus:ring-2 pr-10" :class="{
-        'border-gray-300 focus:ring-blue-500': !error && !isRed,
-        'border-green-500 focus:ring-green-500': isValid && !error && !isEmpty,
-        'border-red-500 focus:ring-red-500': isRed,
-      }" :id="id" :type="computedInputType" :placeholder="placeholder" :value="modelValue" @input="handleInput"
+      <input
+        class="w-full bg-form-light text-text-form border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 pr-10"
+        :class="{
+          'border-form-border focus:ring-form-focus': !error && !isRed,
+          'border-green-500 focus:ring-green-500': isValid && !error && !isEmpty,
+          'border-red-500 focus:ring-red-500': isRed,
+        }" :id="id" :type="computedInputType" :placeholder="placeholder" :value="modelValue" @input="handleInput"
         @blur="handleBlur" />
       <!-- Глазик -->
       <button v-if="type === 'password'" type="button"
-        class="absolute inset-y-0 right-2 text-gray-500 text-sm flex items-center justify-center"
+        class="absolute inset-y-0 right-2 text-gray-400 text-sm flex items-center justify-center"
         @click="togglePasswordVisibility">
         <img :src="showPassword ? '/images/open_eye.png' : 'images/close_eye.png'" alt="eye icon" class="w-6 h-6" />
       </button>

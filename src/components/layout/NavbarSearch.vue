@@ -102,17 +102,18 @@ import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter, useRoute } from 'vue-router';
 import { useEventApi } from '@/composables/api/useEventApi';
-import { formatDateTime } from '@/utils/formatterUtils'; // Используем формат даты из наших утилит
+import { formatDateTime } from '@/utils/formatterUtils';
+import { useAdaptiveInterface } from '@/composables/useAdaptiveInterface';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const eventApi = useEventApi();
+const { isMobile } = useAdaptiveInterface();
 
 // Состояния компонента
 const searchQuery = ref('');
 const isInputFocused = ref(false);
-const isMobile = ref(false);
 const showDropdown = ref(false);
 const activeIndex = ref(-1);
 const searchAttempted = ref(false);
@@ -248,11 +249,6 @@ const formatDate = (dateString: string): string => {
   }
 };
 
-// Проверка на мобильное устройство
-const checkIfMobile = () => {
-  isMobile.value = window.innerWidth < 768;
-};
-
 // Обработчик клика за пределами компонента
 const handleClickOutside = (event: MouseEvent) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node) &&
@@ -261,7 +257,7 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 };
 
-// Обработчик горячих клавиш
+// Обработка горячих клавиш
 const handleHotkeys = (event: KeyboardEvent) => {
   // Ctrl+K или Cmd+K для фокуса на поле поиска
   if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
@@ -275,21 +271,18 @@ const handleHotkeys = (event: KeyboardEvent) => {
 
 // Монтирование компонента
 onMounted(() => {
-  checkIfMobile();
-  window.addEventListener('resize', checkIfMobile);
   document.addEventListener('keydown', handleHotkeys);
   document.addEventListener('mousedown', handleClickOutside);
 });
 
 // Размонтирование компонента
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', checkIfMobile);
   document.removeEventListener('keydown', handleHotkeys);
   document.removeEventListener('mousedown', handleClickOutside);
 });
 </script>
 
-<style scoped>
+<style lang="scss">
 /* Стили для подсветки результатов поиска */
 :deep(.highlight) {
   background-color: rgba(79, 70, 229, 0.1);
@@ -311,7 +304,7 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-@media (max-width: 768px) {
+@include mobile {
   input {
     font-size: 16px;
     /* Предотвращает зум на iOS */

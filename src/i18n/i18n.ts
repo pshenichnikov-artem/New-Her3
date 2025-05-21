@@ -372,6 +372,7 @@ const messages = {
       profile: 'Профиль',
       login: 'Войти',
       logout: 'Выйти',
+      mainSite: 'На главный сайт',
     },
 
     // Футер
@@ -408,6 +409,20 @@ const messages = {
       },
       copyright: 'Все права защищены.',
       allRightsReserved: 'Все права защищены.',
+    },
+
+    // Страницы ошибок
+    notFound: {
+      title: 'Страница не найдена',
+      message: 'Извините, запрошенная вами страница не существует или была перемещена.',
+      returnHome: 'Вернуться на главную',
+    },
+
+    unauthorized: {
+      title: 'Доступ запрещён',
+      message: 'У вас нет прав для доступа к этой странице.',
+      returnHome: 'Вернуться на главную',
+      logout: 'Выйти',
     },
   },
 
@@ -782,6 +797,7 @@ const messages = {
       profile: 'Profile',
       login: 'Login',
       logout: 'Logout',
+      mainSite: 'Main Website',
     },
 
     // Footer
@@ -817,6 +833,20 @@ const messages = {
       },
       copyright: 'All rights reserved.',
       allRightsReserved: 'All rights reserved.',
+    },
+
+    // Error pages
+    notFound: {
+      title: 'Page Not Found',
+      message: "Sorry, the page you are looking for doesn't exist or has been moved.",
+      returnHome: 'Return to Home',
+    },
+
+    unauthorized: {
+      title: 'Access Denied',
+      message: 'You do not have permission to access this page.',
+      returnHome: 'Return to Home',
+      logout: 'Logout',
     },
   },
 }

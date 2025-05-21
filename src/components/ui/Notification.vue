@@ -3,7 +3,7 @@
         <div class="fixed top-4 right-4 z-50 w-full max-w-sm flex flex-col gap-2 pointer-events-none">
             <transition-group name="notification">
                 <div v-for="notification in notifications" :key="notification.id" :class="[
-                    'shadow-lg rounded-lg p-4 mb-2 transform transition-all duration-300 pointer-events-auto',
+                    'shadow-lg rounded-lg p-4 mb-2 transform transition-all duration-300 pointer-events-auto border',
                     notificationTypeClasses[notification.type],
                 ]" :style="{
                     maxHeight: notification.visible ? '200px' : '0',
@@ -14,22 +14,18 @@
                             <IconsSet :name="notification.type" class="h-5 w-5 text-white" />
                         </div>
                         <div class="ml-3 flex-1">
-                            <p class="text-sm font-medium">{{ notification.message }}</p>
+                            <p class="text-sm font-semibold text-white">{{ notification.message }}</p>
                         </div>
                         <div class="ml-auto pl-3">
                             <button @click="closeNotification(notification.id)"
-                                class="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                class="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 text-white hover:text-gray-200"
                                 :class="buttonClass(notification.type)">
                                 <span class="sr-only">Close</span>
                                 <IconsSet name="close" class="h-4 w-4" />
                             </button>
                         </div>
                     </div>
-                    <div v-if="notification.timeout > 0" class="absolute bottom-0 left-0 h-1 bg-white bg-opacity-30"
-                        :style="{
-                            width: `${notification.progress}%`,
-                            transitionDuration: `${notification.timeout}ms`,
-                        }"></div>
+                    <!-- Удален элемент с полосой прогресса -->
                 </div>
             </transition-group>
         </div>
@@ -43,18 +39,18 @@ import IconsSet from '@/components/ui/icons/IconsSet.vue'
 const { notifications, closeNotification } = notificationService
 
 const notificationTypeClasses = {
-    success: 'bg-green-500 text-white',
-    error: 'bg-red-600 text-white',
-    info: 'bg-blue-600 text-white',
-    warning: 'bg-yellow-600 text-white',
+    success: 'bg-notification-success border-notification-success-border',
+    error: 'bg-notification-error border-notification-error-border',
+    info: 'bg-notification-info border-notification-info-border',
+    warning: 'bg-notification-warning border-notification-warning-border',
 }
 
 const buttonClass = (type: string) => {
     return {
-        success: 'text-white hover:bg-green-600 focus:ring-green-500',
-        error: 'text-white hover:bg-red-700 focus:ring-red-500',
-        info: 'text-white hover:bg-blue-700 focus:ring-blue-500',
-        warning: 'text-white hover:bg-yellow-700 focus:ring-yellow-500',
+        success: 'focus:ring-notification-success',
+        error: 'focus:ring-notification-error',
+        info: 'focus:ring-notification-info',
+        warning: 'focus:ring-notification-warning',
     }[type as keyof typeof notificationTypeClasses];
 }
 </script>
@@ -69,5 +65,10 @@ const buttonClass = (type: string) => {
 .notification-leave-to {
     transform: translateX(30px);
     opacity: 0;
+}
+
+/* Более выразительная тень для лучшей видимости */
+[class*="bg-notification-"] {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 </style>

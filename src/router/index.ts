@@ -3,6 +3,7 @@ import LoginPage from '@/views/LoginPage.vue'
 import RegisterPage from '@/views/RegisterPage.vue'
 import HomePage from '@/views/HomePage.vue'
 import { useAuthStore } from '@/stores/auth'
+import NotFoundPage from '@/views/NotFoundPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -61,12 +62,27 @@ const router = createRouter({
         title: 'Notifications Test',
       },
     },
+    // Добавляем маршрут 404 для не найденных страниц
+    {
+      path: '/not-found',
+      name: 'not-found',
+      component: NotFoundPage,
+      meta: {
+        requiresAuth: false,
+        title: 'Page Not Found',
+      },
+    },
+    // Перенаправление всех остальных маршрутов на страницу 404
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/not-found',
+    },
   ],
 })
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  const isAuthenticated = true // authStore.getIsAuthenticated
+  const isAuthenticated = true // authStore.IsAuthenticated
   const userRole = authStore.role
   const allowedRoles = Array.isArray(to.meta.roles) ? to.meta.roles : []
 

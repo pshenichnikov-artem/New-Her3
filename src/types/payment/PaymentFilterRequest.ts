@@ -9,5 +9,5 @@ export interface PaymentFilterRequest {
   createdAtFrom?: string | null // ISO формат даты
   createdAtTo: string // ISO формат даты
   paidAtFrom?: string | null // ISO формат даты
-  paidAtTo: string // ISO формат даты
+  paidAtTo?: string | null // ISO формат даты
 }

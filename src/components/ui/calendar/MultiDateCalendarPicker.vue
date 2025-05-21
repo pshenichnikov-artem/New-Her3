@@ -1,70 +1,75 @@
 <template>
-    <div class="multi-date-calendar-picker" @click.stop>
-        <!-- Контейнер календаря -->
-        <div class="bg-white rounded-lg py-2">
-            <!-- Заголовок и навигация -->
-            <div class="flex justify-between items-center mb-4 px-4">
-                <button @click="prevMonth" class="p-1 rounded hover:bg-gray-100 focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-                <div>
-                    <select v-model="currentMonth"
-                        class="px-2 py-1 border-none bg-transparent focus:outline-none text-center font-medium"
-                        @change="updateCalendar">
-                        <option v-for="(month, index) in monthNames" :key="index" :value="index">{{ month }}</option>
-                    </select>
-                    <select v-model="currentYear"
-                        class="px-2 py-1 border-none bg-transparent focus:outline-none text-center font-medium ml-1"
-                        @change="updateCalendar">
-                        <option v-for="year in yearRange" :key="year" :value="year">{{ year }}</option>
-                    </select>
+    <Teleport to="body">
+        <div class="fixed inset-0 bg-black opacity-50 z-50" @click="clearSelection"></div>
+        <div class="multi-date-calendar-picker" @click.stop>
+            <!-- Контейнер календаря -->
+            <div class="bg-white rounded-lg py-2">
+                <!-- Заголовок и навигация -->
+                <div class="flex justify-between items-center mb-4 px-4">
+                    <button @click="prevMonth" class="p-1 rounded hover:bg-gray-100 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <div>
+                        <select v-model="currentMonth"
+                            class="px-2 py-1 border-none bg-transparent focus:outline-none text-center font-medium"
+                            @change="updateCalendar">
+                            <option v-for="(month, index) in monthNames" :key="index" :value="index">{{ month }}
+                            </option>
+                        </select>
+                        <select v-model="currentYear"
+                            class="px-2 py-1 border-none bg-transparent focus:outline-none text-center font-medium ml-1"
+                            @change="updateCalendar">
+                            <option v-for="year in yearRange" :key="year" :value="year">{{ year }}</option>
+                        </select>
+                    </div>
+                    <button @click="nextMonth" class="p-1 rounded hover:bg-gray-100 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
                 </div>
-                <button @click="nextMonth" class="p-1 rounded hover:bg-gray-100 focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
-            </div>
 
-            <!-- Дни недели -->
-            <div class="grid grid-cols-7 mb-2">
-                <div v-for="day in daysOfWeek" :key="day" class="text-center text-xs font-medium text-gray-500 py-1">
-                    {{ day }}
+                <!-- Дни недели -->
+                <div class="grid grid-cols-7 mb-2">
+                    <div v-for="day in daysOfWeek" :key="day"
+                        class="text-center text-xs font-medium text-gray-500 py-1">
+                        {{ day }}
+                    </div>
                 </div>
-            </div>
 
-            <!-- Календарная сетка -->
-            <div class="grid grid-cols-7 gap-1">
-                <div v-for="day in calendarDays"
-                    :key="`${day.date.getFullYear()}-${day.date.getMonth()}-${day.date.getDate()}`"
-                    @click="toggleDateSelection(day.date)" class="calendar-day" :class="{
-                        'text-gray-400': !day.isCurrentMonth,
-                        'bg-indigo-600 text-white': day.isSelected,
-                        'cursor-pointer hover:bg-indigo-50': !day.isDisabled,
-                        'cursor-not-allowed opacity-50': day.isDisabled,
-                        'border border-indigo-400': day.isToday && !day.isSelected
-                    }">
-                    <span>{{ day.dayNumber }}</span>
+                <!-- Календарная сетка -->
+                <div class="grid grid-cols-7 gap-1">
+                    <div v-for="day in calendarDays"
+                        :key="`${day.date.getFullYear()}-${day.date.getMonth()}-${day.date.getDate()}`"
+                        @click="toggleDateSelection(day.date)" class="calendar-day" :class="{
+                            'text-gray-400': !day.isCurrentMonth,
+                            'bg-indigo-600 text-white': day.isSelected,
+                            'cursor-pointer hover:bg-indigo-50': !day.isDisabled,
+                            'cursor-not-allowed opacity-50': day.isDisabled,
+                            'border border-indigo-400': day.isToday && !day.isSelected
+                        }">
+                        <span>{{ day.dayNumber }}</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Кнопки действий -->
-            <div class="flex justify-between mt-4 px-4">
-                <button @click="clearSelection"
-                    class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
-                    {{ t('datePicker.clear') }}
-                </button>
-                <button @click="applySelection"
-                    class="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                    {{ t('datePicker.apply') }}
-                </button>
+                <!-- Кнопки действий -->
+                <div class="flex justify-between mt-4 px-4">
+                    <button @click="clearSelection"
+                        class="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
+                        {{ t('datePicker.clear') }}
+                    </button>
+                    <button @click="applySelection"
+                        class="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                        {{ t('datePicker.apply') }}
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    </Teleport>
 </template>
 
 <script setup lang="ts">

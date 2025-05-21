@@ -12,15 +12,15 @@
 
         <div class="relative">
             <input type="text" v-model="inputValue" :placeholder="placeholder"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-300 transition-all hover:bg-white hover:border-indigo-300"
+                class="w-full border border-primary-600 rounded-lg px-3 py-2.5 bg-primary text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all hover:border-primary-500"
                 @input="onInput" @focus="showSuggestions = true" @keydown.enter="onEnterKey" @blur="onBlur" />
 
             <!-- Выпадающий список с предложениями -->
             <div v-if="multipleSelect && showSuggestions && filteredSuggestions.length > 0"
-                class="absolute left-0 right-0 mt-1 max-h-60 overflow-auto bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                class="absolute left-0 right-0 mt-1 max-h-60 overflow-auto bg-primary border border-primary-600 rounded-lg shadow-lg z-10">
                 <div v-for="(suggestion, index) in filteredSuggestions" :key="index"
-                    class="px-4 py-2 hover:bg-indigo-50 cursor-pointer text-gray-700"
-                    :class="{ 'bg-indigo-50 text-indigo-700': index === activeSuggestionIndex }"
+                    class="px-4 py-2 hover:bg-primary-600 cursor-pointer text-white"
+                    :class="{ 'bg-primary-600 text-text-accent': index === activeSuggestionIndex }"
                     @mousedown="selectSuggestion(suggestion)" @mouseover="activeSuggestionIndex = index">
                     {{ suggestion }}
                 </div>
@@ -37,7 +37,7 @@ import FilterTag from './FilterTag.vue';
 interface TextFilterProps {
     title: string;
     placeholder?: string;
-    modelValue: string | string[];
+    modelValue: string | string[] | null | undefined;
     multipleSelect?: boolean;
     getSuggestions?: (input: string) => Promise<string[]> | string[];
 }
@@ -48,7 +48,7 @@ const props = withDefaults(defineProps<TextFilterProps>(), {
 });
 
 const emit = defineEmits<{
-    'update:modelValue': [value: string | string[]];
+    'update:modelValue': [value: string | string[] | null | undefined];
 }>();
 
 const inputValue = ref('');
@@ -60,10 +60,13 @@ const selectedValues = ref<string[]>([]);
 // Инициализация выбранных значений
 if (props.multipleSelect && Array.isArray(props.modelValue)) {
     selectedValues.value = [...props.modelValue];
-} else if (props.multipleSelect) {
+} else if (props.multipleSelect && props.modelValue) {
     selectedValues.value = props.modelValue ? [props.modelValue as string] : [];
-} else if (!props.multipleSelect && props.modelValue) {
+} else if (!props.multipleSelect && props.modelValue !== null) {
     inputValue.value = props.modelValue as string;
+}
+else {
+    inputValue.value = '';
 }
 
 const filteredSuggestions = computed(() => {
@@ -85,7 +88,7 @@ const onInput = async () => {
             suggestions.value = [];
         }
     } else {
-        emit('update:modelValue', inputValue.value);
+        emit('update:modelValue', inputValue.value || null);
     }
 };
 
@@ -136,7 +139,7 @@ watch(() => props.modelValue, (newValue) => {
     } else if (props.multipleSelect && newValue) {
         selectedValues.value = [newValue as string];
     } else if (!props.multipleSelect) {
-        inputValue.value = newValue as string;
+        inputValue.value = (newValue ?? '') as string;
     }
 });
 </script>

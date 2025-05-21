@@ -6,6 +6,7 @@ import type { EventSearchRequest } from '@/types/event/EventSearchRequest'
 import type { EventResponse } from '@/types/event/EventResponse'
 import type { Response } from './useBaseApi'
 import { reactive } from 'vue'
+import { formatDateForServer } from '@/utils/formatterUtils'
 
 /**
  * Composable для работы с API событий
@@ -42,6 +43,13 @@ export function useEventApi() {
     request: EventSearchRequest,
     options: RequestOptions = {},
   ): Promise<Response<EventResponse> | null> {
+    request.filter.dateTo = request.filter.dateTo
+      ? formatDateForServer(new Date(request.filter.dateTo))
+      : null
+    request.filter.dateFrom = request.filter.dateFrom
+      ? formatDateForServer(new Date(request.filter.dateFrom))
+      : null
+
     const response = await baseApi.makeRequest<Response<EventResponse>>(
       {
         method: 'POST',
@@ -73,6 +81,13 @@ export function useEventApi() {
       successMessage: t('event.updateSuccess'),
       ...options,
     }
+
+    request.startDate = request.startDate
+      ? formatDateForServer(new Date(request.startDate))
+      : request.startDate
+    request.endDate = request.endDate
+      ? formatDateForServer(new Date(request.endDate))
+      : request.startDate
 
     const response = await baseApi.makeRequest<EventResponse>(
       {
@@ -121,6 +136,13 @@ export function useEventApi() {
       successMessage: t('event.createSuccess'),
       ...options,
     }
+
+    request.startDate = request.startDate
+      ? formatDateForServer(new Date(request.startDate))
+      : request.startDate
+    request.endDate = request.endDate
+      ? formatDateForServer(new Date(request.endDate))
+      : request.startDate
 
     const response = await baseApi.makeRequest<EventResponse>(
       {

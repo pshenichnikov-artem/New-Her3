@@ -12,15 +12,17 @@
 
         <div class="relative">
             <select v-model="localValue"
-                class="w-full appearance-none border border-gray-300 rounded-lg px-3 py-2.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-300 transition-all hover:bg-white hover:border-indigo-300"
+                class="w-full appearance-none border border-primary-600 rounded-lg px-3 py-2.5 bg-primary text-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all hover:border-primary-500"
                 @change="onChange">
-                <option v-if="multipleSelect" value="" disabled>{{ t('filters.select') }}</option>
+                <option v-if="multipleSelect" value="" disabled class="bg-primary text-white">{{ t('filters.select')
+                    }}
+                </option>
                 <option v-for="option in filteredOptions" :key="option.value === null ? 'null' : option.value"
-                    :value="option.value">
+                    :value="option.value" class="bg-primary text-white">
                     {{ option.label }}
                 </option>
             </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -31,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import BaseFilterWrapper from './BaseFilterWrapper.vue';
 import FilterTag from './FilterTag.vue';
 import { useI18n } from 'vue-i18n';
@@ -44,7 +46,7 @@ interface Option {
 interface SelectFilterProps {
     title: string;
     options: Option[];
-    modelValue: string | number | null | (string | number | null)[];
+    modelValue: string | number | null | undefined | (string | number | null)[];
     multipleSelect?: boolean;
 }
 
@@ -52,10 +54,10 @@ const props = withDefaults(defineProps<SelectFilterProps>(), {
     multipleSelect: false
 });
 
-// Исправленное определение emit с корректными типами
+// Обновленное определение emit с корректными типами
 const emit = defineEmits<{
-    'update:modelValue': [value: string | number | null | (string | number | null)[]];
-    'change': [value: string | number | null | (string | number | null)[]];
+    'update:modelValue': [value: string | number | null | undefined | (string | number | null)[]];
+    'change': [value: string | number | null | undefined | (string | number | null)[]];
 }>();
 
 const { t } = useI18n();
@@ -68,7 +70,17 @@ if (props.multipleSelect && Array.isArray(props.modelValue)) {
 } else if (props.multipleSelect && props.modelValue !== null && props.modelValue !== undefined) {
     selectedValues.value = [props.modelValue as string | number];
 } else if (!props.multipleSelect) {
-    localValue.value = props.modelValue as string | number | null;
+    // Если значение не определено и есть опции, используем первое значение
+    if ((props.modelValue === null || props.modelValue === undefined || props.modelValue === '') && props.options.length > 0) {
+        localValue.value = props.options[0].value;
+        // Эмитим значение, чтобы обновить родительский компонент
+        setTimeout(() => {
+            emit('update:modelValue', localValue.value);
+            emit('change', localValue.value);
+        }, 0);
+    } else {
+        localValue.value = props.modelValue as string | number | null;
+    }
 }
 
 // Отфильтрованные опции (исключаем уже выбранные в режиме multipleSelect)
@@ -113,7 +125,34 @@ watch(() => props.modelValue, (newValue) => {
     } else if (props.multipleSelect && newValue !== null && newValue !== undefined) {
         selectedValues.value = [newValue as string | number];
     } else if (!props.multipleSelect) {
-        localValue.value = newValue as string | number | null;
+        // Если новое значение не определено и есть опции, используем первое значение
+        if ((newValue === null || newValue === undefined || newValue === '') && props.options.length > 0) {
+            localValue.value = props.options[0].value;
+            // Эмитим значение, чтобы обновить родительский компонент
+            emit('update:modelValue', localValue.value);
+            emit('change', localValue.value);
+        } else {
+            localValue.value = newValue as string | number | null;
+        }
+    }
+});
+
+// При изменении списка опций, проверяем, нужно ли установить значение по умолчанию
+watch(() => props.options, (newOptions) => {
+    if (!props.multipleSelect && (localValue.value === null || localValue.value === undefined || localValue.value === '') && newOptions.length > 0) {
+        localValue.value = newOptions[0].value;
+        emit('update:modelValue', localValue.value);
+        emit('change', localValue.value);
+    }
+}, { deep: true });
+
+// При монтировании компонента
+onMounted(() => {
+    // Если значение не выбрано (null/undefined) и есть опции, выбираем первую опцию
+    if (!props.multipleSelect && (localValue.value === null || localValue.value === undefined || localValue.value === '') && props.options.length > 0) {
+        localValue.value = props.options[0].value;
+        emit('update:modelValue', localValue.value);
+        emit('change', localValue.value);
     }
 });
 </script>

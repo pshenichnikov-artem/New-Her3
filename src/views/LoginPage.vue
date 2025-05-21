@@ -16,7 +16,7 @@
             :triggerValidation="form.validationTrigger.email" />
 
           <ValidationInput id="password" :label="t('fields.password')" type="password" v-model="formData.password"
-            validationRules="required" :error-messages="{
+            validationRules="required|password" :error-messages="{
               required: t('validation.password.required')
             }" @valid="form.updateValidationState('password', $event)"
             :triggerValidation="form.validationTrigger.password" />

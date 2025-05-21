@@ -1,4 +1,4 @@
 export interface SortRequest {
-  field: string
-  direction: 'asc' | 'desc'
+  sortBy: string
+  sortDirection: 'asc' | 'desc'
 }

@@ -5,8 +5,8 @@ export interface EventFilterRequest {
   dateTo?: string | null
   minPrice?: number | null
   maxPrice?: number | null
-  title?: string | null
-  location?: string | null
+  title?: string[] | null
+  location?: string[] | null
   isActive?: boolean | null
-  tag?: string | null
+  tag?: string[] | null
 }

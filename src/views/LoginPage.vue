@@ -39,7 +39,6 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import authService from '@/services/api/authService';
 import ValidationInput from '@/components/ui/ValidationInput.vue';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher.vue';
 import AppFooter from "@/components/layout/AppFooter.vue";
@@ -47,9 +46,11 @@ import { notificationService } from '@/composables/useNotification';
 import { useFormValidation } from '@/composables/useFormValidation';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { useAuthApi } from '@/composables/api/useAuthApi'; // Импортируем useAuthApi
 
 const { t } = useI18n();
 const router = useRouter();
+const authApi = useAuthApi(); // Используем composable
 
 // Интерфейс для данных формы логина
 interface LoginFormData {
@@ -68,28 +69,22 @@ const form = useFormValidation(['email', 'password']);
 
 // Обработчик отправки формы
 const onSubmit = async () => {
-  try {
-    // Вызов API для логина
-    const response = await authService.login({
-      email: formData.email,
-      password: formData.password
-    });
-
-    if (response.status === 'success') {
-      notificationService.success(t('common.success.loginSuccess'));
-      router.push('/');
-    } else {
-      if (response.error?.code === 401) {
+  // Используем authApi без try-catch
+  await authApi.login({
+    email: formData.email,
+    password: formData.password
+  }, {
+    showSuccessNotification: true,
+    successMessage: t('common.success.loginSuccess'),
+    // router.push('/') будет вызван автоматически в useAuthApi при успешном входе
+    onError: (error) => {
+      console.error('Login error:', error);
+      if (error.code === 401) {
         notificationService.error(t('serverErrors.auth.invalidCredentials'));
-      } else if (response.error?.code === 500) {
-        notificationService.error(response.message);
       } else {
         notificationService.error(t('auth.login.error'));
       }
     }
-  } catch (error) {
-    console.error('Login error:', error);
-    notificationService.error(t('auth.login.error'));
-  }
+  });
 };
 </script>

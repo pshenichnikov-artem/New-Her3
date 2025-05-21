@@ -100,7 +100,6 @@ const onSubmit = async () => {
     successMessage: t('common.success.registerSuccess'),
     // router.push('/') будет вызван автоматически в useAuthApi при успешной регистрации
     onError: (error) => {
-      console.error('Registration error:', error);
       if (error.code === 409) {
         notificationService.error(t('serverErrors.auth.emailAlreadyExists'));
       } else {

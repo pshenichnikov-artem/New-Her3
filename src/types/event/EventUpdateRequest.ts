@@ -8,4 +8,7 @@ export interface EventUpdateRequest {
   endDate: string // ISO формат даты
   ticketCount: number
   images: EventImageUpdateRequest[]
+  price: number
+  isActive: boolean
+  tag: string
 }

@@ -1,5 +1,6 @@
 export interface EventFilterRequest {
   eventIds: string[] // массив Guid в виде строк
+  description?: string | null
   dateFrom?: string | null
   dateTo?: string | null
   minPrice?: number | null
@@ -7,4 +8,5 @@ export interface EventFilterRequest {
   title?: string | null
   location?: string | null
   isActive?: boolean | null
+  tag?: string | null
 }

@@ -152,18 +152,33 @@ export function useBaseApi<T>(
       }
     } catch (err) {
       const axiosError = err as AxiosError<ApiResponse<any>>
-      error.value = axiosError.response?.data?.error || {
-        code: axiosError.response?.status || 500,
-        message: axiosError.message,
-      }
+      console.log('API Error:', axiosError)
 
-      if (showErrorNotification) {
-        const errorMsg =
-          axiosError.response?.data?.message ||
-          axiosError.message ||
-          errorMessage ||
-          t('common.errors.unexpected')
-        notificationService.error(errorMsg)
+      // Проверяем ошибку сети - используем code вместо message
+      if (axiosError.code === 'ERR_NETWORK') {
+        error.value = {
+          code: 0,
+          message: t('common.errors.networkError'),
+        }
+
+        if (showErrorNotification) {
+          notificationService.error(errorMessage || t('common.errors.networkError'))
+        }
+      } else {
+        // Обработка других ошибок, как раньше
+        error.value = axiosError.response?.data?.error || {
+          code: axiosError.response?.status || 500,
+          message: axiosError.message,
+        }
+
+        if (showErrorNotification) {
+          const errorMsg =
+            axiosError.response?.data?.message ||
+            axiosError.message ||
+            errorMessage ||
+            t('common.errors.unexpected')
+          notificationService.error(errorMsg)
+        }
       }
 
       if (onError) {

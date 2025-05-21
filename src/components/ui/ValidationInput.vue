@@ -3,7 +3,7 @@
     <label v-if="label" class="block text-sm font-medium text-text-form mb-1">{{ label }}</label>
     <div class="relative flex items-center">
       <input
-        class="w-full bg-form-light text-text-form border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 pr-10"
+        class="w-full bg-form-light text-black border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 pr-10"
         :class="{
           'border-form-border focus:ring-form-focus': !error && !isRed,
           'border-green-500 focus:ring-green-500': isValid && !error && !isEmpty,
@@ -161,6 +161,35 @@ function getValidators(): Record<string, (v: string, p?: string) => string | boo
     },
     onlyRussian: (v) => customPatterns.onlyRussian.test(v) || t('validation.onlyRussian'),
     onlyEnglish: (v) => customPatterns.onlyEnglish.test(v) || t('validation.onlyEnglish'),
+    passport: (v: string) => {
+      if (!v) return props.errorMessages.passportRequired || t('validation.passport.required');
+      if (!/^\d{4}\s?\d{6}$/.test(v)) return props.errorMessages.passportPattern || t('validation.passport.pattern');
+      return true;
+    },
+
+    birthDocument: (v: string) => {
+      if (!v) return props.errorMessages.birthDocumentRequired || t('validation.birthDocument.required');
+      if (!/^[IVXLCDM]{1,5}-\d{6}$/.test(v)) {
+        // Формат может быть вида "IV-123456" — серия римскими цифрами, затем номер
+        return props.errorMessages.birthDocumentPattern || t('validation.birthDocument.pattern');
+      }
+      return true;
+    },
+
+    driverLicense: (v: string) => {
+      if (!v) return props.errorMessages.driverLicenseRequired || t('validation.driverLicense.required');
+      if (!/^\d{4}\s?\d{6}$/.test(v)) return props.errorMessages.driverLicensePattern || t('validation.driverLicense.pattern');
+      return true;
+    },
+
+    studentCard: (v: string) => {
+      if (!v) return props.errorMessages.studentCardRequired || t('validation.studentCard.required');
+      if (!/^[А-Яа-яA-Za-z0-9\-]{5,20}$/.test(v)) {
+        // Допускаются буквы, цифры, дефис — общая маска для студенческого
+        return props.errorMessages.studentCardPattern || t('validation.studentCard.pattern');
+      }
+      return true;
+    },
     fullName: (v) => {
       const words = v.trim().split(/\s+/);
 

@@ -13,7 +13,7 @@ const router = createRouter({
       name: 'home',
       component: HomePage,
       meta: {
-        requiresAuth: true,
+        requiresAuth: false, // Изменено с true на false, чтобы главная страница была доступна всем
         title: 'Home',
       },
     },
@@ -49,7 +49,7 @@ const router = createRouter({
       name: 'filters-test',
       component: () => import('@/views/testPage/FilterTestPage.vue'),
       meta: {
-        requiresAuth: false,
+        requiresAuth: false, // Изменено для доступа к тестовым страницам
         title: 'Filters Test',
       },
     },
@@ -58,8 +58,17 @@ const router = createRouter({
       name: 'notifications-test',
       component: () => import('@/views/testPage/NotificationTestPage.vue'),
       meta: {
-        requiresAuth: false,
+        requiresAuth: false, // Изменено для доступа к тестовым страницам
         title: 'Notifications Test',
+      },
+    },
+    {
+      path: '/events',
+      name: 'events',
+      component: () => import('@/views/events/EventsPage.vue'),
+      meta: {
+        requiresAuth: false,
+        title: 'Events',
       },
     },
     // Добавляем маршрут 404 для не найденных страниц
@@ -77,29 +86,46 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       redirect: '/not-found',
     },
+    // Добавляем маршрут для страницы покупки билетов
+    {
+      path: '/by-ticket/:eventId',
+      name: 'purchase-tickets',
+      component: () => import('@/views/tickets/PurchasePage.vue'),
+      meta: {
+        role: ['user'],
+        requiresAuth: true,
+        title: 'Purchase Tickets',
+      },
+    },
   ],
 })
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  const isAuthenticated = true // authStore.IsAuthenticated
+  const isAuthenticated = authStore.isAuthenticated // Используем реальное значение вместо константы true
   const userRole = authStore.role
   const allowedRoles = Array.isArray(to.meta.roles) ? to.meta.roles : []
 
+  // Проверяем, требуется ли авторизация для маршрута
   if (to.meta.requiresAuth) {
+    // Если требуется авторизация, но пользователь не авторизован
     if (!isAuthenticated) {
       next('/login')
-    } else if (
-      allowedRoles.length &&
-      (!userRole || !allowedRoles.some((role) => role === userRole))
-    ) {
-      next('/unauthorized')
-    } else {
-      next()
+      return
     }
-  } else {
-    next()
+
+    // Если требуются определенные роли и они указаны
+    if (allowedRoles.length > 0) {
+      // Проверяем, имеет ли пользователь нужную роль
+      if (!userRole || !allowedRoles.some((role) => role === userRole)) {
+        next('/unauthorized')
+        return
+      }
+    }
   }
+
+  // Если маршрут не требует авторизации или все проверки пройдены
+  next()
 })
 
 export default router

@@ -1,6 +1,7 @@
 import { useI18n } from 'vue-i18n'
 import { PaymentStatus } from '@/types/enums/PaymentStatus'
 import { TicketStatus } from '@/types/enums/TicketStatus'
+import { DocumentType } from '@/types/enums/DocumentType'
 import { computed } from 'vue'
 
 export function useStatusTranslation() {
@@ -18,6 +19,13 @@ export function useStatusTranslation() {
    */
   const translateTicketStatus = (status: TicketStatus) => {
     return t(`ticketStatus.${status}`)
+  }
+
+  /**
+   * Возвращает переведенный текст для типа документа
+   */
+  const translateDocumentType = (type: DocumentType) => {
+    return t(`documentType.${type}`)
   }
 
   /**
@@ -50,10 +58,22 @@ export function useStatusTranslation() {
     return statusClasses[status] || 'bg-gray-100 text-gray-800'
   }
 
+  /**
+   * Возвращает опции для выпадающего списка типов документов
+   */
+  const getDocumentTypeOptions = () => {
+    return Object.values(DocumentType).map((type) => ({
+      value: type,
+      label: translateDocumentType(type),
+    }))
+  }
+
   return {
     translatePaymentStatus,
     translateTicketStatus,
+    translateDocumentType,
     getPaymentStatusClass,
     getTicketStatusClass,
+    getDocumentTypeOptions,
   }
 }

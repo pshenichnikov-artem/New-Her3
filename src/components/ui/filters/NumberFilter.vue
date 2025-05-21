@@ -12,21 +12,21 @@
 
         <div class="relative">
             <input type="text" inputmode="numeric" pattern="[0-9]*" v-model="inputValue" :placeholder="placeholder"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-300 transition-all hover:bg-white hover:border-indigo-300"
+                class="w-full border border-primary-600 rounded-lg px-3 py-2.5 bg-primary text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all hover:border-primary-500"
                 @input="onInput" @focus="showSuggestions = true" @keydown.enter="onEnterKey" @blur="onBlur" />
 
             <!-- Значок валюты, если необходимо -->
             <div v-if="currency"
-                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
                 {{ currency }}
             </div>
 
             <!-- Выпадающий список с предложениями -->
             <div v-if="multipleSelect && showSuggestions && filteredSuggestions.length > 0"
-                class="absolute left-0 right-0 mt-1 max-h-60 overflow-auto bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                class="absolute left-0 right-0 mt-1 max-h-60 overflow-auto bg-primary border border-primary-600 rounded-lg shadow-lg z-10">
                 <div v-for="(suggestion, index) in filteredSuggestions" :key="index"
-                    class="px-4 py-2 hover:bg-indigo-50 cursor-pointer text-gray-700"
-                    :class="{ 'bg-indigo-50 text-indigo-700': index === activeSuggestionIndex }"
+                    class="px-4 py-2 hover:bg-primary-600 cursor-pointer text-white"
+                    :class="{ 'bg-primary-600 text-text-accent': index === activeSuggestionIndex }"
                     @mousedown="selectSuggestion(suggestion)" @mouseover="activeSuggestionIndex = index">
                     {{ formatNumber(suggestion) }}
                 </div>
@@ -43,7 +43,7 @@ import FilterTag from './FilterTag.vue';
 interface NumberFilterProps {
     title: string;
     placeholder?: string;
-    modelValue: number | number[] | null;
+    modelValue: number | number[] | null | undefined;
     multipleSelect?: boolean;
     currency?: string;
     getSuggestions?: (input: string) => Promise<number[]> | number[];
@@ -56,7 +56,7 @@ const props = withDefaults(defineProps<NumberFilterProps>(), {
 });
 
 const emit = defineEmits<{
-    'update:modelValue': [value: number | number[] | null];
+    'update:modelValue': [value: number | number[] | null | undefined];
 }>();
 
 const inputValue = ref('');
@@ -151,9 +151,9 @@ const onBlur = () => {
 watch(() => props.modelValue, (newValue) => {
     if (props.multipleSelect && Array.isArray(newValue)) {
         selectedValues.value = [...newValue];
-    } else if (props.multipleSelect && newValue !== null) {
+    } else if (props.multipleSelect && newValue !== null && newValue !== undefined) {
         selectedValues.value = [newValue as number];
-    } else if (!props.multipleSelect && newValue !== null) {
+    } else if (!props.multipleSelect && newValue !== null && newValue !== undefined) {
         inputValue.value = String(newValue);
     } else {
         inputValue.value = '';

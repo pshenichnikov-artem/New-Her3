@@ -83,15 +83,16 @@ export function useBaseApi<T>(
     error.value = null
 
     try {
+      console.log(config.url?.startsWith('http') ? config.url : `${baseUrl}${config.url || ''}`)
       const response = await axios.request<ApiResponse<R>>({
         ...config,
         url: config.url?.startsWith('http') ? config.url : `${baseUrl}${config.url || ''}`,
       })
 
       const responseData = response.data
-
+      console.log('API Response:', responseData)
       // Обработка успешного ответа
-      if (responseData.status === 'success') {
+      if (responseData.isSuccess) {
         // Если данные содержат пагинированный ответ, обновляем items и totalCount
         if (
           responseData.data &&

@@ -144,7 +144,7 @@ const performSearch = () => {
   eventApi.searchEvents({
     filter: {
       eventIds: [],
-      title: searchQuery.value,
+      title: [searchQuery.value],
       location: null,
       dateFrom: null,
       dateTo: null,
@@ -152,7 +152,7 @@ const performSearch = () => {
       maxPrice: null,
       isActive: true
     },
-    sort: [{ field: 'startTime', direction: 'asc' }],
+    sort: [{ sortBy: 'startTime', sortDirection: 'asc' }],
     pagination: { pageNumber: 1, pageSize: 5 } // Ограничиваем количество результатов для дропдауна
   }).then(() => {
     showDropdown.value = true;

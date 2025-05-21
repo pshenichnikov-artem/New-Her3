@@ -111,7 +111,7 @@
                                 <!-- Дата рождения с DateValidation и ограничением по возрасту -->
                                 <DateValidation :id="`birthDate-${index}`" :label="t('fields.birthDate')"
                                     placeholder="Выберите дату рождения" v-model="attendee.birthDate"
-                                    :maxDate="new Date()" :minDate="minBirthDate"
+                                    :maxDate="maxBirthDate" :minDate="minBirthDate"
                                     :error="form.validationTrigger[`birthDate-${index}`] && !form.validationState[`birthDate-${index}`] ? t('validation.required') : null"
                                     @date-for-server="(date) => handleBirthDateChange(date, index)"
                                     @valid="(isValid) => form.updateValidationState(`birthDate-${index}`, isValid)">
@@ -125,7 +125,7 @@
                                     <label class="mb-2 text-sm font-medium text-text">{{ t('fields.documentType')
                                         }}</label>
                                     <select :id="`documentType-${index}`" v-model="attendee.documentType"
-                                        class="w-full border border-primary-600 rounded-lg px-4 py-2.5 bg-primary text-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all hover:border-primary-500 h-[42px]"
+                                        class="w-full border border-primary-600 rounded-lg px-4 py-2.5 bg-white text-black focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all hover:border-primary-500 h-[42px]"
                                         @change="updateDocumentTypeRules(attendee, index)">
                                         <option v-for="option in documentTypeOptions" :key="option.value"
                                             :value="option.value">

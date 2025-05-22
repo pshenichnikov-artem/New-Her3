@@ -4,25 +4,44 @@
             <slot name="icon"></slot>
         </template>
 
-        <!-- Выбранные значения -->
-        <div v-if="multipleSelect && selectedValues.length > 0" class="flex flex-wrap mb-2">
-            <FilterTag v-for="(value, index) in selectedValues" :key="index" :label="formatNumber(value)"
-                @remove="removeValue(index)" />
-        </div>
-
         <div class="relative">
-            <input type="text" inputmode="numeric" pattern="[0-9]*" v-model="inputValue" :placeholder="placeholder"
-                class="w-full border border-primary-600 rounded-lg px-3 py-2.5 bg-primary text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all hover:border-primary-500"
-                @input="onInput" @focus="showSuggestions = true" @keydown.enter="onEnterKey" @blur="onBlur" />
+            <!-- Объединенный контейнер для input и тегов -->
+            <div class="min-h-[56px] w-full border border-primary-600 rounded-lg bg-primary px-2.5 pt-1 pb-1.5 flex flex-col justify-between">
+                <!-- Контейнер для тегов -->
+                <div class="flex flex-wrap gap-0.5">
+                    <FilterTag v-if="multipleSelect && selectedValues.length > 0" 
+                        v-for="(value, index) in selectedValues" 
+                        :key="index" 
+                        :label="formatNumber(value)"
+                        @remove="removeValue(index)" 
+                        class="text-[9px] px-0.5 leading-none [&>button]:w-2 [&>button]:h-2 [&>button]:text-[7px] [&>button]:ml-0.5 [&>button]:flex [&>button]:items-center [&>button]:justify-center"
+                    />
+                </div>
 
-            <!-- Значок валюты, если необходимо -->
+                <!-- Input в нижней части -->
+                <input 
+                    type="text" 
+                    inputmode="numeric" 
+                    pattern="[0-9]*" 
+                    v-model="inputValue" 
+                    :placeholder="placeholder"
+                    class="w-full bg-transparent text-white placeholder:text-gray-300 placeholder:text-xs focus:outline-none text-sm mt-0.5"
+                    :class="{ 'pr-8': currency }"
+                    @input="onInput" 
+                    @focus="showSuggestions = true" 
+                    @keydown.enter="onEnterKey" 
+                    @blur="onBlur"
+                />
+            </div>
+
+            <!-- Значок валюты -->
             <div v-if="currency"
-                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                class="pointer-events-none absolute right-0 bottom-[1px] flex items-center h-[20px] px-3 text-white text-sm">
                 {{ currency }}
             </div>
 
             <!-- Выпадающий список с предложениями -->
-            <div v-if="multipleSelect && showSuggestions && filteredSuggestions.length > 0"
+            <div v-if="multipleSelect && showSuggestions && filteredSuggestions.length > 0 && selectedValues.length < 5"
                 class="absolute left-0 right-0 mt-1 max-h-60 overflow-auto bg-primary border border-primary-600 rounded-lg shadow-lg z-10">
                 <div v-for="(suggestion, index) in filteredSuggestions" :key="index"
                     class="px-4 py-2 hover:bg-primary-600 cursor-pointer text-white"
@@ -107,7 +126,7 @@ const onInput = async () => {
 
 const selectSuggestion = (suggestion: number) => {
     if (props.multipleSelect) {
-        if (!selectedValues.value.includes(suggestion)) {
+        if (!selectedValues.value.includes(suggestion) && selectedValues.value.length < 5) {
             selectedValues.value.push(suggestion);
             emit('update:modelValue', selectedValues.value);
         }
@@ -125,7 +144,7 @@ const onEnterKey = (e: KeyboardEvent) => {
     if (props.multipleSelect && showSuggestions.value && activeSuggestionIndex.value >= 0) {
         selectSuggestion(filteredSuggestions.value[activeSuggestionIndex.value]);
         e.preventDefault();
-    } else if (props.multipleSelect && inputValue.value.trim()) {
+    } else if (props.multipleSelect && inputValue.value.trim() && selectedValues.value.length < 5) {
         const numberValue = parseFloat(inputValue.value.replace(/,/g, '.'));
         if (!isNaN(numberValue) && !selectedValues.value.includes(numberValue)) {
             selectedValues.value.push(numberValue);

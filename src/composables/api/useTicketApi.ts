@@ -44,7 +44,7 @@ export function useTicketApi() {
   ): Promise<Response<TicketResponse> | null> {
     const response = await baseApi.makeRequest<Response<TicketResponse>>(
       {
-        method: 'GET',
+        method: 'POST',
         url: `/me`,
         data: request,
       },
@@ -155,6 +155,84 @@ export function useTicketApi() {
     return response !== null
   }
 
+  /**
+   * Резервирование билета на мероприятие
+   * @param eventId ID мероприятия
+   * @param options Опции запроса
+   * @returns Строка с ключом резервирования или null
+   */
+  async function reserveTicket(
+    eventId: string,
+    options: RequestOptions = {},
+  ): Promise<string | null> {
+    const defaultOptions = {
+      showSuccessNotification: true,
+      successMessage: t('ticket.reserveSuccess'),
+      ...options,
+    }
+
+    const response = await baseApi.makeRequest<string>(
+      {
+        method: 'POST',
+        url: `/reserve/${eventId}`,
+      },
+      'update',
+      defaultOptions,
+    )
+
+    return response?.data || null
+  }
+
+  /**
+   * Получение количества доступных билетов на мероприятие
+   * @param eventId ID мероприятия
+   * @param options Опции запроса
+   * @returns Количество доступных билетов или null
+   */
+  async function getAvailableTicketsCount(
+    eventId: string,
+    options: RequestOptions = {},
+  ): Promise<number | null> {
+    const response = await baseApi.makeRequest<number>(
+      {
+        method: 'GET',
+        url: `/available/${eventId}`,
+      },
+      'get',
+      options,
+    )
+
+    return response?.data !== undefined ? response?.data : null
+  }
+
+  /**
+   * Отмена резервирования билета
+   * @param eventId ID мероприятия
+   * @param options Опции запроса
+   * @returns true если операция успешна, иначе false
+   */
+  async function cancelReserveTicket(
+    eventId: string,
+    options: RequestOptions = {},
+  ): Promise<boolean> {
+    const defaultOptions = {
+      showSuccessNotification: true,
+      successMessage: t('ticket.cancelReserveSuccess'),
+      ...options,
+    }
+
+    const response = await baseApi.makeRequest<void>(
+      {
+        method: 'POST',
+        url: `/cancel-reserve/${eventId}`,
+      },
+      'update',
+      defaultOptions,
+    )
+
+    return response !== null
+  }
+
   // Создаем и возвращаем единый объект API для билетов
   const ticketApi = reactive({
     // Состояния
@@ -173,6 +251,9 @@ export function useTicketApi() {
     updateTicket,
     deleteTicket,
     resetState: baseApi.resetState,
+    reserveTicket, // Новый метод
+    getAvailableTicketsCount, // Новый метод
+    cancelReserveTicket, // Новый метод
   })
 
   return ticketApi

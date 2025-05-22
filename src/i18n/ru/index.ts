@@ -597,6 +597,69 @@ export default {
       submit: 'Купить {count} билет(ов) за {price}',
       success: 'Вы успешно приобрели {count} билет(ов)',
       error: 'Ошибка при покупке билетов',
+      noAvailableTickets: 'Нет доступных билетов',
+      reserveError: 'Ошибка бронирования билета',
+    },
+  },
+
+  // Профиль пользователя
+  profile: {
+    title: 'Личный кабинет',
+    menu: {
+      info: 'Мой профиль',
+      tickets: 'Мои билеты',
+      calendar: 'Мой календарь',
+    },
+    info: {
+      title: 'Информация о профиле',
+      editProfile: 'Редактировать профиль',
+      changePassword: 'Сменить пароль',
+      saveChanges: 'Сохранить изменения',
+      cancel: 'Отмена',
+      updateSuccess: 'Профиль успешно обновлен',
+      updateError: 'Ошибка при обновлении профиля',
+    },
+    password: {
+      title: 'Сменить пароль',
+      change: 'Сменить пароль',
+      success: 'Пароль успешно изменен',
+      error: 'Ошибка при смене пароля',
+    },
+    tickets: {
+      title: 'Мои билеты',
+      comingSoon: 'Список ваших билетов будет доступен скоро!',
+      noTickets: 'У вас пока нет билетов',
+      buyTicketsMessage: 'Посетите страницу с мероприятиями, чтобы приобрести билеты',
+      browseEvents: 'Просмотреть мероприятия',
+      filter: 'Фильтр',
+      allStatuses: 'Все статусы',
+      sort: 'Сортировка',
+      sortNewest: 'Сначала новые',
+      sortOldest: 'Сначала старые',
+      sortByEvent: 'По названию мероприятия',
+      ticketDetails: 'Детали билета',
+      eventDetails: 'Информация о мероприятии',
+      attendeeDetails: 'Информация о посетителе',
+      view: 'Просмотр',
+      download: 'Скачать',
+      downloadStarted: 'Загрузка билета началась',
+      unknownEvent: 'Неизвестное мероприятие',
+      locationUnknown: 'Место проведения не указано',
+      attendeeUnknown: 'Посетитель не указан',
+      ticketStatus: 'Статус билета',
+    },
+    calendar: {
+      title: 'Мой календарь событий',
+      comingSoon: 'Календарь событий будет доступен скоро!',
+    },
+  },
+
+  // Пользователи
+  user: {
+    roles: {
+      admin: 'Администратор',
+      user: 'Пользователь',
+      unknown: 'Неизвестная роль',
     },
   },
 }

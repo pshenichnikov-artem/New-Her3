@@ -582,4 +582,83 @@ export default {
       registerSuccess: 'Registration completed successfully',
     },
   },
+
+  // Билеты
+  tickets: {
+    price: 'Price',
+    duration: 'Duration',
+    purchase: {
+      title: 'Purchase Tickets',
+      description: 'Fill in information for each ticket',
+      ticket: 'Ticket',
+      ticketsCount: '{count} ticket(s)',
+      maxTickets: 'Maximum {max} tickets per order',
+      submit: 'Buy {count} ticket(s) for {price}',
+      success: 'You have successfully purchased {count} ticket(s)',
+      error: 'Error purchasing tickets',
+      noAvailableTickets: 'No tickets available',
+      reserveError: 'Error reserving ticket',
+    },
+  },
+
+  // Профиль пользователя
+  profile: {
+    title: 'User Profile',
+    menu: {
+      info: 'My Profile',
+      tickets: 'My Tickets',
+      calendar: 'My Calendar',
+    },
+    info: {
+      title: 'Profile Information',
+      editProfile: 'Edit Profile',
+      changePassword: 'Change Password',
+      saveChanges: 'Save Changes',
+      cancel: 'Cancel',
+      updateSuccess: 'Profile successfully updated',
+      updateError: 'Error updating profile',
+    },
+    password: {
+      title: 'Change Password',
+      change: 'Change Password',
+      success: 'Password successfully changed',
+      error: 'Error changing password',
+    },
+    tickets: {
+      title: 'My Tickets',
+      comingSoon: 'Your tickets list will be available soon!',
+      noTickets: 'You don\'t have any tickets yet',
+      buyTicketsMessage: 'Visit the events page to purchase tickets',
+      browseEvents: 'Browse Events',
+      filter: 'Filter',
+      allStatuses: 'All statuses',
+      sort: 'Sort',
+      sortNewest: 'Newest first',
+      sortOldest: 'Oldest first',
+      sortByEvent: 'By event name',
+      ticketDetails: 'Ticket Details',
+      eventDetails: 'Event Information',
+      attendeeDetails: 'Attendee Information',
+      view: 'View',
+      download: 'Download',
+      downloadStarted: 'Ticket download started',
+      unknownEvent: 'Unknown event',
+      locationUnknown: 'Location not specified',
+      attendeeUnknown: 'Attendee not specified',
+      ticketStatus: 'Ticket status',
+    },
+    calendar: {
+      title: 'My Events Calendar',
+      comingSoon: 'Events calendar will be available soon!',
+    },
+  },
+
+  // Users
+  user: {
+    roles: {
+      admin: 'Administrator',
+      user: 'User',
+      unknown: 'Unknown role',
+    },
+  },
 }

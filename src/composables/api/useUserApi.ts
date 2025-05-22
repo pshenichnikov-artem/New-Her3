@@ -103,6 +103,35 @@ export function useUserApi() {
   }
 
   /**
+   * Обновление данных текущего пользователя
+   * @param request Запрос на обновление пользователя
+   * @param options Опции запроса
+   * @returns true если операция успешна, иначе false
+   */
+  async function updateUserBySelf(
+    request: UserUpdateRequest,
+    options: RequestOptions = {},
+  ): Promise<boolean> {
+    const defaultOptions = {
+      showSuccessNotification: true,
+      successMessage: t('success.entities.user.profileUpdated'),
+      ...options,
+    }
+
+    const response = await baseApi.makeRequest<void>(
+      {
+        method: 'PUT',
+        url: '/me',
+        data: request,
+      },
+      'update',
+      defaultOptions,
+    )
+
+    return response !== null
+  }
+
+  /**
    * Удаление пользователя
    */
   async function deleteUser(id: string, options: RequestOptions = {}): Promise<boolean> {
@@ -139,6 +168,7 @@ export function useUserApi() {
     getUserById,
     getCurrentUser,
     updateUser,
+    updateUserBySelf,  // Новый метод
     deleteUser,
     resetState: baseApi.resetState,
   })

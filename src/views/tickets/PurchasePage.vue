@@ -170,13 +170,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { formatDate, formatDateTime, formatCurrency } from '@/utils/formatterUtils';
 import { useFormValidation } from '@/composables/useFormValidation';
 import { useEventApi } from '@/composables/api/useEventApi';
 import { useAttendeeApi } from '@/composables/api/useAttendeeApi';
+import { useTicketApi } from '@/composables/api/useTicketApi';
 import { notificationService } from '@/composables/useNotification';
 import { DocumentType } from '@/types/enums/DocumentType';
 import type { AttendeeAddRequest } from '@/types/attendee/AttendeeAddRequest';
@@ -198,12 +199,14 @@ const route = useRoute();
 const router = useRouter();
 const eventApi = useEventApi();
 const attendeeApi = useAttendeeApi();
+const ticketApi = useTicketApi();
 
 // Состояние
 const event = ref<EventResponse | null>(null);
 const isLoading = ref(true);
 const error = ref<string | null>(null);
 const isSubmitting = ref(false);
+const reservedTickets = ref<string[]>([]); // Массив для хранения ключей зарезервированных билетов
 
 // Создаем массив билетов (посетителей)
 const attendees = ref<AttendeeAddRequest[]>([createEmptyAttendee()]);
@@ -347,13 +350,33 @@ function calculateTotalPrice(): string {
 }
 
 // Управление билетами
-function addAttendee() {
+async function addAttendee() {
     if (attendees.value.length < MAX_TICKETS) {
+        if (!event.value) return;
+
+        // Проверяем, есть ли доступные билеты
+        const availableTickets = await checkAvailableTickets(event.value.id);
+
+        // Если нет информации о доступных билетах или их количество меньше или равно текущему количеству
+        if (availableTickets === null || availableTickets <= attendees.value.length) {
+            notificationService.error(t('tickets.purchase.noAvailableTickets'));
+            return;
+        }
+
+        // Пробуем зарезервировать новый билет
+        const ticketKey = await reserveTicket(event.value.id);
+
+        if (!ticketKey) {
+            notificationService.error(t('tickets.purchase.reserveError'));
+            return;
+        }
+
+        // Если билет успешно зарезервирован, добавляем нового посетителя
         const newIndex = attendees.value.length;
         attendees.value.push(createEmptyAttendee());
 
         // Обновляем поля валидации
-        const newFields = [`fullName-${newIndex}`, `birthDate-${newIndex}`, `documentNumber-${newIndex}`];
+        const newFields = [`fullName-${newIndex}`, `birthDate-${newIndex}`, `documentType-${newIndex}`, `documentNumber-${newIndex}`];
         newFields.forEach(field => {
             form.validationState[field] = false;
             form.validationTrigger[field] = 0;
@@ -364,12 +387,22 @@ function addAttendee() {
 function removeAttendee() {
     if (attendees.value.length > 1) {
         attendees.value.pop();
+
+        // Отменяем бронирование для удаленного билета
+        if (event.value) {
+            cancelReservation(event.value.id);
+        }
     }
 }
 
 function removeSpecificAttendee(index: number) {
     if (index > 0 && attendees.value.length > 1) {
         attendees.value.splice(index, 1);
+
+        // Отменяем бронирование для удаленного билета
+        if (event.value) {
+            cancelReservation(event.value.id);
+        }
 
         // Обновляем поля валидации - удаляем старые
         const removedFields = [`fullName-${index}`, `birthDate-${index}`, `documentType-${index}`, `documentNumber-${index}`];
@@ -395,7 +428,57 @@ function removeSpecificAttendee(index: number) {
 
 // Навигация
 function goBack() {
-    router.go(-1);
+    // Отменяем все бронирования перед уходом со страницы
+    cancelAllReservations().then(() => {
+        router.go(-1);
+    });
+}
+
+// Функция для бронирования билета
+async function reserveTicket(eventId: string): Promise<string | null> {
+
+    const result = await ticketApi.reserveTicket(eventId, {
+        showSuccessNotification: false, // Отключаем авто-уведомления
+        showErrorNotification: false // Отключаем авто-уведомления об ошибках
+    });
+
+    if (result) {
+        reservedTickets.value.push(result);
+        return result;
+    }
+    return null;
+}
+
+// Функция для проверки доступности билетов
+async function checkAvailableTickets(eventId: string): Promise<number | null> {
+    return await ticketApi.getAvailableTicketsCount(eventId);
+}
+
+// Функция для отмены бронирования билета
+async function cancelReservation(eventId: string): Promise<boolean> {
+
+    const result = await ticketApi.cancelReserveTicket(eventId, {
+        showSuccessNotification: false, // Отключаем авто-уведомления
+        showErrorNotification: false // Отключаем авто-уведомления об ошибках
+    });
+
+    // Удаляем ключ из массива зарезервированных билетов
+    if (result && reservedTickets.value.length > 0) {
+        reservedTickets.value.pop();
+    }
+
+    return result;
+}
+
+// Функция для отмены всех бронирований
+async function cancelAllReservations(): Promise<void> {
+    if (!event.value) return;
+
+    // Отменяем бронирования по одному
+    for (let i = 0; i < reservedTickets.value.length; i++) {
+        await cancelReservation(event.value.id);
+    }
+    reservedTickets.value = [];
 }
 
 // Отправка формы
@@ -421,6 +504,10 @@ async function submitForm() {
 
             // Если все запросы успешны, показываем общее уведомление
             notificationService.success(t('tickets.purchase.success', { count: attendees.value.length }));
+
+            // После успешной покупки обнуляем reservedTickets, чтобы они не отменялись при выходе со страницы
+            // так как билеты уже оформлены и не нужно отменять их резервирование
+            reservedTickets.value = [];
 
             // Редирект на страницу профиля или билетов
             router.push('/profile/tickets');
@@ -455,6 +542,13 @@ async function loadEventData() {
         attendees.value.forEach(attendee => {
             attendee.ticketId = eventData.id;
         });
+
+        // Бронируем первый билет при загрузке страницы
+        const ticketKey = await reserveTicket(eventData.id);
+
+        if (!ticketKey) {
+            error.value = t('tickets.purchase.noAvailableTickets');
+        }
     } catch (e) {
         console.error('Error loading event:', e);
         error.value = t('errors.entities.event.loadError');
@@ -466,7 +560,36 @@ async function loadEventData() {
 // Инициализация страницы
 onMounted(async () => {
     await loadEventData();
+
+    // Добавляем обработчик события beforeunload для отмены бронирования при уходе со страницы
+    window.addEventListener('beforeunload', handlePageLeave);
 });
+
+// Очистка при уходе со страницы
+onBeforeUnmount(() => {
+    // Отменяем все бронирования при закрытии страницы
+    cancelAllReservations();
+    window.removeEventListener('beforeunload', handlePageLeave);
+});
+
+// Обработчик события beforeunload
+async function handlePageLeave(e: BeforeUnloadEvent) {
+    // Отменяем все бронирования при уходе со страницы
+    await cancelAllReservations();
+
+    // Нужен для отображения предупреждения в некоторых браузерах
+    e.preventDefault();
+    e.returnValue = '';
+}
+
+// Следим за изменением маршрута
+watch(
+    () => route.fullPath,
+    () => {
+        // При изменении маршрута также отменяем все бронирования
+        cancelAllReservations();
+    }
+);
 </script>
 
 <style scoped>

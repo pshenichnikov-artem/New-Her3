@@ -97,6 +97,46 @@ const router = createRouter({
         title: 'Purchase Tickets',
       },
     },
+    // Профиль пользователя с вложенными маршрутами
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/views/profile/ProfilePage.vue'),
+      meta: {
+        requiresAuth: true,
+        title: 'Profile',
+      },
+      redirect: '/profile/info',
+      children: [
+        {
+          path: 'info',
+          name: 'profile-info',
+          component: () => import('@/views/profile/ProfileInfo.vue'),
+          meta: {
+            requiresAuth: true,
+            title: 'Profile - User Info',
+          },
+        },
+        {
+          path: 'tickets',
+          name: 'profile-tickets',
+          component: () => import('@/views/profile/ProfileTickets.vue'),
+          meta: {
+            requiresAuth: true,
+            title: 'Profile - Tickets',
+          },
+        },
+        {
+          path: 'calendar',
+          name: 'profile-calendar',
+          component: () => import('@/views/profile/ProfileCalendar.vue'),
+          meta: {
+            requiresAuth: true,
+            title: 'Profile - Calendar',
+          },
+        },
+      ],
+    },
   ],
 })
 

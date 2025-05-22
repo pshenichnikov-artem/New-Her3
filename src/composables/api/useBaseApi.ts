@@ -87,8 +87,10 @@ export function useBaseApi<T>(
       const response = await axios.request<ApiResponse<R>>({
         ...config,
         url: config.url?.startsWith('http') ? config.url : `${baseUrl}${config.url || ''}`,
+        validateStatus: () => true,
       })
 
+      console.log('Response:', response)
       const responseData = response.data
       console.log('API Response:', responseData)
       // Обработка успешного ответа
@@ -134,7 +136,7 @@ export function useBaseApi<T>(
       else {
         error.value = responseData.error || { message: responseData.message }
 
-        if (showErrorNotification) {
+        if (showErrorNotification && !onError) {
           notificationService.error(
             errorMessage || responseData.message || t('common.errors.operationFailed'),
           )

@@ -8,5 +8,5 @@ export enum TicketStatus {
   Reserved = 'Reserved',
   Paid = 'Paid',
   Used = 'Used',
-  Cancelled = 'Cancelled',
+  Cancelled = 'Cancelled'
 }

@@ -1,51 +1,59 @@
 ﻿<template>
-  <div class="flex flex-row items-center justify-between gap-6 mt-8 w-full">
-    <div class="flex items-center gap-3">
-      <span class="text-base text-gray-700 font-semibold">{{ t('basePagination.show') }}</span>
-      <select v-model="internalPageSize" class="border border-gray-300 rounded px-3 py-2 text-base">
+  <div class="flex flex-row items-center justify-between gap-4 w-full py-2">
+    <!-- Размер страницы -->
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-text-accent font-semibold">{{ t('basePagination.show') }}</span>
+      <select v-model="internalPageSize"
+        class="border border-primary-400 rounded px-2 py-1 text-xs bg-content text-text-accent focus:ring-primary-400 focus:border-primary-500 transition">
         <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
       </select>
     </div>
 
-    <!-- Новый макет пагинации с номерами страниц -->
+    <!-- Пагинация -->
     <div class="flex-1 flex items-center justify-center">
-      <div class="flex items-center gap-2">
-        <!-- Кнопка "Назад" -->
-        <button v-if="internalCurrentPage > 1" @click="changePage(internalCurrentPage - 1)"
-          class="px-3 py-2 border rounded font-semibold text-base bg-white hover:bg-gray-100 transition">
-          {{ t('basePagination.prev') }}
+      <nav class="flex items-center gap-1 select-none" aria-label="Pagination">
+        <!-- Кнопка "Назад" (disabled если на первой странице) -->
+        <button @click="changePage(internalCurrentPage - 1)" :disabled="internalCurrentPage === 1"
+          class="px-2 py-1 rounded border font-semibold text-xs transition min-w-[32px] min-h-[32px]" :class="internalCurrentPage === 1
+            ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'
+            : 'bg-white text-primary border-primary-200 hover:bg-primary-50 hover:text-primary-700'"
+          aria-label="Previous">
+          <svg class="w-4 h-4" fill="none" :stroke="internalCurrentPage === 1 ? '#b0b0b0' : '#222'" stroke-width="2"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
 
-        <!-- Номера страниц -->
-        <div class="flex items-center">
-          <!-- Первая страница всегда видна -->
-          <button @click="changePage(1)" :class="getPageButtonClass(1)">
-            1
-          </button>
+        <!-- Первая страница -->
+        <button @click="changePage(1)" :class="getPageButtonClass(1)" class="min-w-[32px] min-h-[32px]">1</button>
 
-          <!-- Многоточие в начале, если текущая страница далеко от начала -->
-          <span v-if="startPage > 2" class="px-3 py-2">...</span>
+        <!-- Многоточие в начале -->
+        <span v-if="startPage > 2" class="px-1 text-gray-400 select-none">…</span>
 
-          <!-- Отображаем номера страниц вокруг текущей -->
-          <button v-for="page in visiblePages" :key="page" @click="changePage(page)" :class="getPageButtonClass(page)">
-            {{ page }}
-          </button>
-
-          <!-- Многоточие в конце, если текущая страница далеко от конца -->
-          <span v-if="endPage < totalPages - 1" class="px-3 py-2">...</span>
-
-          <!-- Последняя страница всегда видна, если страниц больше одной -->
-          <button v-if="totalPages > 1" @click="changePage(totalPages)" :class="getPageButtonClass(totalPages)">
-            {{ totalPages }}
-          </button>
-        </div>
-
-        <!-- Кнопка "Вперёд" -->
-        <button v-if="internalCurrentPage < totalPages" @click="changePage(internalCurrentPage + 1)"
-          class="px-3 py-2 border rounded font-semibold text-base bg-white hover:bg-gray-100 transition">
-          {{ t('basePagination.next') }}
+        <!-- Номера страниц вокруг текущей -->
+        <button v-for="page in visiblePages" :key="page" @click="changePage(page)" :class="getPageButtonClass(page)"
+          class="min-w-[32px] min-h-[32px]">
+          {{ page }}
         </button>
-      </div>
+
+        <!-- Многоточие в конце -->
+        <span v-if="endPage < totalPages - 1" class="px-1 text-gray-400 select-none">…</span>
+
+        <!-- Последняя страница -->
+        <button v-if="totalPages > 1" @click="changePage(totalPages)" :class="getPageButtonClass(totalPages)"
+          class="min-w-[32px] min-h-[32px]">{{ totalPages }}</button>
+
+        <!-- Кнопка "Вперёд" (disabled если на последней странице) -->
+        <button @click="changePage(internalCurrentPage + 1)" :disabled="internalCurrentPage === totalPages"
+          class="px-2 py-1 rounded border font-semibold text-xs transition min-w-[32px] min-h-[32px]" :class="internalCurrentPage === totalPages
+            ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'
+            : 'bg-white text-primary border-primary-200 hover:bg-primary-50 hover:text-primary-700'" aria-label="Next">
+          <svg class="w-4 h-4" fill="none" :stroke="internalCurrentPage === totalPages ? '#b0b0b0' : '#222'"
+            stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </nav>
     </div>
   </div>
 </template>
@@ -133,8 +141,8 @@ const changePageWithoutUpdate = (page: number): void => {
 
 const getPageButtonClass = (page: number): string => {
   return page === internalCurrentPage.value
-    ? 'px-3 py-2 border rounded font-bold text-base bg-indigo-600 text-white hover:bg-indigo-700 transition'
-    : 'px-3 py-2 border rounded font-semibold text-base bg-white hover:bg-gray-100 transition';
+    ? 'px-2 py-1 border rounded font-bold text-sm bg-indigo-600 text-white hover:bg-indigo-700 transition'
+    : 'px-2 py-1 border rounded font-semibold text-sm bg-white hover:bg-gray-100 transition';
 };
 
 const emitChange = (): void => {
@@ -164,3 +172,60 @@ watch(() => props.pageSize, (newVal) => {
   }
 });
 </script>
+
+<style scoped>
+/* Кнопки пагинации: плавный переход, одинаковый размер, скругление, жирный активный */
+button,
+span {
+  min-height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border 0.15s;
+  font-size: 0.95em;
+  border-radius: 6px;
+}
+
+nav[aria-label="Pagination"] button {
+  border: 1.5px solid transparent;
+}
+
+nav[aria-label="Pagination"] button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+nav[aria-label="Pagination"] button.bg-indigo-600 {
+  background: #4c2a7a !important;
+  color: #fff !important;
+  border-color: #4c2a7a !important;
+}
+
+nav[aria-label="Pagination"] button.bg-white {
+  background: #fff !important;
+}
+
+nav[aria-label="Pagination"] button:hover:not([disabled]):not(.bg-indigo-600) {
+  background: #eee;
+  color: #3a205f;
+  border-color: #b69fcf;
+}
+
+nav[aria-label="Pagination"] button.bg-gray-200 {
+  background: #f3f4f6 !important;
+  color: #b0b0b0 !important;
+  border-color: #f3f4f6 !important;
+}
+
+nav[aria-label="Pagination"] button:focus {
+  outline: 2px solid #4c2a7a;
+  outline-offset: 1px;
+}
+
+select {
+  height: 28px;
+  font-size: 0.95em;
+  border-radius: 6px;
+}
+</style>

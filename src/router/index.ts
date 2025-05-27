@@ -137,6 +137,158 @@ const router = createRouter({
         },
       ],
     },
+    // Добавляем маршрут для панели управления с вложенными маршрутами
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('@/views/dashboard/Dashboard.vue'),
+      meta: {
+        // roles: ['admin'], // Доступ только для администраторов
+        //requiresAuth: true,
+        title: 'Dashboard',
+      },
+      redirect: '/dashboard/events',
+      children: [
+        {
+          path: 'events',
+          name: 'dashboard-events',
+          component: () => import('@/views/dashboard/DashboardEvents.vue'),
+          meta: {
+            roles: ['admin'],
+            requiresAuth: true,
+            title: 'Dashboard - Events',
+          },
+          children: [
+            {
+              path: 'create',
+              name: 'dashboard-events-create',
+              component: () => import('@/views/dashboard/EventEditor.vue'),
+              meta: {
+                roles: ['admin'],
+                requiresAuth: true,
+                title: 'Dashboard - Create Event',
+              },
+            },
+            {
+              path: 'edit/:id',
+              name: 'dashboard-events-edit',
+              component: () => import('@/views/dashboard/EventEditor.vue'),
+              meta: {
+                roles: ['admin'],
+                requiresAuth: true,
+                title: 'Dashboard - Edit Event',
+              },
+            },
+          ],
+        },
+        {
+          path: 'users',
+          component: () => import('@/views/dashboard/DashboardUsers.vue'),
+          name: 'dashboard-users',
+          meta: {
+            roles: ['admin'],
+            requiresAuth: true,
+            title: 'Dashboard - Users',
+          },
+          children: [
+            {
+              path: 'create',
+              name: 'dashboard-users-create',
+              component: () => import('@/views/dashboard/UserEditor.vue'),
+              meta: {
+                roles: ['admin'],
+                requiresAuth: true,
+                title: 'Dashboard - Create User',
+              },
+            },
+            {
+              path: 'edit/:id',
+              name: 'dashboard-users-edit',
+              component: () => import('@/views/dashboard/UserEditor.vue'),
+              meta: {
+                roles: ['admin'],
+                requiresAuth: true,
+                title: 'Dashboard - Edit User',
+              },
+            },
+          ],
+        },
+        {
+          path: 'tickets',
+          name: 'dashboard-tickets',
+          component: () => import('@/views/dashboard/DashboardTickets.vue'),
+          meta: {
+            roles: ['admin'],
+            requiresAuth: true,
+            title: 'Dashboard - Tickets',
+          },
+          children: [
+            {
+              path: 'create',
+              name: 'dashboard-tickets-create',
+              component: () => import('@/views/dashboard/TicketsEditor.vue'),
+              meta: {
+                roles: ['admin'],
+                requiresAuth: true,
+                title: 'Dashboard - Create Ticket',
+              },
+            },
+            {
+              path: 'edit/:id',
+              name: 'dashboard-tickets-edit',
+              component: () => import('@/views/dashboard/TicketsEditor.vue'),
+              meta: {
+                roles: ['admin'],
+                requiresAuth: true,
+                title: 'Dashboard - Edit Ticket',
+              },
+            },
+          ],
+        },
+        {
+          path: 'attendees',
+          name: 'dashboard-attendees',
+          component: () => import('@/views/dashboard/DashboardAttendees.vue'),
+          meta: {
+            roles: ['admin'],
+            requiresAuth: true,
+            title: 'Dashboard - Attendees',
+          },
+          children: [
+            {
+              path: 'create',
+              name: 'dashboard-attendees-create',
+              component: () => import('@/views/dashboard/AttendeeEditor.vue'),
+              meta: {
+                roles: ['admin'],
+                requiresAuth: true,
+                title: 'Dashboard - Create Attendee',
+              },
+            },
+            {
+              path: 'edit/:id',
+              name: 'dashboard-attendees-edit',
+              component: () => import('@/views/dashboard/AttendeeEditor.vue'),
+              meta: {
+                roles: ['admin'],
+                requiresAuth: true,
+                title: 'Dashboard - Edit Attendee',
+              },
+            },
+          ],
+        },
+        {
+          path: 'pages',
+          name: 'dashboard-pages',
+          component: () => import('@/views/dashboard/DashboardPages.vue'),
+          meta: {
+            roles: ['admin'],
+            requiresAuth: true,
+            title: 'Dashboard - Pages',
+          },
+        },
+      ],
+    },
   ],
 })
 

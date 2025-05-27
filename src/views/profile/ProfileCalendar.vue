@@ -23,7 +23,7 @@
                     </button>
                 </div>
 
-                <!-- Добавляем быстрый выбор месяца и года -->
+                <!-- Быстрый выбор месяца и года -->
                 <div class="flex gap-3 justify-center">
                     <div class="relative">
                         <select v-model="currentMonth"
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <!-- Дни недели - улучшенный вид -->
+            <!-- Дни недели -->
             <div class="grid grid-cols-7 gap-1 mb-2">
                 <div v-for="day in daysOfWeek" :key="day"
                     class="text-center text-sm font-medium text-text-accent py-2 bg-primary-700 rounded-md">
@@ -62,17 +62,16 @@
                 </div>
             </div>
 
-            <!-- Дни месяца с улучшенным стилем -->
+            <!-- Дни месяца -->
             <div class="grid grid-cols-7 gap-1">
-                <div v-for="(day, index) in calendarDays" :key="index" :class="{
-                    'min-h-24 p-2 relative rounded-md overflow-hidden transition-all duration-200': true,
-                    'bg-primary-700 border border-primary-600': day.isCurrentMonth,
-                    'bg-primary-800 border border-primary-700': !day.isCurrentMonth,
-                    'border-text-accent': day.isToday,
-                    'hover:bg-primary-600': day.isCurrentMonth,
-                    'hover:bg-primary-700 opacity-60': !day.isCurrentMonth
-                }">
-                    <!-- Число с улучшенным стилем -->
+                <div v-for="(day, index) in calendarDays" :key="index" @click="day.isCurrentMonth && openDay(day)"
+                    :class="{
+                        'min-h-24 p-2 relative rounded-md overflow-hidden transition-all duration-200': true,
+                        'bg-primary-700 border border-primary-600 hover:bg-primary-600 cursor-pointer': day.isCurrentMonth,
+                        'bg-primary-800 border border-primary-700 opacity-60': !day.isCurrentMonth,
+                        'border-text-accent': day.isToday,
+                    }">
+                    <!-- Дата -->
                     <div class="text-right text-sm mb-1">
                         <span :class="{
                             'inline-block w-6 h-6 rounded-full text-center leading-6': true,
@@ -83,19 +82,31 @@
                         </span>
                     </div>
 
-                    <!-- События дня с улучшенным стилем -->
+                    <!-- События дня -->
                     <div class="space-y-1">
-                        <div v-for="event in getEventsForDay(day.date)" :key="event.id" @click="selectEvent(event)"
-                            class="cursor-pointer p-1.5 text-xs rounded-md truncate hover:brightness-110 transition-all shadow-sm"
-                            :class="getEventClasses(event)">
-                            {{ event.event.title }}
+                        <template v-for="(event, eventIndex) in getEventsForDay(day.date)"
+                            :key="`${index}-${eventIndex}`">
+                            <div @click.stop="selectEvent(event)"
+                                class="cursor-pointer p-1.5 text-xs rounded-md truncate hover:brightness-110 transition-all shadow-sm"
+                                :class="getEventClasses(event)">
+                                <div class="flex items-center">
+                                    <span class="truncate">{{ event.event.title }}</span>
+                                    <IconsSet v-if="event.note" name="note" class="h-3 w-3 ml-1 flex-shrink-0" />
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Индикатор количества событий, если их больше 3 -->
+                        <div v-if="getEventsForDay(day.date).length > 3"
+                            class="text-xs text-text-muted text-right mt-1">
+                            +{{ getEventsForDay(day.date).length - 3 }} {{ t('profile.calendar.moreEvents') }}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Легенда календаря с улучшенным стилем -->
-            <div class="mt-6 flex flex-wrap items-center gap-6 p-3 bg-primary-700 rounded-lg border border-primary-600">
+            <!-- Легенда календаря -->
+            <div class="mt-6 flex flex-wrap items-center gap-6 p-4 bg-primary-700 rounded-lg border border-primary-600">
                 <div class="flex items-center">
                     <div class="w-3 h-3 rounded-full bg-emerald-500 mr-2 shadow-sm"></div>
                     <span class="text-xs text-text-muted">{{ t('profile.calendar.withReminder') }}</span>
@@ -114,25 +125,84 @@
                 </div>
             </div>
 
-            <!-- Модальное окно с подробной информацией о событии - улучшенный дизайн -->
-            <div v-if="selectedEvent"
+            <!-- Модальное окно дня -->
+            <div v-if="selectedDay"
                 class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
                 <div
-                    class="modal-content bg-gradient-to-br from-primary-800 to-primary-900 border border-primary-500 rounded-xl w-full max-w-2xl p-0 relative max-h-[90vh] overflow-y-auto shadow-xl">
-                    <!-- Шапка модального окна -->
+                    class="bg-gradient-to-br from-primary-800 to-primary-900 border border-primary-500 rounded-xl w-full max-w-2xl p-0 relative max-h-[90vh] overflow-y-auto shadow-xl">
+                    <!-- Заголовок -->
                     <div class="bg-primary-700 p-4 rounded-t-xl border-b border-primary-500">
                         <div class="flex justify-between items-start">
-                            <h3 class="text-xl font-bold text-text-accent pr-8">{{ selectedEvent.event.title }}</h3>
-                            <button @click="selectedEvent = null"
+                            <h3 class="text-xl font-bold text-text-accent">
+                                {{ formatDate(selectedDay.date) }}
+                            </h3>
+                            <button @click="closeSelectedDay"
                                 class="text-text-muted hover:text-white p-1 rounded-full hover:bg-primary-600">
                                 <IconsSet name="close" class="h-6 w-6" />
                             </button>
                         </div>
                     </div>
 
-                    <!-- Контент модального окна -->
+                    <!-- Содержимое -->
+                    <div class="p-6 space-y-6">
+                        <!-- События дня -->
+                        <div v-if="getEventsForDay(selectedDay.date).length" class="space-y-3">
+                            <h4 class="text-lg font-medium text-text-accent">{{ t('profile.calendar.eventsForDay') }}
+                            </h4>
+                            <div class="space-y-2">
+                                <div v-for="event in getEventsForDay(selectedDay.date)" :key="event.id"
+                                    @click="selectEvent(event)"
+                                    class="p-3 border border-primary-600 rounded-lg hover:bg-primary-700 cursor-pointer transition-colors">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="font-medium text-text-accent">{{ event.event.title }}</div>
+                                            <div class="text-sm text-text-muted">{{ formatTime(event.event.startTime) }}
+                                            </div>
+                                        </div>
+                                        <div :class="{
+                                            'px-2 py-1 text-xs rounded-full': true,
+                                            'bg-emerald-800 text-emerald-100': event.event.isActive,
+                                            'bg-rose-800 text-rose-100': !event.event.isActive
+                                        }">
+                                            {{ event.event.isActive ? t('profile.calendar.active') :
+                                            t('profile.calendar.inactive')
+                                            }}
+                                        </div>
+                                    </div>
+                                    <div v-if="event.note" class="mt-2 text-sm text-text-muted flex items-center">
+                                        <IconsSet name="note" class="h-4 w-4 mr-1 text-sky-400" />
+                                        <span class="italic truncate">{{ event.note }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="text-center text-text-muted py-4">
+                            {{ t('profile.calendar.noEvents') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модальное окно события -->
+            <div v-if="selectedEvent"
+                class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
+                <div
+                    class="modal-content bg-gradient-to-br from-primary-800 to-primary-900 border border-primary-500 rounded-xl w-full max-w-2xl p-0 relative max-h-[90vh] overflow-y-auto shadow-xl">
+                    <!-- Заголовок -->
+                    <div class="bg-primary-700 p-4 rounded-t-xl border-b border-primary-500">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-text-accent pr-8">{{ selectedEvent.event.title }}</h3>
+                            <button @click="closeSelectedEvent"
+                                class="text-text-muted hover:text-white p-1 rounded-full hover:bg-primary-600">
+                                <IconsSet name="close" class="h-6 w-6" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Содержимое -->
                     <div class="p-6 relative">
-                        <!-- Базовая информация о событии -->
+                        <!-- Информация о событии -->
                         <div class="space-y-4 mb-6">
                             <div class="flex items-center space-x-2 text-text-muted">
                                 <IconsSet name="calendar" class="h-5 w-5 text-text-accent" />
@@ -160,21 +230,21 @@
                             </div>
                         </div>
 
-                        <!-- Описание события -->
+                        <!-- Описание -->
                         <div
                             class="bg-primary-700/50 backdrop-blur-sm rounded-lg p-4 mb-6 border border-primary-500 shadow-inner">
                             <h4 class="font-medium text-text-accent mb-2">{{ t('profile.calendar.description') }}</h4>
                             <div class="text-sm text-text leading-relaxed">{{ selectedEvent.event.description }}</div>
                         </div>
 
-                        <!-- Заметка пользователя -->
+                        <!-- Форма заметки -->
                         <div
                             class="bg-primary-700/50 backdrop-blur-sm rounded-lg p-4 mb-6 border border-primary-500 shadow-inner">
                             <h4 class="font-medium text-text-accent mb-2 flex items-center">
                                 <IconsSet name="note" class="h-5 w-5 mr-2 text-sky-400" />
                                 {{ t('profile.calendar.note') }}
                             </h4>
-                            <textarea v-model="eventNote"
+                            <textarea v-model="noteText"
                                 class="w-full bg-primary-600/70 border border-primary-500 rounded-md p-3 text-text resize-none focus:outline-none focus:border-text-accent"
                                 :placeholder="t('profile.calendar.notePlaceholder')" rows="4"></textarea>
                         </div>
@@ -197,13 +267,14 @@
                                     <button @click="toggleReminderPicker"
                                         class="px-4 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-md flex items-center">
                                         <span>{{ reminderDate ? formatDateTime(reminderDate) :
-                                            t('profile.calendar.setReminder') }}</span>
+                                            t('profile.calendar.setReminder')
+                                            }}</span>
                                         <IconsSet name="calendar" class="h-4 w-4 ml-2" />
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Календарь выбора даты, позиционирование fixed вместо absolute -->
+                            <!-- Календарь выбора даты -->
                             <div v-if="showReminderPicker" class="fixed z-50 date-picker-overlay"
                                 @click.self="showReminderPicker = false">
                                 <div class="date-picker-container">
@@ -261,12 +332,17 @@ const eventApi = useEventApi();
 // Состояние календаря
 const isLoading = ref(true);
 const userCalendar = ref<UserCalendarResponse | null>(null);
-const selectedEvent = ref<UserCalendarEventResponse | null>(null);
 const allEvents = ref<EventResponse[]>([]);
-const eventNote = ref('');
+
+// Состояние выбранного события
+const selectedEvent = ref<UserCalendarEventResponse | null>(null);
+const noteText = ref('');
 const useReminder = ref(false);
 const reminderDate = ref<Date | null>(null);
 const showReminderPicker = ref(false);
+
+// Состояние выбранного дня
+const selectedDay = ref<{ date: Date, dayNumber: number, isCurrentMonth: boolean, isToday: boolean } | null>(null);
 
 // Текущая дата для календаря
 const today = new Date();
@@ -277,21 +353,20 @@ const currentYear = ref(today.getFullYear());
 const availableYears = computed(() => {
     const years = [];
     const currentRealYear = new Date().getFullYear();
-    // Показываем 5 лет назад и 5 лет вперед от текущего года
     for (let year = currentRealYear - 5; year <= currentRealYear + 5; year++) {
         years.push(year);
     }
     return years;
 });
 
-// Выбранный месяц и год в текстовом виде
+// Название текущего месяца
 const currentMonthName = computed(() => {
     return getMonthNames()[currentMonth.value];
 });
 
-// Названия дней недели
+// Сокращенные названия дней недели
 const daysOfWeek = computed(() => {
-    return getWeekdayNames().map(day => day.substring(0, 3)); // Сокращенные названия дней
+    return getWeekdayNames().map(day => day.substring(0, 3));
 });
 
 // Проверка, есть ли событие в календаре пользователя
@@ -313,7 +388,7 @@ const calendarDays = computed(() => {
     // Количество дней в предыдущем месяце
     const prevMonthDays = new Date(currentYear.value, currentMonth.value, 0).getDate();
 
-    // Добавляем дни предыдущего месяца
+    // Дни предыдущего месяца
     for (let i = firstDayWeekday - 1; i > 0; i--) {
         const date = new Date(currentYear.value, currentMonth.value - 1, prevMonthDays - i + 1);
         days.push({
@@ -327,7 +402,7 @@ const calendarDays = computed(() => {
     // Количество дней в текущем месяце
     const daysInMonth = new Date(currentYear.value, currentMonth.value + 1, 0).getDate();
 
-    // Добавляем дни текущего месяца
+    // Дни текущего месяца
     for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(currentYear.value, currentMonth.value, i);
         days.push({
@@ -338,7 +413,7 @@ const calendarDays = computed(() => {
         });
     }
 
-    // Добавляем дни следующего месяца
+    // Дни следующего месяца
     const daysToAdd = 42 - days.length; // 6 строк по 7 дней
     for (let i = 1; i <= daysToAdd; i++) {
         const date = new Date(currentYear.value, currentMonth.value + 1, i);
@@ -353,11 +428,11 @@ const calendarDays = computed(() => {
     return days;
 });
 
-// Функция для получения событий на определенный день
+// Функция для получения событий на определенный день (максимум 3 для отображения в календаре)
 function getEventsForDay(date: Date) {
     if (!allEvents.value || allEvents.value.length === 0) return [];
 
-    return allEvents.value.filter(event => {
+    const dayEvents = allEvents.value.filter(event => {
         const eventDate = new Date(event.startTime);
         return eventDate.getDate() === date.getDate() &&
             eventDate.getMonth() === date.getMonth() &&
@@ -380,6 +455,26 @@ function getEventsForDay(date: Date) {
             reminderTime: null
         };
     });
+
+    return dayEvents;
+}
+
+// Форматирование даты без времени
+function formatDate(date: Date) {
+    return new Intl.DateTimeFormat(document.documentElement.lang || 'ru', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    }).format(date);
+}
+
+// Форматирование только времени
+function formatTime(dateString: string) {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat(document.documentElement.lang || 'ru', {
+        hour: '2-digit',
+        minute: '2-digit'
+    }).format(date);
 }
 
 // Переключение месяцев
@@ -408,12 +503,35 @@ function goToToday() {
     currentYear.value = now.getFullYear();
 }
 
+// Открытие модального окна для дня
+function openDay(day: { date: Date, dayNumber: number, isCurrentMonth: boolean, isToday: boolean }) {
+    selectedDay.value = day;
+}
+
+// Закрытие модального окна дня
+function closeSelectedDay() {
+    selectedDay.value = null;
+}
+
 // Показать детали события
 function selectEvent(event: UserCalendarEventResponse) {
     selectedEvent.value = event;
-    eventNote.value = event.note || '';
+    noteText.value = event.note || '';
     useReminder.value = !!event.reminderTime;
     reminderDate.value = event.reminderTime ? new Date(event.reminderTime) : null;
+
+    // Закрываем модальное окно дня если оно открыто
+    if (selectedDay.value) {
+        selectedDay.value = null;
+    }
+}
+
+// Закрытие модального окна события
+function closeSelectedEvent() {
+    selectedEvent.value = null;
+    noteText.value = '';
+    useReminder.value = false;
+    reminderDate.value = null;
 }
 
 // Переключение отображения выбора даты для напоминания
@@ -426,7 +544,7 @@ function applyReminderDate() {
     showReminderPicker.value = false;
 }
 
-// Классы для событий в зависимости от статуса - улучшенные цвета
+// Классы для событий в зависимости от статуса
 function getEventClasses(event: UserCalendarEventResponse) {
     // Если событие неактивно
     if (!event.event.isActive) {
@@ -458,48 +576,40 @@ function showEventDetails() {
 
 // Загрузка календаря пользователя
 async function loadUserCalendar() {
-    try {
-        const calendar = await calendarApi.getMyCalendar({
-            showSuccessNotification: false,
-            showErrorNotification: true
-        });
-        userCalendar.value = calendar;
-    } catch (error) {
-        console.error('Error loading user calendar:', error);
-    }
+    const calendar = await calendarApi.getMyCalendar({
+        showSuccessNotification: false,
+        showErrorNotification: true
+    });
+    userCalendar.value = calendar;
 }
 
 // Загрузка всех событий
 async function loadAllEvents() {
-    try {
-        const result = await eventApi.searchEvents({
-            filter: {
-                eventIds: [],
-                description: null,
-                dateFrom: null,
-                dateTo: null,
-                minPrice: null,
-                maxPrice: null,
-                title: [],
-                location: [],
-                isActive: null,
-                tag: [],
-            },
-            pagination: {
-                pageNumber: 1,
-                pageSize: 100
-            },
-            sort: [{ sortBy: 'startTime', sortDirection: 'asc' }]
-        }, {
-            showSuccessNotification: false,
-            showErrorNotification: true
-        });
+    const result = await eventApi.searchEvents({
+        filter: {
+            eventIds: [],
+            description: null,
+            dateFrom: null,
+            dateTo: null,
+            minPrice: null,
+            maxPrice: null,
+            title: [],
+            location: [],
+            isActive: null,
+            tag: [],
+        },
+        pagination: {
+            pageNumber: 1,
+            pageSize: 100
+        },
+        sort: [{ sortBy: 'startTime', sortDirection: 'asc' }]
+    }, {
+        showSuccessNotification: false,
+        showErrorNotification: true
+    });
 
-        if (result && result.items) {
-            allEvents.value = result.items;
-        }
-    } catch (error) {
-        console.error('Error loading events:', error);
+    if (result && result.items) {
+        allEvents.value = result.items;
     }
 }
 
@@ -512,7 +622,7 @@ async function saveCalendarEvent() {
             // Обновление существующего события
             const request: UserCalendarUpdateEventRequest = {
                 eventId: selectedEvent.value.event.id,
-                note: eventNote.value || null,
+                note: noteText.value || null,
                 reminderTime: useReminder.value && reminderDate.value ? reminderDate.value.toISOString() : null
             };
 
@@ -522,7 +632,7 @@ async function saveCalendarEvent() {
             // Добавление нового события
             const request: UserCalendarAddEventRequest = {
                 eventId: selectedEvent.value.event.id,
-                note: eventNote.value || null,
+                note: noteText.value || null,
                 reminderTime: useReminder.value && reminderDate.value ? reminderDate.value.toISOString() : null
             };
 
@@ -532,7 +642,7 @@ async function saveCalendarEvent() {
 
         // Обновляем календарь
         await loadUserCalendar();
-        selectedEvent.value = null;
+        closeSelectedEvent();
     } catch (error) {
         console.error('Error saving calendar event:', error);
         notificationService.error(t('profile.calendar.saveError'));
@@ -549,7 +659,7 @@ async function removeFromCalendar() {
 
         // Обновляем календарь
         await loadUserCalendar();
-        selectedEvent.value = null;
+        closeSelectedEvent();
     } catch (error) {
         console.error('Error removing calendar event:', error);
         notificationService.error(t('profile.calendar.removeError'));
@@ -577,9 +687,9 @@ onMounted(() => {
     initialize();
 });
 
-// Отслеживание изменений событий при переключении месяцев
+// Отслеживание изменений при переключении месяцев
 watch([currentMonth, currentYear], () => {
-    // Можно реализовать дополнительную логику при необходимости
+    // При необходимости можно добавить логику обновления данных
 });
 </script>
 
@@ -628,7 +738,6 @@ watch([currentMonth, currentYear], () => {
 }
 </style>
 
-<!-- Глобальные стили для модального окна и дополнительные стили для выбора даты -->
 <style>
 .modal-content {
     background-color: #2d1c48 !important;

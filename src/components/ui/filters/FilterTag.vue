@@ -1,6 +1,6 @@
 <template>
     <div
-        class="inline-flex items-center bg-primary-700 text-text rounded-md px-2 py-1 text-sm mr-1 mb-1 border border-primary-600">
+        class="inline-flex items-center bg-primary-700 text-text rounded-md px-1 py-0 text-sm mr-1 mb-1 border border-primary-600">
         {{ label }}
         <button @click="$emit('remove')" type="button"
             class="ml-1 text-text-accent hover:text-primary-200 focus:outline-none">

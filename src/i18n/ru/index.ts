@@ -415,7 +415,7 @@ export default {
       inactive: 'Неактивно',
       free: 'Бесплатно',
       moreDetails: 'Подробнее',
-      buyTicket: 'Купить', // Добавляем новый ключ для кнопки покупки
+      buyTicket: 'Купить',
       found: '{count} мероприятий найдено',
       noEvents: 'Мероприятия не найдены',
       tryDifferentFilters: 'Попробуйте изменить параметры поиска',

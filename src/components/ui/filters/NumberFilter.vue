@@ -1,47 +1,38 @@
 <template>
-    <BaseFilterWrapper :title="title">
+    <BaseFilterWrapper :title="props.title">
         <template #icon>
             <slot name="icon"></slot>
         </template>
 
         <div class="relative">
             <!-- Объединенный контейнер для input и тегов -->
-            <div class="min-h-[56px] w-full border border-primary-600 rounded-lg bg-primary px-2.5 pt-1 pb-1.5 flex flex-col justify-between">
-                <!-- Контейнер для тегов -->
-                <div class="flex flex-wrap gap-0.5">
-                    <FilterTag v-if="multipleSelect && selectedValues.length > 0" 
-                        v-for="(value, index) in selectedValues" 
-                        :key="index" 
-                        :label="formatNumber(value)"
-                        @remove="removeValue(index)" 
-                        class="text-[9px] px-0.5 leading-none [&>button]:w-2 [&>button]:h-2 [&>button]:text-[7px] [&>button]:ml-0.5 [&>button]:flex [&>button]:items-center [&>button]:justify-center"
-                    />
+            <div
+                :class="['h-[46px] w-full border border-primary-600 rounded-lg  px-2.5 flex flex-col justify-between relative', bgColor]">
+
+                <!-- Контейнер для тегов с ограниченной высотой и скроллом -->
+                <div v-if="props.multipleSelect" class="flex flex-wrap gap-0.5 max-h-[22px] overflow-y-auto py-0 ">
+                    <FilterTag v-if="props.multipleSelect && selectedValues.length > 0"
+                        v-for="(value, index) in selectedValues" :key="index" :label="formatNumber(value)"
+                        @remove="removeValue(index)"
+                        class="text-[9px] px-0.5 leading-none flex-shrink-0 [&>button]:w-2 [&>button]:h-2 [&>button]:text-[7px] [&>button]:ml-0.5 [&>button]:flex [&>button]:items-center [&>button]:justify-center" />
                 </div>
 
-                <!-- Input в нижней части -->
-                <input 
-                    type="text" 
-                    inputmode="numeric" 
-                    pattern="[0-9]*" 
-                    v-model="inputValue" 
-                    :placeholder="placeholder"
-                    class="w-full bg-transparent text-white placeholder:text-gray-300 placeholder:text-xs focus:outline-none text-sm mt-0.5"
-                    :class="{ 'pr-8': currency }"
-                    @input="onInput" 
-                    @focus="showSuggestions = true" 
-                    @keydown.enter="onEnterKey" 
-                    @blur="onBlur"
-                />
+                <!-- Input в нижней части с фиксированной позицией -->
+                <input type="text" inputmode="numeric" pattern="[0-9]*" v-model="inputValue"
+                    :placeholder="props.placeholder"
+                    class="w-full bg-transparent text-white placeholder:text-gray-300 placeholder:text-xs focus:outline-none text-m absolute bottom-1 left-2.5 right-2.5"
+                    :class="{ 'pr-8': props.currency }" @input="onInput" @focus="showSuggestions = true"
+                    @keydown.enter="onEnterKey" @blur="onBlur" />
             </div>
 
             <!-- Значок валюты -->
-            <div v-if="currency"
+            <div v-if="props.currency"
                 class="pointer-events-none absolute right-0 bottom-[1px] flex items-center h-[20px] px-3 text-white text-sm">
-                {{ currency }}
+                {{ props.currency }}
             </div>
 
             <!-- Выпадающий список с предложениями -->
-            <div v-if="multipleSelect && showSuggestions && filteredSuggestions.length > 0 && selectedValues.length < 5"
+            <div v-if="props.multipleSelect && showSuggestions && filteredSuggestions.length > 0 && selectedValues.length < 5"
                 class="absolute left-0 right-0 mt-1 max-h-60 overflow-auto bg-primary border border-primary-600 rounded-lg shadow-lg z-10">
                 <div v-for="(suggestion, index) in filteredSuggestions" :key="index"
                     class="px-4 py-2 hover:bg-primary-600 cursor-pointer text-white"
@@ -66,12 +57,16 @@ interface NumberFilterProps {
     multipleSelect?: boolean;
     currency?: string;
     getSuggestions?: (input: string) => Promise<number[]> | number[];
+    textColor?: string;
+    bgColor?: string;
 }
 
 const props = withDefaults(defineProps<NumberFilterProps>(), {
     placeholder: '',
     multipleSelect: false,
     currency: '',
+    textColor: 'text-white',
+    bgColor: 'bg-primary',
 });
 
 const emit = defineEmits<{

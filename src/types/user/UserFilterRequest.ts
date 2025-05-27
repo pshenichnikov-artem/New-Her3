@@ -7,7 +7,7 @@ export interface UserFilterRequest {
   fullName?: string | null
   role?: UserRoles | null
   birthDateFrom?: string | null // ISO формат даты
-  birthDateTo: string // ISO формат даты
+  birthDateTo?: string | null // ISO формат даты
   createdAtFrom?: string | null // ISO формат даты
-  createdAtTo: string // ISO формат даты
+  createdAtTo?: string | null // ISO формат даты
 }

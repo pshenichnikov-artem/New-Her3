@@ -95,7 +95,10 @@ const statusCssMap: Record<StatusType, string> = {
  */
 export function normalizeStatus(status: string): string {
   if (!status) return ''
-
+  //Проверь, что это строка
+  if (typeof status !== 'string') {
+    return ''
+  }
   const normalizedStatus = status.toLowerCase().trim()
   return statusMap[normalizedStatus] || normalizedStatus
 }

@@ -1,144 +1,86 @@
-import { useI18n } from 'vue-i18n'
-
 /**
- * Форматирует дату для отображения с учетом локализации
+ * Форматирует дату для отображения (без учета локали)
  * @param date Дата для форматирования
- * @param locale Локаль для форматирования (если не указана, используется текущая из i18n)
- * @returns Отформатированная дата
+ * @returns Отформатированная дата (YYYY-MM-DD)
  */
-export function formatDate(date: Date | string | null, locale?: string): string {
+export function formatDate(date: Date | string | null): string {
   if (!date) return ''
-
-  const { locale: currentLocale } = useI18n()
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  const localeToUse = locale || currentLocale.value
-
-  return new Intl.DateTimeFormat(localeToUse).format(dateObj)
+  return dateObj.toISOString().slice(0, 10)
 }
 
 /**
- * Форматирует время для отображения
+ * Форматирует время для отображения (без учета локали)
  * @param date Дата для форматирования времени
  * @param includeSeconds Включать ли секунды в форматировании
- * @param locale Локаль для форматирования (если не указана, используется текущая из i18n)
- * @returns Отформатированное время
+ * @returns Отформатированное время (HH:MM[:SS])
  */
-export function formatTime(
-  date: Date | string | null,
-  includeSeconds: boolean = false,
-  locale?: string,
-): string {
+export function formatTime(date: Date | string | null, includeSeconds: boolean = false): string {
   if (!date) return ''
-
-  const { locale: currentLocale } = useI18n()
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  const localeToUse = locale || currentLocale.value
-
-  const options: Intl.DateTimeFormatOptions = {
-    hour: '2-digit',
-    minute: '2-digit',
-    ...(includeSeconds ? { second: '2-digit' } : {}),
-  }
-
-  return new Intl.DateTimeFormat(localeToUse, options).format(dateObj)
+  const hours = dateObj.getHours().toString().padStart(2, '0')
+  const minutes = dateObj.getMinutes().toString().padStart(2, '0')
+  const seconds = dateObj.getSeconds().toString().padStart(2, '0')
+  return includeSeconds ? `${hours}:${minutes}:${seconds}` : `${hours}:${minutes}`
 }
 
 /**
- * Форматирует дату и время для отображения
+ * Форматирует дату и время для отображения (без учета локали)
  * @param date Дата для форматирования
  * @param includeSeconds Включать ли секунды
- * @param locale Локаль для форматирования
- * @returns Отформатированная дата и время
+ * @returns Отформатированная дата и время (YYYY-MM-DD HH:MM[:SS])
  */
 export function formatDateTime(
   date: Date | string | null,
   includeSeconds: boolean = false,
-  locale?: string,
 ): string {
   if (!date) return ''
-
-  const { locale: currentLocale } = useI18n()
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  const localeToUse = locale || currentLocale.value
-
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    ...(includeSeconds ? { second: '2-digit' } : {}),
-  }
-
-  return new Intl.DateTimeFormat(localeToUse, options).format(dateObj)
+  const dateStr = dateObj.toISOString().slice(0, 10)
+  const hours = dateObj.getHours().toString().padStart(2, '0')
+  const minutes = dateObj.getMinutes().toString().padStart(2, '0')
+  const seconds = dateObj.getSeconds().toString().padStart(2, '0')
+  return includeSeconds
+    ? `${dateStr} ${hours}:${minutes}:${seconds}`
+    : `${dateStr} ${hours}:${minutes}`
 }
 
 /**
- * Форматирует дату для отправки на сервер в формате "YYYY-MM-DD HH:MM:SS"
+ * Форматирует дату для отправки на сервер в формате ISO
  * @param date Дата для форматирования
  * @returns Отформатированная дата для сервера
  */
 export function formatDateForServer(date: Date | null): string {
   if (!date) return ''
   return date.toISOString()
-  /*const year = date.getFullYear()
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const day = date.getDate().toString().padStart(2, '0')
-  const hours = date.getHours().toString().padStart(2, '0')
-  const minutes = date.getMinutes().toString().padStart(2, '0')
-  const seconds = date.getSeconds().toString().padStart(2, '0')
-
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`*/
 }
 
 /**
- * Форматирует число с разделителями
+ * Форматирует число с разделителями (без учета локали)
  * @param value Число для форматирования
- * @param locale Локаль для форматирования
- * @param options Дополнительные опции форматирования
  * @returns Отформатированное число в виде строки
  */
-export function formatNumber(
-  value: number | string | null,
-  locale?: string,
-  options?: Intl.NumberFormatOptions,
-): string {
+export function formatNumber(value: number | string | null): string {
   if (value === null || value === undefined || value === '') return ''
-
-  const { locale: currentLocale } = useI18n()
-  const localeToUse = locale || currentLocale.value
   const numberValue = typeof value === 'string' ? parseFloat(value) : value
-
   if (isNaN(numberValue)) return ''
-
-  return new Intl.NumberFormat(localeToUse, options).format(numberValue)
+  return numberValue.toString()
 }
 
 /**
- * Форматирует валюту
+ * Форматирует валюту (без учета локали)
  * @param value Значение
  * @param currencyCode Код валюты (например, 'RUB', 'USD')
- * @param locale Локаль
  * @returns Отформатированная валюта
  */
 export function formatCurrency(
   value: number | string | null,
   currencyCode: string = 'RUB',
-  locale?: string,
 ): string {
   if (value === null || value === undefined || value === '') return ''
-
-  const { locale: currentLocale } = useI18n()
-  const localeToUse = locale || currentLocale.value
   const numberValue = typeof value === 'string' ? parseFloat(value) : value
-
   if (isNaN(numberValue)) return ''
-
-  return new Intl.NumberFormat(localeToUse, {
-    style: 'currency',
-    currency: currencyCode,
-    maximumFractionDigits: 2,
-  }).format(numberValue)
+  return `${numberValue.toFixed(2)} ${currencyCode}`
 }
 
 /**
@@ -165,6 +107,7 @@ export function isSameDay(date1: Date, date2: Date): boolean {
   )
 }
 
+import { useI18n } from 'vue-i18n'
 /**
  * Получает массив названий месяцев с учетом локализации
  * @param locale Локаль (если не указана, используется текущая из i18n)

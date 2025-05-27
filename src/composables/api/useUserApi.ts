@@ -5,6 +5,7 @@ import type { UserSearchRequest } from '@/types/user/UserSearchRequest'
 import type { UserResponse } from '@/types/user/UserResponse'
 import type { Response } from './useBaseApi'
 import { reactive } from 'vue'
+import { formatDateForServer } from '@/utils/formatterUtils'
 
 /**
  * Composable для работы с API пользователей
@@ -16,12 +17,34 @@ export function useUserApi() {
   const baseApi = useBaseApi<UserResponse>('users')
 
   /**
+   * Функция для безопасного преобразования даты
+   * Проверяет, валидна ли дата перед преобразованием
+   */
+  function safeFormatDate(dateString: string | null | undefined): string | null {
+    if (!dateString) return null
+
+    // Пытаемся создать объект даты и проверяем его валидность
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      return null // Возвращаем null, если дата невалидна
+    }
+
+    return formatDateForServer(date)
+  }
+
+  /**
    * Поиск пользователей
    */
   async function searchUsersBase(
     request: UserSearchRequest,
     options: RequestOptions = {},
   ): Promise<Response<UserResponse> | null> {
+    // Безопасное преобразование дат
+    request.filter.birthDateFrom = safeFormatDate(request.filter.birthDateFrom)
+    request.filter.birthDateTo = safeFormatDate(request.filter.birthDateTo)
+    request.filter.createdAtFrom = safeFormatDate(request.filter.createdAtFrom)
+    request.filter.createdAtTo = safeFormatDate(request.filter.createdAtTo)
+
     const response = await baseApi.makeRequest<Response<UserResponse>>(
       {
         method: 'POST',
@@ -168,7 +191,7 @@ export function useUserApi() {
     getUserById,
     getCurrentUser,
     updateUser,
-    updateUserBySelf,  // Новый метод
+    updateUserBySelf,
     deleteUser,
     resetState: baseApi.resetState,
   })

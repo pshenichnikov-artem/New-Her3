@@ -165,7 +165,7 @@
                                             'bg-rose-800 text-rose-100': !event.event.isActive
                                         }">
                                             {{ event.event.isActive ? t('profile.calendar.active') :
-                                            t('profile.calendar.inactive')
+                                                t('profile.calendar.inactive')
                                             }}
                                         </div>
                                     </div>
@@ -599,7 +599,7 @@ async function loadAllEvents() {
             tag: [],
         },
         pagination: {
-            pageNumber: 1,
+            page: 1,
             pageSize: 100
         },
         sort: [{ sortBy: 'startTime', sortDirection: 'asc' }]

@@ -162,7 +162,7 @@ const router = createRouter({
             {
               path: 'create',
               name: 'dashboard-events-create',
-              component: () => import('@/views/dashboard/EventEditor.vue'),
+              component: () => import('@/views/dashboard/editor/EventEditor.vue'),
               meta: {
                 roles: ['admin'],
                 requiresAuth: true,
@@ -172,7 +172,7 @@ const router = createRouter({
             {
               path: 'edit/:id',
               name: 'dashboard-events-edit',
-              component: () => import('@/views/dashboard/EventEditor.vue'),
+              component: () => import('@/views/dashboard/editor/EventEditor.vue'),
               meta: {
                 roles: ['admin'],
                 requiresAuth: true,
@@ -194,7 +194,7 @@ const router = createRouter({
             {
               path: 'create',
               name: 'dashboard-users-create',
-              component: () => import('@/views/dashboard/UserEditor.vue'),
+              component: () => import('@/views/dashboard/editor/UserEditor.vue'),
               meta: {
                 roles: ['admin'],
                 requiresAuth: true,
@@ -204,7 +204,7 @@ const router = createRouter({
             {
               path: 'edit/:id',
               name: 'dashboard-users-edit',
-              component: () => import('@/views/dashboard/UserEditor.vue'),
+              component: () => import('@/views/dashboard/editor/UserEditor.vue'),
               meta: {
                 roles: ['admin'],
                 requiresAuth: true,
@@ -226,7 +226,7 @@ const router = createRouter({
             {
               path: 'create',
               name: 'dashboard-tickets-create',
-              component: () => import('@/views/dashboard/TicketsEditor.vue'),
+              component: () => import('@/views/dashboard/editor/TicketsEditor.vue'),
               meta: {
                 roles: ['admin'],
                 requiresAuth: true,
@@ -236,7 +236,7 @@ const router = createRouter({
             {
               path: 'edit/:id',
               name: 'dashboard-tickets-edit',
-              component: () => import('@/views/dashboard/TicketsEditor.vue'),
+              component: () => import('@/views/dashboard/editor/TicketsEditor.vue'),
               meta: {
                 roles: ['admin'],
                 requiresAuth: true,
@@ -258,7 +258,7 @@ const router = createRouter({
             {
               path: 'create',
               name: 'dashboard-attendees-create',
-              component: () => import('@/views/dashboard/AttendeeEditor.vue'),
+              component: () => import('@/views/dashboard/editor/AttendeeEditor.vue'),
               meta: {
                 roles: ['admin'],
                 requiresAuth: true,
@@ -268,7 +268,7 @@ const router = createRouter({
             {
               path: 'edit/:id',
               name: 'dashboard-attendees-edit',
-              component: () => import('@/views/dashboard/AttendeeEditor.vue'),
+              component: () => import('@/views/dashboard/editor/AttendeeEditor.vue'),
               meta: {
                 roles: ['admin'],
                 requiresAuth: true,

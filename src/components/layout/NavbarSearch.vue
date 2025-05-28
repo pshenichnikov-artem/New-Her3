@@ -153,7 +153,7 @@ const performSearch = () => {
       isActive: true
     },
     sort: [{ sortBy: 'startTime', sortDirection: 'asc' }],
-    pagination: { pageNumber: 1, pageSize: 5 } // Ограничиваем количество результатов для дропдауна
+    pagination: { page: 1, pageSize: 5 } // Ограничиваем количество результатов для дропдауна
   }).then(() => {
     showDropdown.value = true;
     activeIndex.value = -1;

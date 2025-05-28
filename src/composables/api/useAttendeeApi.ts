@@ -5,7 +5,8 @@ import type { AttendeeUpdateRequest } from '@/types/attendee/AttendeeUpdateReque
 import type { AttendeeSearchRequest } from '@/types/attendee/AttendeeSearchRequest'
 import type { AttendeeResponse } from '@/types/attendee/AttendeeResponse'
 import type { Response } from './useBaseApi'
-import { computed, reactive } from 'vue'
+import { reactive } from 'vue'
+import { formatDateForServer } from '@/utils/formatterUtils'
 
 /**
  * Composable для работы с API участников мероприятий
@@ -15,6 +16,22 @@ export function useAttendeeApi() {
 
   // Используем базовый API composable
   const baseApi = useBaseApi<AttendeeResponse>('attendees')
+
+  /**
+   * Функция для безопасного преобразования даты
+   * Проверяет, валидна ли дата перед преобразованием
+   */
+  function safeFormatDate(dateString: string | null | undefined): string | null {
+    if (!dateString) return null
+
+    // Пытаемся создать объект даты и проверяем его валидность
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      return null // Возвращаем null, если дата невалидна
+    }
+
+    return formatDateForServer(date)
+  }
 
   /**
    * Получение участника по ID
@@ -42,6 +59,14 @@ export function useAttendeeApi() {
     request: AttendeeSearchRequest,
     options: RequestOptions = {},
   ): Promise<Response<AttendeeResponse> | null> {
+    // Безопасное преобразование дат в запросе поиска, если они есть
+    if (request.filter.birthDateFrom) {
+      request.filter.birthDateFrom = safeFormatDate(request.filter.birthDateFrom)
+    }
+    if (request.filter.birthDateTo) {
+      request.filter.birthDateTo = safeFormatDate(request.filter.birthDateTo)
+    }
+
     const response = await baseApi.makeRequest<Response<AttendeeResponse>>(
       {
         method: 'POST',
@@ -73,6 +98,9 @@ export function useAttendeeApi() {
       successMessage: t('attendee.updateSuccess'),
       ...options,
     }
+
+    // Безопасное форматирование даты рождения
+    request.birthDate = safeFormatDate(request.birthDate) || request.birthDate
 
     const response = await baseApi.makeRequest<void>(
       {
@@ -122,6 +150,9 @@ export function useAttendeeApi() {
       ...options,
     }
 
+    // Безопасное форматирование даты рождения
+    request.birthDate = safeFormatDate(request.birthDate) || request.birthDate
+
     const response = await baseApi.makeRequest<AttendeeResponse>(
       {
         method: 'POST',
@@ -147,6 +178,9 @@ export function useAttendeeApi() {
       successMessage: t('attendee.createSuccess'),
       ...options,
     }
+
+    // Безопасное форматирование даты рождения
+    request.birthDate = safeFormatDate(request.birthDate) || request.birthDate
 
     const response = await baseApi.makeRequest<AttendeeResponse>(
       {

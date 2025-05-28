@@ -34,7 +34,7 @@
                                     <span v-if="isEventInactive(ticket.id)"
                                         class="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-md">
                                         {{ isEventPassed(ticket.id) ? t('profile.tickets.eventPassed') :
-                                        t('profile.tickets.eventInactive') }}
+                                            t('profile.tickets.eventInactive') }}
                                     </span>
                                 </h3>
                                 <span :class="getStatusClass(ticket.status)"
@@ -130,7 +130,7 @@
                                         <span v-if="isEventInactive(selectedTicket.id)"
                                             class="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-md">
                                             {{ isEventPassed(selectedTicket.id) ? t('profile.tickets.eventPassed') :
-                                            t('profile.tickets.eventInactive') }}
+                                                t('profile.tickets.eventInactive') }}
                                         </span>
                                     </div>
                                 </div>
@@ -284,7 +284,7 @@ async function loadTickets() {
             paymentIds: [] // массив Guid в виде строк
         },
         pagination: {
-            pageNumber: currentPage.value,
+            page: currentPage.value,
             pageSize: pageSize.value
         },
         sort: [

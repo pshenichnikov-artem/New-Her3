@@ -18,6 +18,22 @@ export function useEventApi() {
   const baseApi = useBaseApi<EventResponse>('events')
 
   /**
+   * Функция для безопасного преобразования даты
+   * Проверяет, валидна ли дата перед преобразованием
+   */
+  function safeFormatDate(dateString: string | null | undefined): string | null {
+    if (!dateString) return null
+
+    // Пытаемся создать объект даты и проверяем его валидность
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      return null // Возвращаем null, если дата невалидна
+    }
+
+    return formatDateForServer(date)
+  }
+
+  /**
    * Получение события по ID
    */
   async function getEventById(
@@ -43,12 +59,8 @@ export function useEventApi() {
     request: EventSearchRequest,
     options: RequestOptions = {},
   ): Promise<Response<EventResponse> | null> {
-    request.filter.dateTo = request.filter.dateTo
-      ? formatDateForServer(new Date(request.filter.dateTo))
-      : null
-    request.filter.dateFrom = request.filter.dateFrom
-      ? formatDateForServer(new Date(request.filter.dateFrom))
-      : null
+    request.filter.dateTo = safeFormatDate(request.filter.dateTo)
+    request.filter.dateFrom = safeFormatDate(request.filter.dateFrom)
 
     const response = await baseApi.makeRequest<Response<EventResponse>>(
       {
@@ -81,13 +93,6 @@ export function useEventApi() {
       successMessage: t('event.updateSuccess'),
       ...options,
     }
-
-    request.startDate = request.startDate
-      ? formatDateForServer(new Date(request.startDate))
-      : request.startDate
-    request.endDate = request.endDate
-      ? formatDateForServer(new Date(request.endDate))
-      : request.startDate
 
     const response = await baseApi.makeRequest<EventResponse>(
       {
@@ -136,13 +141,6 @@ export function useEventApi() {
       successMessage: t('event.createSuccess'),
       ...options,
     }
-
-    request.startDate = request.startDate
-      ? formatDateForServer(new Date(request.startDate))
-      : request.startDate
-    request.endDate = request.endDate
-      ? formatDateForServer(new Date(request.endDate))
-      : request.startDate
 
     const response = await baseApi.makeRequest<EventResponse>(
       {

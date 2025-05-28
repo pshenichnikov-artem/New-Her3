@@ -1,10 +1,10 @@
 <template>
     <div v-if="!route.params.id && route.name !== 'dashboard-attendees-create'">
         <AdminDataTable :title="t('dashboard.attendees.tableTitle')" :columns="columns" :items="attendeeApi.attendees"
-            :loading="attendeeApi.loading.search" :total-count="attendeeApi.totalCount"
-            :current-page="pagination.pageNumber" :page-size="pagination.pageSize" @update:sort="updateSort"
-            @pagination-change="handlePaginationChange" @apply-filters="loadAttendees" @reset-filters="resetFilters"
-            @add="openAddAttendeeModal" @edit="openEditAttendeeModal" @delete="showDeleteConfirmation">
+            :loading="attendeeApi.loading.search" :total-count="attendeeApi.totalCount" :current-page="pagination.page"
+            :page-size="pagination.pageSize" @update:sort="updateSort" @pagination-change="handlePaginationChange"
+            @apply-filters="loadAttendees" @reset-filters="resetFilters" @add="openAddAttendeeModal"
+            @edit="openEditAttendeeModal" @delete="showDeleteConfirmation">
             <template #filters>
                 <TextFilter :title="t('filters.attendee.fullName')" v-model="filter.fullName" :multiple-select="false"
                     class="compact-filter">
@@ -87,7 +87,7 @@ const filter = reactive<AttendeeFilterRequest>({
 const birthDateRange = ref<[Date | null, Date | null] | null>(null);
 
 const pagination = reactive<PaginationRequest>({
-    pageNumber: 1,
+    page: 1,
     pageSize: 20
 });
 
@@ -157,7 +157,7 @@ const updateSort = (newSort: SortRequest[]) => {
 };
 
 const handlePaginationChange = (paginationData: { page: number; pageSize: number }) => {
-    pagination.pageNumber = paginationData.page;
+    pagination.page = paginationData.page;
     pagination.pageSize = paginationData.pageSize;
     loadAttendees();
 };
@@ -173,7 +173,7 @@ const resetFilters = () => {
     });
     birthDateRange.value = null;
     sort.value = [];
-    pagination.pageNumber = 1;
+    pagination.page = 1;
     loadAttendees();
 };
 

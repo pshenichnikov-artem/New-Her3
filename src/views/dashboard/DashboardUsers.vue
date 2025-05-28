@@ -2,7 +2,7 @@
     <!-- Основной контент для списка пользователей -->
     <div v-if="!route.params.id && route.name !== 'dashboard-users-create'">
         <AdminDataTable :title="t('dashboard.users.tableTitle')" :columns="columns" :items="userApi.users"
-            :loading="userApi.loading.search" :total-count="userApi.totalCount" :current-page="pagination.pageNumber"
+            :loading="userApi.loading.search" :total-count="userApi.totalCount" :current-page="pagination.page"
             :page-size="pagination.pageSize" @update:sort="updateSort" @pagination-change="handlePaginationChange"
             @apply-filters="loadUsers" @reset-filters="resetFilters" @add="openAddUserModal" @edit="openEditUserModal"
             @delete="showDeleteConfirmation">
@@ -111,7 +111,7 @@ const birthDateRange = ref<[Date | null, Date | null] | null>(null);
 const createdAtRange = ref<[Date | null, Date | null] | null>(null);
 
 const pagination = reactive<PaginationRequest>({
-    pageNumber: 1,
+    page: 1,
     pageSize: 20
 });
 
@@ -197,7 +197,7 @@ const updateSort = (newSort: SortRequest[]) => {
 };
 
 const handlePaginationChange = (paginationData: { page: number; pageSize: number }) => {
-    pagination.pageNumber = paginationData.page;
+    pagination.page = paginationData.page;
     pagination.pageSize = paginationData.pageSize;
     loadUsers();
 };
@@ -222,7 +222,7 @@ const resetFilters = () => {
 
     // Сбрасываем сортировку
     sort.value = [];
-    pagination.pageNumber = 1;
+    pagination.page = 1;
     loadUsers();
 };
 

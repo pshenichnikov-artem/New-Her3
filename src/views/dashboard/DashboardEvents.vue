@@ -2,7 +2,7 @@
     <!-- Основной контент для списка событий -->
     <div v-if="!route.params.id && route.name !== 'dashboard-events-create'">
         <AdminDataTable :title="t('dashboard.events.tableTitle')" :columns="columns" :items="eventApi.events"
-            :loading="eventApi.loading.search" :total-count="eventApi.totalCount" :current-page="pagination.pageNumber"
+            :loading="eventApi.loading.search" :total-count="eventApi.totalCount" :current-page="pagination.page"
             :page-size="pagination.pageSize" @update:sort="updateSort" @pagination-change="handlePaginationChange"
             @apply-filters="loadEvents" @reset-filters="resetFilters" @add="openAddEventModal"
             @edit="openEditEventModal" @delete="showDeleteConfirmation">
@@ -120,7 +120,7 @@ const activeStatus = ref<string | null>(null);
 // Дополнительное состояние для поддержки множественного выбора в фильтрах
 const dateRange = ref<[Date | null, Date | null] | null>(null);
 const pagination = reactive<PaginationRequest>({
-    pageNumber: 1,
+    page: 1,
     pageSize: 20
 });
 const sort = ref<SortRequest[]>([
@@ -217,7 +217,7 @@ const updateSort = (newSort: SortRequest[]) => {
 };
 
 const handlePaginationChange = (paginationData: { page: number; pageSize: number }) => {
-    pagination.pageNumber = paginationData.page;
+    pagination.page = paginationData.page;
     pagination.pageSize = paginationData.pageSize;
     loadEvents();
 };
@@ -254,7 +254,7 @@ const resetFilters = () => {
     activeStatus.value = null;
 
     dateRange.value = null;
-    pagination.pageNumber = 1;
+    pagination.page = 1;
     loadEvents();
 };
 

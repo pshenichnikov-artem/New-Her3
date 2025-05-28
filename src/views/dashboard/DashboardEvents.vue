@@ -1,7 +1,7 @@
 <template>
     <!-- Основной контент для списка событий -->
     <div v-if="!route.params.id && route.name !== 'dashboard-events-create'">
-        <AdminDataTable :title="t('dashboard.events.tableTitle')" :columns="columns" :items="eventApi.events"
+        <AdminDataTable taTable :title="t('dashboard.events.tableTitle')" :columns="columns" :items="eventApi.events"
             :loading="eventApi.loading.search" :total-count="eventApi.totalCount" :current-page="pagination.page"
             :page-size="pagination.pageSize" @update:sort="updateSort" @pagination-change="handlePaginationChange"
             @apply-filters="loadEvents" @reset-filters="resetFilters" @add="openAddEventModal"
@@ -16,7 +16,7 @@
                 </TextFilter>
 
                 <TextFilter :title="t('filters.event.location')" v-model="filter.location" :multiple-select="true"
-                    class="compact-filter">
+                    class="compact-filter" :get-suggestions="loadLocation">
                     <template #icon>
                         <IconsSet name="location" class="w-4 h-4 text-primary-400" />
                     </template>
@@ -37,14 +37,14 @@
                 </DateRangeFilter>
 
                 <NumberFilter :title="t('filters.event.minPrice')" v-model="filter.minPrice"
-                    :currency="t('common.currency')" :multiple-select="true" class="compact-filter">
+                    :currency="t('common.currency')" :multiple-select="false" class="compact-filter">
                     <template #icon>
                         <IconsSet name="priceTag" class="w-4 h-4 text-primary-400" />
                     </template>
                 </NumberFilter>
 
                 <NumberFilter :title="t('filters.event.maxPrice')" v-model="filter.maxPrice"
-                    :currency="t('common.currency')" :multiple-select="true" class="compact-filter">
+                    :currency="t('common.currency')" :multiple-select="false" class="compact-filter">
                     <template #icon>
                         <IconsSet name="priceTag" class="w-4 h-4 text-primary-400" />
                     </template>
@@ -94,6 +94,7 @@ import type { SortRequest } from '@/types/common/SortRequest';
 import type { PaginationRequest } from '@/types/common/PaginationRequest';
 import type { Column } from '@/components/adminLayout/AdminDataTable.vue';
 import { useCopyWithFeedback } from '@/utils/copyUtils';
+import type { EventResponse } from '@/types/event/EventResponse';
 
 const { t } = useI18n();
 const eventApi = useEventApi();
@@ -208,6 +209,32 @@ const loadEvents = async () => {
         sort: sort.value,
         pagination
     });
+};
+
+const loadLocation = async (location: string) => {
+    const events = await eventApi.searchEvents({
+        filter: {
+            eventIds: [],
+            description: null,
+            dateFrom: null,
+            dateTo: null,
+            minPrice: null,
+            maxPrice: null,
+            title: [],
+            location: [location],
+            isActive: null,
+            tag: []
+        },
+        sort: [
+            { sortBy: "location", sortDirection: "asc" }
+        ],
+        pagination: { page: 1, pageSize: 20 }
+    });
+
+    const locations = events ? events.items.map(i => i.location) : []
+    console.error(locations)
+
+    return locations
 };
 
 const updateSort = (newSort: SortRequest[]) => {

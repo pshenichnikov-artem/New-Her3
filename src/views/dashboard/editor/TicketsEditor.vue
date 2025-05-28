@@ -104,6 +104,7 @@ import type { AttendeeResponse } from '@/types/attendee/AttendeeResponse';
 import BaseEditor from '@/components/editors/BaseEditor.vue';
 import { useNotification } from '@/composables/useNotification';
 import { useFormValidation } from '@/composables/useFormValidation';
+import { TicketStatus } from '@/types/enums/TicketStatus';
 
 const { t } = useI18n();
 const route = useRoute();
@@ -124,7 +125,7 @@ const ticketData = ref<TicketResponse | null>(null);
 // Создаем форму с правильными типами данных
 const ticketForm = ref<TicketAddRequest & Partial<TicketUpdateRequest>>({
     eventId: '',
-    status: 'Available',
+    status: TicketStatus.Available,
     attendeeId: '',
     buyerId: ''
 });
@@ -179,7 +180,7 @@ onMounted(async () => {
     } else {
         ticketForm.value = {
             eventId: '',
-            status: 'Available',
+            status: TicketStatus.Available,
             attendeeId: '',
             buyerId: ''
         };
@@ -218,7 +219,14 @@ const loadSelectOptions = async () => {
 
     // Загружаем посетителей
     await attendeeApi.searchAttendees({
-        filter: {},
+        filter: {
+            attendeeIds: [],
+            fullName: null,
+            birthDateFrom: null,
+            birthDateTo: null,
+            docType: [],
+            docNumber: null
+        },
         sort: [],
         pagination: { page: 1, pageSize: 100 }
     }, {

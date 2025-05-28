@@ -7,6 +7,5 @@ export interface TicketFilterRequest {
   buyerName?: string | null
   attendeeId: string[] // массив Guid в виде строк
   attendeeName?: string | null
-  status: TicketStatus[]
   paymentIds: string[] // массив Guid в виде строк
 }

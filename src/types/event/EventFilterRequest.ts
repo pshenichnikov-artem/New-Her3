@@ -9,4 +9,5 @@ export interface EventFilterRequest {
   location?: string[] | null
   isActive?: boolean | null
   tag?: string[] | null
+  //TODO Списки не наллабл
 }

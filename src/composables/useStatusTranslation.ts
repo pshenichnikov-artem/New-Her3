@@ -33,8 +33,7 @@ export function useStatusTranslation() {
    */
   const getPaymentStatusClass = (status: PaymentStatus) => {
     const statusClasses = {
-      [PaymentStatus.Pending]: 'bg-yellow-100 text-yellow-800',
-      [PaymentStatus.WaitingForCapture]: 'bg-blue-100 text-blue-800',
+      [PaymentStatus.WaitingForPayment]: 'bg-blue-100 text-blue-800',
       [PaymentStatus.Succeeded]: 'bg-green-100 text-green-800',
       [PaymentStatus.Canceled]: 'bg-gray-100 text-gray-800',
       [PaymentStatus.Failed]: 'bg-red-100 text-red-800',

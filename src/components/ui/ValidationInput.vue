@@ -1,15 +1,13 @@
 <template>
   <div class="mb-4">
-    <label v-if="label" class="block text-sm font-medium text-text-form mb-1">{{ label }}</label>
+    <label v-if="label" class="block text-sm font-medium  mb-1" :class="[props.titleColor]">{{ label }}</label>
     <div class="relative flex items-center">
-      <input
-        class="w-full bg-form-light text-black border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 pr-10"
-        :class="{
-          'border-form-border focus:ring-form-focus': !error && !isRed,
-          'border-green-500 focus:ring-green-500': isValid && !error && !isEmpty,
-          'border-red-500 focus:ring-red-500': isRed,
-        }" :id="id" :type="computedInputType" :placeholder="placeholder" :value="modelValue" @input="handleInput"
-        @blur="handleBlur" />
+      <input class="w-full   border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 pr-10" :class="[{
+        'border-form-border focus:ring-form-focus': !error && !isRed,
+        'border-green-500 focus:ring-green-500': isValid && !error && !isEmpty,
+        'border-red-500 focus:ring-red-500': isRed,
+      }, props.textColor, props.backgroundColor]" :id="id" :type="computedInputType" :placeholder="placeholder"
+        :value="modelValue" @input="handleInput" @blur="handleBlur" />
       <!-- Глазик -->
       <button v-if="type === 'password'" type="button"
         class="absolute inset-y-0 right-2 text-gray-400 text-sm flex items-center justify-center"
@@ -44,10 +42,11 @@ export interface ValidationProps {
   validationRules?: string | ValidationRule[];
   errorMessages?: Record<string, string>;
   compareWith?: string | null;
-  triggerValidation?: number;
-  readonly?: boolean;
-  min?: string;
-  max?: string;
+  triggerValidation?: number; // Новый prop для запуска валидации
+  backgroundColor?: string | null
+  titleColor?: string | null
+  placeholderColor?: string | null
+  textColor?: string | null
 }
 
 // Определяем пропсы и эмиты
@@ -61,9 +60,10 @@ const props = withDefaults(defineProps<ValidationProps>(), {
   errorMessages: () => ({}),
   compareWith: null,
   triggerValidation: 0,
-  readonly: false,
-  min: '',
-  max: ''
+  backgroundColor: 'bg-form-light',
+  titleColor: 'text-text-form',
+  placeholderColor: '',
+  textColor: 'text-black'
 });
 
 const emit = defineEmits<{

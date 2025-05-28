@@ -208,13 +208,13 @@ const resetFilters = () => {
 };
 
 const openAddTicketModal = () => {
-    // router.push('/dashboard/tickets/create');
-    // Если не нужен функционал создания билета через UI, оставьте пустым
+    router.push('/dashboard/tickets/create');
+
 };
 
 const openEditTicketModal = (ticket: any) => {
-    // router.push(`/dashboard/tickets/edit/${ticket.id}`);
-    // Если не нужен функционал редактирования билета через UI, оставьте пустым
+    router.push(`/dashboard/tickets/edit/${ticket.id}`);
+
 };
 
 const isDeleteConfirmationVisible = ref(false);

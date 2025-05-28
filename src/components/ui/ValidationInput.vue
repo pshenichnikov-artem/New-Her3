@@ -37,14 +37,17 @@ type ValidationRule = {
 
 export interface ValidationProps {
   id?: string;
-  modelValue: string;
+  modelValue: string | number;
   label?: string;
   type?: string;
   placeholder?: string;
   validationRules?: string | ValidationRule[];
   errorMessages?: Record<string, string>;
   compareWith?: string | null;
-  triggerValidation?: number; // Новый prop для запуска валидации
+  triggerValidation?: number;
+  readonly?: boolean;
+  min?: string;
+  max?: string;
 }
 
 // Определяем пропсы и эмиты
@@ -58,10 +61,13 @@ const props = withDefaults(defineProps<ValidationProps>(), {
   errorMessages: () => ({}),
   compareWith: null,
   triggerValidation: 0,
+  readonly: false,
+  min: '',
+  max: ''
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string];
+  'update:modelValue': [value: string | number];
   'input': [value: string];
   'update:validationErrors': [error: Record<string, string> | null];
   'valid': [isValid: boolean];
@@ -129,7 +135,16 @@ function getValidators(): Record<string, (v: string, p?: string) => string | boo
       props.errorMessages.minLength || t('validation.minLength', { length: p }),
     maxLength: (v, p) => (v.length <= +(p || 0)) ||
       props.errorMessages.maxLength || t('validation.maxLength', { length: p }),
+    min: (v, p) => (+v >= +(p || 0)) ||
+      props.errorMessages.min || t('validation.min', { min: p }),
+    max: (v, p) => (+v <= +(p || 0)) ||
+      props.errorMessages.max || t('validation.max', { max: p }),
     pattern: (v, p) => new RegExp(p || '').test(v) || props.errorMessages.pattern || t('validation.pattern'),
+    date: (v) => {
+      if (!v) return true; // Пустая дата валидна если поле не обязательное
+      const date = new Date(v);
+      return !isNaN(date.getTime()) || props.errorMessages.date || t('validation.date');
+    },
     match: (v) => {
       if (props.compareWith == null) return props.errorMessages.match || 'No reference value for comparison';
       if (v !== props.compareWith) return props.errorMessages.match || t('validation.password.mismatch');
@@ -260,7 +275,7 @@ function validate(): boolean {
   for (const { name, param } of rules) {
     const validator = validators[name];
     if (validator) {
-      const result = validator(props.modelValue, param);
+      const result = validator(typeof props.modelValue === 'number' ? props.modelValue.toString() : props.modelValue, param);
       if (result !== true) {
         // Используем переданные сообщения об ошибках или берем из локализации
         error.value = result as string;
@@ -275,15 +290,6 @@ function validate(): boolean {
   emit('update:validationErrors', null);
   emit('valid', true);
   return true;
-}
-
-// Получаем стандартное сообщение об ошибке, если требуется
-function getDefaultErrorMessage(): string {
-  const rules = parseRules(props.validationRules);
-  if (rules.some(r => r.name === 'required')) {
-    return props.errorMessages.required || t('validation.required');
-  }
-  return '';
 }
 
 // Обработчик потери фокуса

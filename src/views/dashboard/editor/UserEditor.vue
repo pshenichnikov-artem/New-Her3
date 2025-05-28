@@ -1,12 +1,7 @@
 <template>
     <BaseEditor :title="isEditMode ? t('user.edit') : t('user.create')" :back-path="'/dashboard/users'"
-        :is-loading="userApi.isLoading" :has-changes="hasChanges" @back="goBack" @cancel="resetForm" @save="saveUser">
-        <template #actions>
-            <button v-if="isEditMode" @click="toggleReadOnly" class="px-4 py-2 rounded-lg transition-colors"
-                :class="isReadOnly ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-blue-500 hover:bg-blue-400'">
-                {{ isReadOnly ? t('common.buttons.edit') : t('common.buttons.view') }}
-            </button>
-        </template>
+        :is-loading="userApi.isLoading" :has-changes="hasChanges" @back="goBack" @cancel="resetForm"
+        @save="form.handleSubmit(saveUser)">
 
         <div v-if="isLoading" class="flex justify-center py-8">
             <div class="animate-spin text-4xl text-primary-600">
@@ -14,77 +9,52 @@
             </div>
         </div>
         <div v-else-if="userForm">
-            <!-- Форма пользователя -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Базовая информация -->
+                <!-- Основная информация -->
                 <div class="space-y-4">
-                    <div class="form-group">
-                        <label for="email" class="block mb-1 font-medium">{{ t('user.fields.email') }}</label>
-                        <input type="email" id="email" v-model="userForm.email"
-                            class="w-full px-3 py-2 border rounded-lg"
-                            :class="{ 'border-red-500': validationErrors.email }" :readonly="isReadOnly">
-                        <p v-if="validationErrors.email" class="text-red-500 text-sm mt-1">{{ validationErrors.email }}
-                        </p>
-                    </div>
+                    <ValidationInput id="email" v-model="userForm.email" type="email" :label="t('user.fields.email')"
+                        validation-rules="required|email" :readonly="isReadOnly" :error-messages="{
+                            required: t('validation.required'),
+                            email: t('validation.email.invalid')
+                        }" :trigger-validation="form.validationTrigger.email"
+                        @valid="form.updateValidationState('email', $event)" />
 
-                    <div class="form-group">
-                        <label for="username" class="block mb-1 font-medium">{{ t('user.fields.username') }}</label>
-                        <input type="text" id="username" v-model="userForm.username"
-                            class="w-full px-3 py-2 border rounded-lg"
-                            :class="{ 'border-red-500': validationErrors.username }" :readonly="isReadOnly">
-                        <p v-if="validationErrors.username" class="text-red-500 text-sm mt-1">{{
-                            validationErrors.username }}
-                        </p>
-                    </div>
+                    <ValidationInput id="fullName" v-model="userForm.fullName" :label="t('user.fields.fullName')"
+                        validation-rules="required|fullName" :readonly="isReadOnly" :error-messages="{
+                            required: t('validation.required'),
+                            fullName: t('validation.fullName.pattern')
+                        }" :trigger-validation="form.validationTrigger.fullName"
+                        @valid="form.updateValidationState('fullName', $event)" />
 
-                    <div class="form-group">
-                        <label for="firstName" class="block mb-1 font-medium">{{ t('user.fields.firstName') }}</label>
-                        <input type="text" id="firstName" v-model="userForm.firstName"
-                            class="w-full px-3 py-2 border rounded-lg"
-                            :class="{ 'border-red-500': validationErrors.firstName }" :readonly="isReadOnly">
-                        <p v-if="validationErrors.firstName" class="text-red-500 text-sm mt-1">{{
-                            validationErrors.firstName }}
-                        </p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="lastName" class="block mb-1 font-medium">{{ t('user.fields.lastName') }}</label>
-                        <input type="text" id="lastName" v-model="userForm.lastName"
-                            class="w-full px-3 py-2 border rounded-lg"
-                            :class="{ 'border-red-500': validationErrors.lastName }" :readonly="isReadOnly">
-                        <p v-if="validationErrors.lastName" class="text-red-500 text-sm mt-1">{{
-                            validationErrors.lastName }}
-                        </p>
-                    </div>
+                    <ValidationInput id="phone" v-model="userForm.phone" :label="t('user.fields.phone')"
+                        validation-rules="required|phone" :readonly="isReadOnly" :error-messages="{
+                            required: t('validation.required'),
+                            phone: t('validation.phone.pattern')
+                        }" :trigger-validation="form.validationTrigger.phone"
+                        @valid="form.updateValidationState('phone', $event)" />
                 </div>
 
                 <!-- Дополнительная информация -->
                 <div class="space-y-4">
                     <div class="form-group">
-                        <label for="birthDate" class="block mb-1 font-medium">{{ t('user.fields.birthDate') }}</label>
-                        <input type="date" id="birthDate" v-model="userForm.birthDate"
-                            class="w-full px-3 py-2 border rounded-lg" :readonly="isReadOnly">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="role" class="block mb-1 font-medium">{{ t('user.fields.role') }}</label>
-                        <select id="role" v-model="userForm.role" class="w-full px-3 py-2 border rounded-lg"
-                            :disabled="isReadOnly">
+                        <label for="role" class="block mb-1 font-medium text-sm text-text-form">
+                            {{ t('user.fields.role') }}
+                        </label>
+                        <select id="role" v-model="userForm.role"
+                            class="w-full px-3 py-2 border rounded-lg bg-form-light" :disabled="isReadOnly">
                             <option value="User">{{ t('user.roles.user') }}</option>
                             <option value="Admin">{{ t('user.roles.admin') }}</option>
                             <option value="Manager">{{ t('user.roles.manager') }}</option>
                         </select>
                     </div>
 
-                    <div v-if="!isEditMode" class="form-group">
-                        <label for="password" class="block mb-1 font-medium">{{ t('user.fields.password') }}</label>
-                        <input type="password" id="password" v-model="userForm.password"
-                            class="w-full px-3 py-2 border rounded-lg"
-                            :class="{ 'border-red-500': validationErrors.password }" :readonly="isReadOnly">
-                        <p v-if="validationErrors.password" class="text-red-500 text-sm mt-1">{{
-                            validationErrors.password }}
-                        </p>
-                    </div>
+                    <ValidationInput v-if="!isEditMode" id="password" v-model="userForm.password" type="password"
+                        :label="t('user.fields.password')" validation-rules="required|password" :readonly="isReadOnly"
+                        :error-messages="{
+                            required: t('validation.required'),
+                            password: t('validation.password.pattern')
+                        }" :trigger-validation="form.validationTrigger.password"
+                        @valid="form.updateValidationState('password', $event)" />
                 </div>
             </div>
         </div>
@@ -94,23 +64,41 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import { computed, onMounted, ref, reactive } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useUserApi } from '@/composables/api/useUserApi';
+import { useAuthApi } from '@/composables/api/useAuthApi';
 import type { UserUpdateRequest } from '@/types/user/UserUpdateRequest';
+import type { RegisterRequest } from '@/types/auth/RegisterRequest';
 import BaseEditor from '@/components/editors/BaseEditor.vue';
+import ValidationInput from '@/components/ui/ValidationInput.vue';
+import { useNotification } from '@/composables/useNotification';
+import { useFormValidation } from '@/composables/useFormValidation';
+import { UserRoles } from '@/types/enums/UserRoles';
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const userApi = useUserApi();
+const authApi = useAuthApi();
+const notification = useNotification();
 
 const userId = computed(() => route.params.id as string);
 const isEditMode = computed(() => route.name === 'dashboard-users-edit');
 const isLoading = ref(false);
 const isReadOnly = ref(false);
-const initialUserData = ref<UserUpdateRequest | null>(null);
-const userForm = ref<UserUpdateRequest | null>(null);
-const validationErrors = reactive<Record<string, string>>({});
+const initialUserData = ref<UserUpdateRequest | RegisterRequest | null>(null);
+
+// Создаем форму с правильными типами данных
+const userForm = ref<UserUpdateRequest & { password: string }>({
+    email: '',
+    fullName: '',
+    phone: '',
+    role: UserRoles.User,
+    password: ''
+});
+
+// Настраиваем валидацию формы - передаем все возможные поля
+const form = useFormValidation(['email', 'fullName', 'phone', 'password']);
 
 const hasChanges = computed(() => {
     if (!userForm.value || !initialUserData.value) return false;
@@ -118,34 +106,50 @@ const hasChanges = computed(() => {
 });
 
 onMounted(async () => {
+    isLoading.value = true;
+
     if (isEditMode.value) {
-        isLoading.value = true;
-        isReadOnly.value = true;
-        const user = await userApi.getUserById(userId.value);
-        if (user) {
-            initialUserData.value = {
-                email: user.email,
-                username: user.username,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                birthDate: user.birthDate,
-                role: user.role
-            };
-            userForm.value = { ...initialUserData.value };
-        }
-        isLoading.value = false;
+        await userApi.getUserById(userId.value, {
+            onSuccess: (user) => {
+                if (user) {
+                    initialUserData.value = {
+                        email: user.email,
+                        fullName: user.fullName,
+                        phone: user.phone,
+                        role: user.role
+                    };
+                    userForm.value = {
+                        ...initialUserData.value,
+                        password: '' // Всегда инициализируем password как пустую строку
+                    };
+                } else {
+                    notification.error(t('errors.userNotFound'));
+                    goBack();
+                }
+            },
+            onError: () => {
+                notification.error(t('errors.loadingFailed'));
+                goBack();
+            }
+        });
     } else {
         userForm.value = {
             email: '',
-            username: '',
-            firstName: '',
-            lastName: '',
-            birthDate: null,
-            role: 'User',
+            fullName: '',
+            phone: '',
+            role: UserRoles.User,
             password: ''
         };
-        initialUserData.value = { ...userForm.value };
+        initialUserData.value = {
+            email: '',
+            fullName: '',
+            phone: '',
+            role: UserRoles.User,
+            password: ''
+        };
     }
+
+    isLoading.value = false;
 });
 
 const goBack = () => {
@@ -154,65 +158,68 @@ const goBack = () => {
 
 const resetForm = () => {
     if (initialUserData.value) {
-        userForm.value = { ...initialUserData.value };
+        userForm.value = {
+            ...(initialUserData.value as typeof userForm.value),
+            password: '' // Всегда сбрасываем password в пустую строку
+        };
     }
-    validationErrors = reactive<Record<string, string>>({});
-};
-
-const toggleReadOnly = () => {
-    isReadOnly.value = !isReadOnly.value;
-};
-
-const validateForm = () => {
-    validationErrors = reactive<Record<string, string>>({});
-    let isValid = true;
-
-    if (!userForm.value) return false;
-
-    if (!userForm.value.email) {
-        validationErrors.email = t('validation.required');
-        isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userForm.value.email)) {
-        validationErrors.email = t('validation.email');
-        isValid = false;
-    }
-
-    if (!userForm.value.username) {
-        validationErrors.username = t('validation.required');
-        isValid = false;
-    }
-
-    if (!userForm.value.firstName) {
-        validationErrors.firstName = t('validation.required');
-        isValid = false;
-    }
-
-    if (!userForm.value.lastName) {
-        validationErrors.lastName = t('validation.required');
-        isValid = false;
-    }
-
-    if (!isEditMode.value && !userForm.value.password) {
-        validationErrors.password = t('validation.required');
-        isValid = false;
-    }
-
-    return isValid;
+    form.resetValidation();
+    notification.info(t('common.changesDiscarded'));
 };
 
 const saveUser = async () => {
-    if (!userForm.value || !validateForm()) return;
+    // Проверяем только нужные поля в зависимости от режима
+    const fieldsToValidate = isEditMode.value
+        ? ['email', 'fullName', 'phone']
+        : ['email', 'fullName', 'phone', 'password'];
+
+    // Проверяем валидность только необходимых полей
+    const isFormValid = fieldsToValidate.every(field => form.validationState[field]);
+
+    if (!isFormValid) {
+        // Принудительно запускаем валидацию для всех полей
+        fieldsToValidate.forEach(field => {
+            if (form.validationTrigger[field] !== undefined) {
+                form.validationTrigger[field] += 1;
+            }
+        });
+        return;
+    }
 
     if (isEditMode.value) {
-        const success = await userApi.updateUser(userId.value, userForm.value);
-        if (success) {
-            initialUserData.value = { ...userForm.value };
-            isReadOnly.value = true;
-        }
+        const updateData: UserUpdateRequest = {
+            email: userForm.value.email,
+            fullName: userForm.value.fullName,
+            phone: userForm.value.phone,
+            role: userForm.value.role
+        };
+
+        await userApi.updateUser(userId.value, updateData, {
+            onSuccess: () => {
+                initialUserData.value = { ...updateData };
+                notification.success(t('user.updateSuccess'));
+            },
+            onError: () => {
+                notification.error(t('user.updateFailed'));
+            }
+        });
     } else {
-        // Здесь должна быть логика создания пользователя
-        // await userApi.createUser(userForm.value);
-        router.push('/dashboard/users');
+        const registerData: RegisterRequest = {
+            email: userForm.value.email,
+            fullName: userForm.value.fullName,
+            phone: userForm.value.phone,
+            password: userForm.value.password!
+        };
+
+        await authApi.register(registerData, {
+            onSuccess: () => {
+                notification.success(t('user.createSuccess'));
+                router.push('/dashboard/users');
+            },
+            onError: () => {
+                notification.error(t('user.createFailed'));
+            }
+        });
     }
 };
 </script>

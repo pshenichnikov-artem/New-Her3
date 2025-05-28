@@ -2,9 +2,20 @@
   <div class="flex flex-row items-center justify-between gap-4 w-full py-2">
     <!-- Размер страницы -->
     <div class="flex items-center gap-2">
-      <span class="text-xs text-text-accent font-semibold">{{ t('basePagination.show') }}</span>
-      <select v-model="internalPageSize"
-        class="border border-primary-400 rounded px-2 py-1 text-xs bg-content text-text-accent focus:ring-primary-400 focus:border-primary-500 transition">
+      <span :class="['text-xs font-semibold', titleColor]">{{
+        t("basePagination.show")
+      }}</span>
+      <select
+        v-model="internalPageSize"
+        :class="[
+          'border rounded px-2 py-1 text-xs focus:ring transition',
+          backgroundColor,
+          textColor,
+          borderColor,
+          'focus:ring-' + focusRingColor,
+          'focus:border-' + focusBorderColor,
+        ]"
+      >
         <option v-for="size in pageSizes" :key="size" :value="size">{{ size }}</option>
       </select>
     </div>
@@ -13,43 +24,85 @@
     <div class="flex-1 flex items-center justify-center">
       <nav class="flex items-center gap-1 select-none" aria-label="Pagination">
         <!-- Кнопка "Назад" (disabled если на первой странице) -->
-        <button @click="changePage(internalCurrentPage - 1)" :disabled="internalCurrentPage === 1"
-          class="px-2 py-1 rounded border font-semibold text-xs transition min-w-[32px] min-h-[32px]" :class="internalCurrentPage === 1
-            ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'
-            : 'bg-white text-primary border-primary-200 hover:bg-primary-50 hover:text-primary-700'"
-          aria-label="Previous">
-          <svg class="w-4 h-4" fill="none" :stroke="internalCurrentPage === 1 ? '#b0b0b0' : '#222'" stroke-width="2"
-            viewBox="0 0 24 24">
+        <button
+          @click="changePage(internalCurrentPage - 1)"
+          :disabled="internalCurrentPage === 1"
+          class="px-2 py-1 rounded border font-semibold text-xs transition min-w-[32px] min-h-[32px]"
+          :class="
+            internalCurrentPage === 1
+              ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'
+              : 'bg-white text-primary border-primary-200 hover:bg-primary-50 hover:text-primary-700'
+          "
+          aria-label="Previous"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            :stroke="internalCurrentPage === 1 ? '#b0b0b0' : '#222'"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
 
         <!-- Первая страница -->
-        <button @click="changePage(1)" :class="getPageButtonClass(1)" class="min-w-[32px] min-h-[32px]">1</button>
+        <button
+          @click="changePage(1)"
+          :class="getPageButtonClass(1)"
+          class="min-w-[32px] min-h-[32px]"
+        >
+          1
+        </button>
 
         <!-- Многоточие в начале -->
         <span v-if="startPage > 2" class="px-1 text-gray-400 select-none">…</span>
 
         <!-- Номера страниц вокруг текущей -->
-        <button v-for="page in visiblePages" :key="page" @click="changePage(page)" :class="getPageButtonClass(page)"
-          class="min-w-[32px] min-h-[32px]">
+        <button
+          v-for="page in visiblePages"
+          :key="page"
+          @click="changePage(page)"
+          :class="getPageButtonClass(page)"
+          class="min-w-[32px] min-h-[32px]"
+        >
           {{ page }}
         </button>
 
         <!-- Многоточие в конце -->
-        <span v-if="endPage < totalPages - 1" class="px-1 text-gray-400 select-none">…</span>
+        <span v-if="endPage < totalPages - 1" class="px-1 text-gray-400 select-none"
+          >…</span
+        >
 
         <!-- Последняя страница -->
-        <button v-if="totalPages > 1" @click="changePage(totalPages)" :class="getPageButtonClass(totalPages)"
-          class="min-w-[32px] min-h-[32px]">{{ totalPages }}</button>
+        <button
+          v-if="totalPages > 1"
+          @click="changePage(totalPages)"
+          :class="getPageButtonClass(totalPages)"
+          class="min-w-[32px] min-h-[32px]"
+        >
+          {{ totalPages }}
+        </button>
 
         <!-- Кнопка "Вперёд" (disabled если на последней странице) -->
-        <button @click="changePage(internalCurrentPage + 1)" :disabled="internalCurrentPage === totalPages"
-          class="px-2 py-1 rounded border font-semibold text-xs transition min-w-[32px] min-h-[32px]" :class="internalCurrentPage === totalPages
-            ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'
-            : 'bg-white text-primary border-primary-200 hover:bg-primary-50 hover:text-primary-700'" aria-label="Next">
-          <svg class="w-4 h-4" fill="none" :stroke="internalCurrentPage === totalPages ? '#b0b0b0' : '#222'"
-            stroke-width="2" viewBox="0 0 24 24">
+        <button
+          @click="changePage(internalCurrentPage + 1)"
+          :disabled="internalCurrentPage === totalPages"
+          class="px-2 py-1 rounded border font-semibold text-xs transition min-w-[32px] min-h-[32px]"
+          :class="
+            internalCurrentPage === totalPages
+              ? 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'
+              : 'bg-white text-primary border-primary-200 hover:bg-primary-50 hover:text-primary-700'
+          "
+          aria-label="Next"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            :stroke="internalCurrentPage === totalPages ? '#b0b0b0' : '#222'"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -59,8 +112,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 interface PaginationProps {
   totalItems: number;
@@ -68,6 +121,12 @@ interface PaginationProps {
   maxVisiblePages?: number;
   currentPage?: number;
   pageSize?: number;
+  backgroundColor?: string;
+  titleColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  focusRingColor?: string;
+  focusBorderColor?: string;
 }
 
 interface PaginationChangeEvent {
@@ -79,11 +138,17 @@ const props = withDefaults(defineProps<PaginationProps>(), {
   pageSizes: () => [20, 50, 100, 150],
   maxVisiblePages: 5,
   currentPage: 1,
-  pageSize: 20
+  pageSize: 20,
+  backgroundColor: "bg-content",
+  titleColor: "text-text-accent",
+  textColor: "text-text-accent",
+  borderColor: "border-primary-400",
+  focusRingColor: "primary-400",
+  focusBorderColor: "primary-500",
 });
 
 const emit = defineEmits<{
-  'pagination-change': [event: PaginationChangeEvent]
+  "pagination-change": [event: PaginationChangeEvent];
 }>();
 
 const { t } = useI18n();
@@ -99,7 +164,10 @@ const startPage = computed(() => {
   if (internalCurrentPage.value <= Math.ceil(props.maxVisiblePages / 2)) {
     return 2;
   }
-  if (internalCurrentPage.value > totalPages.value - Math.ceil(props.maxVisiblePages / 2)) {
+  if (
+    internalCurrentPage.value >
+    totalPages.value - Math.ceil(props.maxVisiblePages / 2)
+  ) {
     return Math.max(2, totalPages.value - props.maxVisiblePages);
   }
   return Math.max(2, internalCurrentPage.value - Math.floor(props.maxVisiblePages / 2));
@@ -124,7 +192,7 @@ const changePage = (page: number): void => {
     emitChange();
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   }
 };
@@ -134,21 +202,21 @@ const changePageWithoutUpdate = (page: number): void => {
     internalCurrentPage.value = page;
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: "smooth",
     });
   }
 };
 
 const getPageButtonClass = (page: number): string => {
   return page === internalCurrentPage.value
-    ? 'px-2 py-1 border rounded font-bold text-sm bg-indigo-600 text-white hover:bg-indigo-700 transition'
-    : 'px-2 py-1 border rounded font-semibold text-sm bg-white hover:bg-gray-100 transition';
+    ? "px-2 py-1 border rounded font-bold text-sm bg-indigo-600 text-white hover:bg-indigo-700 transition"
+    : "px-2 py-1 border rounded font-semibold text-sm bg-white hover:bg-gray-100 transition";
 };
 
 const emitChange = (): void => {
-  emit('pagination-change', {
+  emit("pagination-change", {
     page: internalCurrentPage.value,
-    pageSize: internalPageSize.value
+    pageSize: internalPageSize.value,
   });
 };
 
@@ -160,17 +228,23 @@ watch(internalPageSize, (newSize, oldSize) => {
   }
 });
 
-watch(() => props.currentPage, (newVal) => {
-  if (newVal !== internalCurrentPage.value) {
-    internalCurrentPage.value = newVal;
+watch(
+  () => props.currentPage,
+  (newVal) => {
+    if (newVal !== internalCurrentPage.value) {
+      internalCurrentPage.value = newVal;
+    }
   }
-});
+);
 
-watch(() => props.pageSize, (newVal) => {
-  if (newVal !== internalPageSize.value) {
-    internalPageSize.value = newVal;
+watch(
+  () => props.pageSize,
+  (newVal) => {
+    if (newVal !== internalPageSize.value) {
+      internalPageSize.value = newVal;
+    }
   }
-});
+);
 </script>
 
 <style scoped>

@@ -5,6 +5,4 @@ export interface AttendeeAddRequest {
   birthDate: string // формат ISO, например "2023-01-01"
   documentType: DocumentType
   documentNumber: string
-  userId?: string | null // Guid в TypeScript обычно представлен строкой
-  ticketId?: string | null // Guid
 }

@@ -6,4 +6,5 @@ export interface UserResponse {
   email: string
   phone: string
   role: UserRoles
+  birthDate: string // формат ISO, например "2023-01-01"
 }

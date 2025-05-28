@@ -7,6 +7,6 @@ export interface PaymentResponse {
   amount: number
   status: PaymentStatus
   createdAt: string // ISO формат даты
-  paidAt: string | null // ISO формат даты
+  paidAt?: string | null // ISO формат даты
   qrUrl: string
 }

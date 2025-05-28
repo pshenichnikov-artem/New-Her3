@@ -7,7 +7,7 @@ export interface PaymentFilterRequest {
   maxAmount?: number | null
   status: PaymentStatus[]
   createdAtFrom?: string | null // ISO формат даты
-  createdAtTo: string // ISO формат даты
+  createdAtTo?: string | null // ISO формат даты
   paidAtFrom?: string | null // ISO формат даты
   paidAtTo?: string | null // ISO формат даты
 }

@@ -4,60 +4,71 @@
       <slot name="icon"></slot>
     </template>
 
-    <!-- Выбранные значения для множественного выбора -->
-    <div v-if="multipleSelect && selectedValues.length > 0" class="flex flex-wrap mb-2">
-      <FilterTag
-        v-for="(value, index) in selectedValues"
-        :key="index"
-        :label="getOptionLabel(value)"
-        @remove="removeValue(index)"
-      />
-    </div>
-
     <div class="relative">
-      <select
-        v-model="localValue"
+      <div
         :class="[
-          'w-full appearance-none border rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 transition-all',
+          'h-[46px] w-full border rounded-lg px-2.5 flex flex-col justify-between relative transition-colors duration-200',
           backgroundColor,
-          textColor,
           borderColor,
           'hover:' + borderHoverColor,
-          'focus:ring-' + focusRingColor,
-          'focus:border-' + focusBorderColor,
+          { ['focus-within:' + borderHoverColor]: true },
         ]"
-        @change="onChange"
       >
-        <option v-if="multipleSelect" value="" disabled class="bg-primary text-white">
-          {{ t("filters.select") }}
-        </option>
-        <option
-          v-for="option in filteredOptions"
-          :key="option.value === null ? 'null' : option.value"
-          :value="option.value"
-          class="bg-primary text-white"
+        <!-- Контейнер для тегов с ограниченной высотой и скроллом -->
+        <div
+          v-if="multipleSelect"
+          class="flex flex-wrap gap-0.5 max-h-[22px] overflow-y-auto py-0"
         >
-          {{ option.label }}
-        </option>
-      </select>
-      <div
-        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2"
-        :class="[textColor]"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
+          <FilterTag
+            v-if="multipleSelect && selectedValues.length > 0"
+            v-for="(value, index) in selectedValues"
+            :key="index"
+            :label="getOptionLabel(value)"
+            @remove="removeValue(index)"
+            class="text-[9px] px-0.5 leading-none flex-shrink-0 [&>button]:w-2 [&>button]:h-2 [&>button]:text-[7px] [&>button]:ml-0.5 [&>button]:flex [&>button]:items-center [&>button]:justify-center"
           />
-        </svg>
+        </div>
+
+        <select
+          v-model="localValue"
+          :class="[
+            'w-full bg-transparent focus:outline-none absolute bottom-1 left-2.5 right-2.5 appearance-none',
+            textColor,
+          ]"
+          @change="onChange"
+        >
+          <option v-if="multipleSelect" value="" disabled class="bg-primary text-white">
+            {{ t("filters.select") }}
+          </option>
+          <option
+            v-for="option in filteredOptions"
+            :key="option.value === null ? 'null' : option.value"
+            :value="option.value"
+            class="bg-primary text-white"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+
+        <div
+          class="pointer-events-none absolute right-2 bottom-1.5 flex items-center"
+          :class="[textColor]"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
       </div>
     </div>
   </BaseFilterWrapper>

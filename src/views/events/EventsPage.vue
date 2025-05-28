@@ -187,7 +187,7 @@ const getSuggestedTitles = async (input: string): Promise<string[]> => {
             location: []
         },
         pagination: {
-            pageNumber: 0,
+            page: 0,
             pageSize: 5 // Получаем только первые 5 результатов
         },
         sort: [
@@ -216,7 +216,7 @@ const getSuggestedLocations = async (input: string): Promise<string[]> => {
             title: []
         },
         pagination: {
-            pageNumber: 0,
+            page: 0,
             pageSize: 5 // Получаем только первые 5 результатов
         },
         sort: [
@@ -387,7 +387,7 @@ const loadEvents = async () => {
             dateTo: filters.value.dateTo
         },
         pagination: {
-            pageNumber: currentPage.value,
+            page: currentPage.value,
             pageSize: pageSize.value
         },
         sort: [

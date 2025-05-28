@@ -6,5 +6,5 @@ export interface AttendeeAddRequest {
   documentType: DocumentType
   documentNumber: string
   userId?: string | null // Guid в TypeScript обычно представлен строкой
-  ticketId: string // Guid
+  ticketId?: string | null // Guid
 }

@@ -1,10 +1,10 @@
 <template>
     <div v-if="!route.params.id && route.name !== 'dashboard-tickets-create'">
         <AdminDataTable :title="t('dashboard.tickets.tableTitle')" :columns="columns" :items="ticketApi.tickets"
-            :loading="ticketApi.loading.search" :total-count="ticketApi.totalCount"
-            :current-page="pagination.pageNumber" :page-size="pagination.pageSize" @update:sort="updateSort"
-            @pagination-change="handlePaginationChange" @apply-filters="loadTickets" @reset-filters="resetFilters"
-            @add="openAddTicketModal" @edit="openEditTicketModal" @delete="showDeleteConfirmation">
+            :loading="ticketApi.loading.search" :total-count="ticketApi.totalCount" :current-page="pagination.page"
+            :page-size="pagination.pageSize" @update:sort="updateSort" @pagination-change="handlePaginationChange"
+            @apply-filters="loadTickets" @reset-filters="resetFilters" @add="openAddTicketModal"
+            @edit="openEditTicketModal" @delete="showDeleteConfirmation">
             <template #filters>
                 <TextFilter :title="t('filters.ticket.buyerName')" v-model="filter.buyerName" class="compact-filter">
                     <template #icon>
@@ -116,7 +116,7 @@ const filter = reactive<TicketFilterRequest>({
 });
 
 const pagination = reactive<PaginationRequest>({
-    pageNumber: 1,
+    page: 1,
     pageSize: 20
 });
 
@@ -186,7 +186,7 @@ const updateSort = (newSort: SortRequest[]) => {
 };
 
 const handlePaginationChange = (paginationData: { page: number; pageSize: number }) => {
-    pagination.pageNumber = paginationData.page;
+    pagination.page = paginationData.page;
     pagination.pageSize = paginationData.pageSize;
     loadTickets();
 };
@@ -203,7 +203,7 @@ const resetFilters = () => {
         paymentIds: [],
     });
     sort.value = [];
-    pagination.pageNumber = 1;
+    pagination.page = 1;
     loadTickets();
 };
 

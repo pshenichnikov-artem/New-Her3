@@ -139,6 +139,12 @@ const columns: Column[] = [
         sortable: true
     },
     {
+        key: 'birthDate',
+        label: t('user.birthDate'),
+        type: 'date',
+        sortable: true
+    },
+    {
         key: 'email',
         label: t('user.email'),
         type: 'text',

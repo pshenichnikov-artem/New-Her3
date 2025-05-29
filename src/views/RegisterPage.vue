@@ -81,6 +81,9 @@ const { t } = useI18n();
 const router = useRouter();
 const authApi = useAuthApi();
 
+import { useAuthStore } from '@/stores/auth';
+const authStore = useAuthStore();
+
 // Поля формы
 const formData = reactive<RegisterRequest>({
   fullName: '',
@@ -101,6 +104,12 @@ const onSubmit = async () => {
   await authApi.register(formData, {
     showSuccessNotification: true,
     successMessage: t('common.success.registerSuccess'),
+    onSuccess: (data) => {
+      authStore.setToken(data.token)
+      authStore.setRole(data.role)
+
+      router.push('/')
+    },
     onError: (error) => {
       if (error.code === 409) {
         notificationService.error(t('serverErrors.auth.emailAlreadyExists'));

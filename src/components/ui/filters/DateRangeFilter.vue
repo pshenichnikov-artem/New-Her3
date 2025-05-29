@@ -4,52 +4,51 @@
       <slot name="icon"></slot>
     </template>
 
-    <!-- Отображение выбранного значения для режима диапазона -->
-    <div v-if="startDate || endDate" class="flex flex-wrap mb-2">
-      <div class="w-full text-sm text-gray-600">
-        <span
-          >{{ t("datePicker.from") }}: {{ startDate ? formatDate(startDate) : "—" }}</span
-        >
-        <span v-if="showTime && startDate"> {{ formatTime(startDate) }}</span>
-      </div>
-      <div class="w-full text-sm text-gray-600">
-        <span>{{ t("datePicker.to") }}: {{ endDate ? formatDate(endDate) : "—" }}</span>
-        <span v-if="showTime && endDate"> {{ formatTime(endDate) }}</span>
-      </div>
-    </div>
-
-    <div class="relative date-time-picker">
+    <div class="relative">
       <div
-        @click="toggleCalendar"
         :class="[
-          'w-full border rounded-lg px-3 py-2.5 flex items-center justify-between cursor-pointer transition-all',
+          'h-[46px] w-full border rounded-lg px-2.5 flex items-center relative transition-colors duration-200',
           backgroundColor,
-          textColor,
           borderColor,
           'hover:' + borderHoverColor,
+          { ['focus-within:' + borderHoverColor]: true }
         ]"
       >
-        <span :class="[placeholderColor]">{{
-          placeholder || t("datePicker.selectDateRange")
-        }}</span>
+        <!-- Контейнер для диапазона -->
+        <RangeTag
+          v-if="startDate && endDate"
+          :label="formatRangeLabel"
+          @remove="handleClear"
+        />
 
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+        <!-- Placeholder и иконка календаря -->
+        <div
+          v-if="!startDate || !endDate"
+          @click="toggleCalendar"
+          :class="[
+            'flex items-center gap-2 cursor-pointer',
+            { [placeholderColor]: !startDate || !endDate }
+          ]"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
+          <span>{{ placeholder || t("datePicker.selectDateRange") }}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+        </div>
       </div>
 
-      <!-- Календарь диапазона -->
+      <!-- Календарь -->
       <Transition name="fade">
         <div
           v-if="showCalendar"
@@ -85,6 +84,8 @@ import {
   formatDateForServer,
   isToday,
 } from "@/utils/formatterUtils";
+import FilterTag from "./FilterTag.vue";
+import RangeTag from "./RangeTag.vue";
 
 interface DateRangeFilterProps {
   title: string;
@@ -237,6 +238,18 @@ const handleClear = () => {
   emit("date-for-server", null);
   showCalendar.value = false;
 };
+
+// Форматирование метки диапазона
+const formatRangeLabel = computed(() => {
+  if (!startDate.value || !endDate.value) return '';
+  
+  const start = formatDate(startDate.value);
+  const end = formatDate(endDate.value);
+  const startTime = props.showTime ? formatTime(startDate.value) : '';
+  const endTime = props.showTime ? formatTime(endDate.value) : '';
+  
+  return `${start}${startTime ? ' ' + startTime : ''} - ${end}${endTime ? ' ' + endTime : ''}`;
+});
 
 // Отслеживаем изменения modelValue извне
 watch(

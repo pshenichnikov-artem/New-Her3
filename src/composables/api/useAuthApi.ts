@@ -7,6 +7,7 @@ import type { ChangePasswordRequest } from '@/types/auth/ChangePasswordRequest'
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { formatDateForServer } from '@/utils/formatterUtils'
 
 /**
  * Composable для работы с API аутентификации
@@ -63,6 +64,18 @@ export function useAuthApi() {
     return response?.data || null
   }
 
+  function safeFormatDate(dateString: string | null | undefined): string {
+    if (!dateString) throw new Error('Date string cannot be null or undefined')
+
+    // Пытаемся создать объект даты и проверяем его валидность
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date format')
+    }
+
+    return formatDateForServer(date)
+  }
+
   /**
    * Регистрация нового пользователя
    */
@@ -76,6 +89,8 @@ export function useAuthApi() {
       ...options,
     }
 
+    request.birthDate = safeFormatDate(request.birthDate)
+
     const response = await baseApi.makeRequest<LoginResponse>(
       {
         method: 'POST',
@@ -85,22 +100,6 @@ export function useAuthApi() {
       'register',
       {
         ...defaultOptions,
-        onSuccess: (data) => {
-          // Сохраняем токен после успешной регистрации
-          if (data && data.token) {
-            authStore.setToken(data.token)
-            authStore.setRole(data.role)
-
-            // Перенаправляем на главную страницу после успешной регистрации
-            if (!options.onSuccess) {
-              router.push('/')
-            }
-          }
-
-          if (defaultOptions.onSuccess) {
-            defaultOptions.onSuccess(data)
-          }
-        },
       },
     )
 

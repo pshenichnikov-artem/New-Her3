@@ -81,11 +81,11 @@ export function useEventApi() {
   const searchEvents = baseApi.withDebounce(searchEventsBase, 300)
 
   /**
-   * Обновление данных события
+   * Обновление данных события (с поддержкой FormData для файлов)
    */
   async function updateEvent(
     id: string,
-    request: EventUpdateRequest,
+    request: EventAddRequest | FormData,
     options: RequestOptions = {},
   ): Promise<EventResponse | null> {
     const defaultOptions = {
@@ -94,11 +94,40 @@ export function useEventApi() {
       ...options,
     }
 
+    let dataToSend: any = request
+    let headers: any = {}
+
+    // Если это не FormData, преобразуем EventUpdateRequest в FormData
+    if (!(request instanceof FormData)) {
+      dataToSend = new FormData()
+      dataToSend.append('title', request.title)
+      dataToSend.append('description', request.description)
+      dataToSend.append('location', request.location)
+      dataToSend.append('startDate', request.startDate)
+      dataToSend.append('endDate', request.endDate)
+      dataToSend.append('ticketCount', request.ticketCount)
+      dataToSend.append('price', request.price)
+      dataToSend.append('isActive', request.isActive ? 'true' : 'false')
+      dataToSend.append('tag', request.tag)
+
+      if (request.image.length !== request.localOrderRank.length) {
+        throw new Error('Количество изображений и рангов должно совпадать')
+      }
+
+      for (let i = 0; i < request.image.length; i++) {
+        dataToSend.append(`image`, request.image[i])
+        dataToSend.append(`localOrderRank`, request.localOrderRank[i])
+      }
+
+      headers = { 'Content-Type': 'multipart/form-data' }
+    }
+
     const response = await baseApi.makeRequest<EventResponse>(
       {
         method: 'PUT',
         url: `/${id}`,
-        data: request,
+        data: dataToSend,
+        headers,
       },
       'update',
       defaultOptions,
@@ -130,10 +159,10 @@ export function useEventApi() {
   }
 
   /**
-   * Создание события
+   * Создание события (с поддержкой FormData для файлов)
    */
   async function createEvent(
-    request: EventAddRequest,
+    request: EventAddRequest | FormData,
     options: RequestOptions = {},
   ): Promise<EventResponse | null> {
     const defaultOptions = {
@@ -142,11 +171,37 @@ export function useEventApi() {
       ...options,
     }
 
+    let dataToSend: any = request
+    let headers: any = {}
+
+    // Если это не FormData, преобразуем EventAddRequest в FormData
+    if (!(request instanceof FormData)) {
+      dataToSend = new FormData()
+      dataToSend.append('title', request.title)
+      dataToSend.append('description', request.description)
+      dataToSend.append('location', request.location)
+      dataToSend.append('startDate', request.startDate)
+      dataToSend.append('endDate', request.endDate)
+      dataToSend.append('ticketCount', request.ticketCount.toString())
+      dataToSend.append('tag', request.tag)
+
+      if (request.image.length !== request.localOrderRank.length) {
+        throw new Error('Количество изображений и рангов должно совпадать')
+      }
+
+      for (let i = 0; i < request.image.length; i++) {
+        dataToSend.append(`image`, request.image[i])
+        dataToSend.append(`localOrderRank`, request.localOrderRank[i])
+      }
+      headers = { 'Content-Type': 'multipart/form-data' }
+    }
+
     const response = await baseApi.makeRequest<EventResponse>(
       {
         method: 'POST',
         url: '',
-        data: request,
+        data: dataToSend,
+        headers,
       },
       'create',
       defaultOptions,

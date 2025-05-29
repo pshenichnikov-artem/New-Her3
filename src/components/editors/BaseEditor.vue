@@ -8,7 +8,7 @@
                     <span>{{ t('common.buttons.back') }}</span>
                 </button>
                 <h2 class="text-2xl font-bold text-text-accent">
-                    <slot name="title">{{ title }}</slot>
+                    <slot name="title"></slot>
                 </h2>
             </div>
             <div class="flex gap-3">

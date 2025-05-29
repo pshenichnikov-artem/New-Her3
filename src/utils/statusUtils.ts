@@ -40,7 +40,6 @@ const statusMap: Record<string, string> = {
   completed: 'completed',
   завершен: 'completed',
 
-  // Продукты
   active: 'active',
   активен: 'active',
   inactive: 'inactive',
@@ -93,6 +92,7 @@ const statusCssMap: Record<StatusType, string> = {
  * @param status Исходная строка статуса
  * @returns Нормализованная строка статуса
  */
+
 export function normalizeStatus(status: string): string {
   if (!status) return ''
   //Проверь, что это строка

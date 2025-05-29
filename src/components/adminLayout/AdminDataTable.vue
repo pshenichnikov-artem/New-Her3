@@ -160,6 +160,8 @@
                                             {{ formatCurrency(getItemValue(item, column.key)) }}
                                         </div>
                                         <div v-else-if="column.type === 'status'" class="text-center">
+                                            {{ console.error(getStatusTranslationPath(getItemValue(item, column.key),
+                                                column.statusContext || 'common')) }}
                                             <span
                                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                                                 :class="getStatusClass(getItemValue(item, column.key), column.statusContext || 'common')">

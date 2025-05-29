@@ -8,5 +8,9 @@ export interface EventAddRequest {
   startDate: string // ISO формат даты
   endDate: string // ISO формат даты
   ticketCount: number
-  images: ImageAddRequest[]
+  price: number
+  isActive: boolean
+
+  image: File[] // В TypeScript/JavaScript IFormFile соответствует File
+  localOrderRank: number[]
 }

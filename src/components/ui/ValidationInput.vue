@@ -26,6 +26,7 @@
         @blur="handleBlur"
       />
       <!-- Глазик -->
+      <!-- Глазик -->
       <button
         v-if="type === 'password'"
         type="button"

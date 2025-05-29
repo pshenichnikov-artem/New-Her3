@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-content rounded-xl shadow-md border border-primary-700 p-6 h-full">
+  <div class="bg-primary-800 rounded-xl shadow-md border border-primary-600 p-6 h-full">
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center gap-4">
         <button
@@ -85,3 +85,13 @@ const handleSave = () => {
 // Выносим состояние блокировки в computed
 const isFormDisabled = computed(() => props.isReadOnly || props.isLoading);
 </script>
+
+<style scoped>
+.bg-primary-800 {
+  background-color: #3d2566 !important;
+}
+
+.border-primary-600 {
+  border-color: #7c56bb !important;
+}
+</style>

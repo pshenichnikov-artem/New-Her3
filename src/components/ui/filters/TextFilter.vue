@@ -12,7 +12,7 @@
           backgroundColor,
           borderColor,
           'hover:' + borderHoverColor,
-          { ['focus-within:' + borderHoverColor]: true }
+          { ['focus-within:' + borderHoverColor]: true },
         ]"
       >
         <!-- Контейнер для тегов с ограниченной высотой и скроллом -->
@@ -21,7 +21,6 @@
           class="flex flex-wrap gap-0.5 max-h-[22px] overflow-y-auto py-0"
         >
           <FilterTag
-            v-if="multipleSelect && selectedValues.length > 0"
             v-for="(value, index) in selectedValues"
             :key="index"
             :label="value"
@@ -49,11 +48,7 @@
 
       <!-- Выпадающий список с предложениями -->
       <div
-        v-if="
-          multipleSelect &&
-          showSuggestions &&
-          filteredSuggestions.length > 0
-        "
+        v-if="multipleSelect && showSuggestions && filteredSuggestions.length > 0"
         :class="[
           'absolute left-0 right-0 mt-1 max-h-60 overflow-auto rounded-lg shadow-lg z-10',
           backgroundColor,
@@ -149,7 +144,9 @@ const onInput = async () => {
       console.error("Error fetching suggestions:", error);
       suggestions.value = [];
     }
-  } else {
+    // Убираем emit для multipleSelect режима
+  } else if (!props.multipleSelect) {
+    // Оставляем emit только для обычного input
     emit("update:modelValue", inputValue.value || null);
   }
 };
@@ -160,7 +157,7 @@ const selectSuggestion = (suggestion: string) => {
       selectedValues.value.push(suggestion);
       emit("update:modelValue", selectedValues.value);
     }
-    inputValue.value = "";
+    inputValue.value = ""; // Очищаем input после добавления
     showSuggestions.value = false;
   }
 };
@@ -171,15 +168,18 @@ const removeValue = (index: number) => {
 };
 
 const onEnterKey = (e: KeyboardEvent) => {
-  if (props.multipleSelect && showSuggestions.value && activeSuggestionIndex.value >= 0) {
-    selectSuggestion(filteredSuggestions.value[activeSuggestionIndex.value]);
-    e.preventDefault();
-  } else if (props.multipleSelect && inputValue.value.trim()) {
-    if (!selectedValues.value.includes(inputValue.value)) {
-      selectedValues.value.push(inputValue.value);
-      emit("update:modelValue", selectedValues.value);
+  if (props.multipleSelect) {
+    if (showSuggestions.value && activeSuggestionIndex.value >= 0) {
+      // Добавляем тег из подсказок
+      selectSuggestion(filteredSuggestions.value[activeSuggestionIndex.value]);
+    } else if (inputValue.value.trim()) {
+      // Добавляем введенный текст как тег
+      if (!selectedValues.value.includes(inputValue.value.trim())) {
+        selectedValues.value.push(inputValue.value.trim());
+        emit("update:modelValue", selectedValues.value);
+      }
+      inputValue.value = ""; // Очищаем input после добавления
     }
-    inputValue.value = "";
     e.preventDefault();
   }
 };

@@ -377,7 +377,8 @@ const hasChanges = computed(() => {
 
   return (
     JSON.stringify(currentWithoutImages) !== JSON.stringify(initialWithoutImages) ||
-    eventForm.value.images.length !== (initialEventData.value.images?.length || 0)
+    eventForm.value.images.length !==
+      ((initialEventData.value as any)?.images?.length || 0)
   );
 });
 

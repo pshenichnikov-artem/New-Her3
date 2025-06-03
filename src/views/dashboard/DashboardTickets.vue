@@ -2,9 +2,9 @@
     <div v-if="!route.params.id && route.name !== 'dashboard-tickets-create'">
         <AdminDataTable :title="t('dashboard.tickets.tableTitle')" :columns="columns" :items="ticketApi.tickets"
             :loading="ticketApi.loading.search" :total-count="ticketApi.totalCount" :current-page="pagination.page"
-            :page-size="pagination.pageSize" @update:sort="updateSort" @pagination-change="handlePaginationChange"
-            @apply-filters="loadTickets" @reset-filters="resetFilters" @add="openAddTicketModal"
-            @edit="openEditTicketModal" @delete="showDeleteConfirmation">
+            :page-size="pagination.pageSize" :show-add-button="false" @update:sort="updateSort" @pagination-change="handlePaginationChange"
+            @apply-filters="loadTickets" @reset-filters="resetFilters" @edit="openEditTicketModal" 
+            @delete="showDeleteConfirmation">
             <template #filters>
                 <TextFilter :title="t('filters.ticket.buyerName')" v-model="filter.buyerName" class="compact-filter">
                     <template #icon>

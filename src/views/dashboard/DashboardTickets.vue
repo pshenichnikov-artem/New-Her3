@@ -57,14 +57,26 @@
                 </span>
             </template>
 
+            <template #cell-buyerName="{ item }">
+                <div v-if="item.payment?.buyer">
+                    <span>{{ item.payment.buyer.fullName }}</span>
+                    <div class="text-gray-400 text-xs cursor-pointer select-none hover:underline mt-0.5"
+                        title="Скопировать ID" @click="handleCopy(item.payment.buyer.id)">
+                        {{ copiedId === item.payment.buyer.id ? 'Скопировано!' : item.payment.buyer.id }}
+                    </div>
+                </div>
+                <div v-else class="text-gray-400">{{ t('common.noData') }}</div>
+            </template>
+
             <template #cell-attendee="{ item }">
-                <div>
+                <div v-if="item.attendee">
                     <span>{{ item.attendee.fullName }}</span>
                     <div class="text-gray-400 text-xs cursor-pointer select-none hover:underline mt-0.5"
                         title="Скопировать ID" @click="handleCopy(item.attendee.id)">
                         {{ copiedId === item.attendee.id ? 'Скопировано!' : item.attendee.id }}
                     </div>
                 </div>
+                <div v-else class="text-gray-400">{{ t('common.noData') }}</div>
             </template>
 
             <template #cell-eventId="{ item }">
@@ -72,6 +84,29 @@
                     title="Скопировать eventId" @click="handleCopy(item.eventId)">
                     {{ copiedId === item.eventId ? 'Скопировано!' : item.eventId }}
                 </span>
+            </template>
+
+            <template #cell-payment="{ item }">
+                <div v-if="item.payment" class="flex flex-col">
+                    <div class="flex items-center gap-2">
+                        <span class="text-white">{{ item.payment.amount }} ₽</span>
+                        <span :class="{
+                            'text-green-400': item.payment.status === 1,
+                            'text-yellow-400': item.payment.status === 0,
+                            'text-red-400': item.payment.status === 2
+                        }">
+                            {{ t(`statuses.payment.${item.payment.status}`) }}
+                        </span>
+                    </div>
+                    <div v-if="item.payment.buyer" class="text-gray-400 text-xs mt-1">
+                        {{ item.payment.buyer.fullName }}
+                        <div class="cursor-pointer select-none hover:underline" 
+                            title="Скопировать ID" @click="handleCopy(item.payment.id)">
+                            {{ copiedId === item.payment.id ? 'Скопировано!' : item.payment.id }}
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="text-gray-400">{{ t('common.noData') }}</div>
             </template>
         </AdminDataTable>
 
@@ -168,6 +203,13 @@ const columns: Column[] = [
         sortable: true,
         align: 'center',
         width: 'w-24'
+    },
+    {
+        key: 'payment',
+        label: t('ticket.payment'),
+        type: 'text',
+        sortable: true,
+        width: 'w-48'
     }
 ];
 

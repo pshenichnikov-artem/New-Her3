@@ -1,6 +1,3 @@
-import { all } from "axios";
-import { stat } from "fs";
-
 export default {
   // UI элементы
   ui: {
@@ -337,6 +334,10 @@ export default {
       Failed: 'Ошибка оплаты',
       awaitingPayment: 'Ожидание платежа',
       paymentCanceled: 'Платеж отменен',
+      0: 'Ожидание оплаты',
+      1: 'Успешно',
+      2: 'Отменено',
+      3: 'Ошибка',
     },
 
     // Билеты
@@ -555,7 +556,9 @@ export default {
     buttons: {
       back: 'Назад',
       register: 'Зарегистрироваться',
-      goToLogin: 'Войти',
+      goToLogin: 'Авторизация',
+      login: 'Войти',
+      'goToRegister': 'Регистрация',
       cancel: 'Отмена',
       save: 'Сохранить',
     },
@@ -566,11 +569,14 @@ export default {
     },
     success: {
       registerSuccess: 'Регистрация успешно завершена',
+      loginSuccess: 'Вы успешно вошли в систему',
     },
     language: 'Язык',
     yes: 'Да',
     no: 'Нет',
     changesDiscarded: 'Изменения отменены',
+    cancel: 'Отмена',
+    noData: '-',
   },
 
   // Билеты
@@ -656,7 +662,16 @@ export default {
     role: 'Роль',
     phone: 'Телефон',
     birthDate: 'Дата рождения',
-
+    edit: 'Редактировать пользователя',
+    create: 'Создать пользователя',
+    fields: {
+      fullName: 'Полное имя',
+      email: 'Email',
+      role: 'Роль',
+      phone: 'Телефон',
+      birthDate: 'Дата рождения',
+      password: 'Пароль',
+    },
   },
 
   // Навигация
@@ -685,6 +700,10 @@ export default {
       home: 'Главная',
       logout: 'Выйти',
     },
+    pages: {
+      title: 'Страницы',
+      'description': 'Управление страницами сайта',
+    }
   },
 
   // Пагинация
@@ -703,6 +722,9 @@ export default {
     error: 'Ошибка при загрузке данных',
     noDataDescription: 'Пожалуйста, проверьте фильтры или добавьте новые данные.',
     add: 'Добавить',
+    confirmDelete: 'Вы уверены, что хотите удалить этот элемент?',
+    confirmDeleteDescription: 'Это действие нельзя будет отменить.',
+    delete: 'Удалить',
   },
 
   //События
@@ -717,6 +739,7 @@ export default {
     price: 'Цена',
     active: 'Активное событие',
     edit: 'Редактировать событие',
+    create: 'Создать мероприятие',
     fields: {
       title: 'Название мероприятия',
       description: 'Описание мероприятия',
@@ -739,8 +762,40 @@ export default {
     eventId: 'Идентификатор мероприятия',
     buyerName: 'Имя покупателя',
     attendeeName: 'Имя посетителя',
+    edit: 'Редактировать билет',
+    create: 'Создать билет',
+    selectEvent: 'Выберите мероприятие',
+    payment: 'Платеж',
+    fields: {
+      eventId: "Мероприятие",
+      status: 'Статус',
+      attendeeId: 'Посетитель',
+      buyerId: 'Покупатель',
+      qrCode: 'QR-код',
+    },
     status: {
       title: 'Статус',
+    }
+  },
+
+  attendee: {
+    id: 'Идентификатор',
+    fullName: 'Полное имя',
+    birthDate: 'Дата рождения',
+    docType: 'Тип документа',
+    docNumber: 'Номер документа',
+    create: 'Создать посетителя',
+    edit: 'Редактировать посетителя',
+    fields: {
+      fullName: 'Полное имя',
+      birthDate: 'Дата рождения',
+      documentType: 'Тип документа',
+      documentNumber: 'Номер документа',
+    },
+    docTypes: {
+      passport: 'Паспорт',
+      birthCertificate: 'Свидетельство о рождении',
+      other: 'Другое',
     }
   },
 
@@ -772,20 +827,44 @@ export default {
       attendeeId: 'Идентификатор посетителя',
       paymentId: 'Идентификатор платежа',
     },
+    attendee: {
+      fullName: 'Полное имя',
+      birthDate: 'Дата рождения',
+      docType: 'Тип документа',
+      docNumber: 'Номер документа',
+    },
+    select: 'Выберите',
     all: 'Все',
   },
 
   // Компонент выбора даты
-    datePicker: {
-      selectDate: 'Выберите дату',
-      selectDateRange: 'Выберите диапазон дат',
-      time: 'Время',
-      startTime: 'Время начала',
-      endTime: 'Время окончания',
-      from: 'От',
-      to: 'До',
-      apply: 'Применить',
-      clear: 'Очистить',
+  datePicker: {
+    selectDate: 'Выберите дату',
+    selectDateRange: 'Выберите диапазон дат',
+    time: 'Время',
+    startTime: 'Время начала',
+    endTime: 'Время окончания',
+    from: 'От',
+    to: 'До',
+    apply: 'Применить',
+    clear: 'Очистить',
+  },
+  // Страницы и заголовки
+    pages: {
+      home: 'Главная',
+      login: 'Авторизация',
+      register: 'Регистрация',
+      profile: 'Профиль',
+      events: 'Мероприятия',
+      eventDetails: 'Детали мероприятия',
+      createEvent: 'Создание мероприятия',
+      tickets: 'Билеты',
+      dashboard: 'Панель управления',
     },
-
+    auth: {
+      login: {
+        error: 'Ошибка при входе в систему. Проверьте введенные данные и попробуйте снова.',
+      }
+    }
 }
+

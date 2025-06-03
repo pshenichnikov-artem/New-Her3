@@ -95,9 +95,9 @@ const sort = ref<SortRequest[]>([]);
 
 const docTypeOptions = [
     { value: null, label: t('filters.all') },
-    { value: 'passport', label: t('attendee.docType.passport') },
-    { value: 'birthCertificate', label: t('attendee.docType.birthCertificate') },
-    { value: 'other', label: t('attendee.docType.other') }
+    { value: 'passport', label: t('attendee.docTypes.passport') },
+    { value: 'birthCertificate', label: t('attendee.docTypes.birthCertificate') },
+    { value: 'other', label: t('attendee.docTypes.other') }
 ];
 
 const columns: Column[] = [

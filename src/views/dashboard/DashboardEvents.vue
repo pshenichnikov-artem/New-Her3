@@ -37,14 +37,14 @@
                 </DateRangeFilter>
 
                 <NumberFilter :title="t('filters.event.minPrice')" v-model="filter.minPrice"
-                    :currency="t('common.currency')" :multiple-select="false" class="compact-filter">
+                    :multiple-select="false" class="compact-filter">
                     <template #icon>
                         <IconsSet name="priceTag" class="w-4 h-4 text-primary-400" />
                     </template>
                 </NumberFilter>
 
                 <NumberFilter :title="t('filters.event.maxPrice')" v-model="filter.maxPrice"
-                    :currency="t('common.currency')" :multiple-select="false" class="compact-filter">
+                    :multiple-select="false" class="compact-filter">
                     <template #icon>
                         <IconsSet name="priceTag" class="w-4 h-4 text-primary-400" />
                     </template>

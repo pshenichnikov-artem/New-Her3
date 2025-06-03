@@ -107,9 +107,11 @@ export default {
 
   // Типы документов
   documentTypes: {
-    passport: 'Паспорт РФ',
+    passport: 'Паспорт',
     driverLicense: 'Водительское удостоверение',
+    foreignPassport: 'Заграничный паспорт',
     studentCard: 'Студенческий билет',
+    birthCertificate: 'Свидетельство о рождении',
   },
 
   // Валидация
@@ -335,7 +337,7 @@ export default {
       awaitingPayment: 'Ожидание платежа',
       paymentCanceled: 'Платеж отменен',
       0: 'Ожидание оплаты',
-      1: 'Успешно',
+      1: 'Оплачено',
       2: 'Отменено',
       3: 'Ошибка',
     },
@@ -664,6 +666,8 @@ export default {
     birthDate: 'Дата рождения',
     edit: 'Редактировать пользователя',
     create: 'Создать пользователя',
+    createSuccess: 'Пользователь успешно создан',
+    updateSuccess: 'Пользователь успешно обновлен',
     fields: {
       fullName: 'Полное имя',
       email: 'Email',
@@ -902,6 +906,19 @@ export default {
       copyright: 'Все права защищены.',
       allRightsReserved: 'Все права защищены.',
     },
+
+    documentType: {
+      passport: 'Паспорт',
+      driverLicense: 'Водительское удостоверение',
+      foreignPassport: 'Заграничный паспорт',
+      studentCard: 'Студенческий билет',
+      birthCertificate: 'Свидетельство о рождении',
+    },
+
+    roles: {
+      admin: 'Администратор',
+      user: 'Пользователь',
+    }
 
 }
 

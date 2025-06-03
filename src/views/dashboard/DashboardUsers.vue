@@ -58,6 +58,14 @@
                     {{ copiedId === item.id ? 'Скопировано!' : item.id }}
                 </span>
             </template>
+
+            <!-- Кастомная колонка для роли пользователя -->
+            <template #cell-role="{ item }">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="Number(item.role) === UserRoles.Admin ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'">
+                    {{ translateUserRole(Number(item.role)) }}
+                </span>
+            </template>
         </AdminDataTable>
 
         <!-- Модальное окно подтверждения удаления -->
@@ -82,16 +90,18 @@ import DateRangeFilter from '@/components/ui/filters/DateRangeFilter.vue';
 import ConfirmModal from '@/components/ui/ConfirmModal.vue';
 import { useUserApi } from '@/composables/api/useUserApi';
 import { useCopyWithFeedback } from '@/utils/copyUtils';
+import { useStatusTranslation } from '@/composables/useStatusTranslation';
+import { UserRoles } from '@/types/enums/UserRoles'; // Change from type import to value import
 import type { SortRequest } from '@/types/common/SortRequest';
 import type { PaginationRequest } from '@/types/common/PaginationRequest';
 import type { UserFilterRequest } from '@/types/user/UserFilterRequest';
-import type { UserRoles } from '@/types/enums/UserRoles';
 import type { Column } from '@/components/adminLayout/AdminDataTable.vue';
 
 const { t } = useI18n();
 const userApi = useUserApi();
 const router = useRouter();
 const route = useRoute();
+const { translateUserRole } = useStatusTranslation();
 
 // Состояние компонента - приведено в соответствие с интерфейсом UserFilterRequest
 const filter = reactive<UserFilterRequest>({
@@ -120,8 +130,8 @@ const sort = ref<SortRequest[]>([]);
 // Опции для фильтра ролей
 const roleOptions = [
     { value: null, label: t('filters.all') },
-    { value: 'admin', label: t('user.roles.admin') },
-    { value: 'user', label: t('user.roles.user') }
+    { value: UserRoles.User, label: t('roles.user') },
+    { value: UserRoles.Admin, label: t('roles.admin') }
 ];
 
 // Определение колонок таблицы

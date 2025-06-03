@@ -10,8 +10,9 @@ export const useAuthStore = defineStore('auth', () => {
   // Геттеры
   const isAuthenticated = computed(() => !!token.value)
   const getToken = computed(() => token.value)
-  const isAdmin = computed(() => role.value === 'admin')
-  const isUser = computed(() => role.value === 'user')
+  const isAdmin = computed(() => role.value?.toLowerCase() === 'admin')
+  const isUser = computed(() => role.value?.toLowerCase() === 'user')
+  console.log('isAdmin:', isAdmin.value, 'isUser:', isUser.value, 'role:', role.value)
 
   // Действия
   function setToken(newToken: string) {

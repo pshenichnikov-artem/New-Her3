@@ -42,6 +42,10 @@
                     {{ copiedId === item.id ? 'Скопировано!' : item.id }}
                 </span>
             </template>
+
+            <template #cell-documentType="{ item }">
+                <span>{{ t(`documentTypes.${getDocumentTypeKey(item.documentType)}`) }}</span>
+            </template>
         </AdminDataTable>
 
         <ConfirmModal v-if="isDeleteConfirmationVisible" :title="t('dashboard.attendees.deleteConfirmTitle')"
@@ -95,9 +99,11 @@ const sort = ref<SortRequest[]>([]);
 
 const docTypeOptions = [
     { value: null, label: t('filters.all') },
-    { value: 'passport', label: t('attendee.docTypes.passport') },
-    { value: 'birthCertificate', label: t('attendee.docTypes.birthCertificate') },
-    { value: 'other', label: t('attendee.docTypes.other') }
+    { value: 0, label: t('documentTypes.passport') },
+    { value: 1, label: t('documentTypes.driverLicense') },
+    { value: 2, label: t('documentTypes.foreignPassport') },
+    { value: 3, label: t('documentTypes.studentCard') },
+    { value: 4, label: t('documentTypes.birthCertificate') }
 ];
 
 const columns: Column[] = [
@@ -210,6 +216,17 @@ const cancelDelete = () => {
 };
 
 const { copiedId, handleCopy } = useCopyWithFeedback();
+
+function getDocumentTypeKey(type: number): string {
+    const typeMap: Record<number, string> = {
+        0: 'passport',
+        1: 'driverLicense',
+        2: 'foreignPassport',
+        3: 'studentCard',
+        4: 'birthCertificate'
+    };
+    return typeMap[type] || 'unknown';
+}
 
 onMounted(() => {
     loadAttendees();

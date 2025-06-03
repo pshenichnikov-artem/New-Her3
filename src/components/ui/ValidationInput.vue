@@ -87,7 +87,7 @@ const props = withDefaults(defineProps<ValidationProps>(), {
   triggerValidation: 0,
   backgroundColor: "bg-form-light",
   titleColor: "text-text-form",
-  placeholderColor: "",
+  placeholderColor: "text-gray-500",
   textColor: "text-black",
 });
 

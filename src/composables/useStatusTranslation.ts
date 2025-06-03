@@ -2,6 +2,7 @@ import { useI18n } from 'vue-i18n'
 import { PaymentStatus } from '@/types/enums/PaymentStatus'
 import { TicketStatus } from '@/types/enums/TicketStatus'
 import { DocumentType } from '@/types/enums/DocumentType'
+import { UserRoles } from '@/types/enums/UserRoles'
 import { computed } from 'vue'
 
 export function useStatusTranslation() {
@@ -24,8 +25,33 @@ export function useStatusTranslation() {
   /**
    * Возвращает переведенный текст для типа документа
    */
-  const translateDocumentType = (type: DocumentType) => {
-    return t(`documentType.${type}`)
+  const translateDocumentType = (type: string | number | null): string => {
+    if (type === null) return t('common.noData');
+
+    const typeNum = typeof type === 'string' ? parseInt(type) : type;
+    const typeMap: Record<number, string> = {
+        0: 'passport',
+        1: 'driverLicense',
+        2: 'foreignPassport',
+        3: 'studentCard',
+        4: 'virthCertificate'
+    };
+
+    return t(`documentTypes.${typeMap[typeNum] || 'unknown'}`);
+  }
+
+  /**
+   * Возвращает переведенный текст для роли пользователя
+   */
+  const translateUserRole = (role: number | null): string => {
+    if (role === null) return t('common.noData');
+
+    const roleMap: Record<number, string> = {
+      [UserRoles.User]: 'user',
+      [UserRoles.Admin]: 'admin'
+    };
+
+    return t(`roles.${roleMap[role] || 'unknown'}`);
   }
 
   /**
@@ -71,6 +97,7 @@ export function useStatusTranslation() {
     translatePaymentStatus,
     translateTicketStatus,
     translateDocumentType,
+    translateUserRole,
     getPaymentStatusClass,
     getTicketStatusClass,
     getDocumentTypeOptions,

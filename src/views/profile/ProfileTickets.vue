@@ -37,9 +37,9 @@
                                             t('profile.tickets.eventInactive') }}
                                     </span>
                                 </h3>
-                                <span :class="getStatusClass(ticket.status)"
+                                <span :class="getStatusClass(ticket.payment?.status)"
                                     class="px-3 py-1 rounded-full text-xs font-medium">
-                                    {{ t(`statuses.ticket.${ticket.status}`) }}
+                                    {{ t(`statuses.payment.${ticket.payment?.status ?? 'WaitingForPayment'}`) }}
                                 </span>
                             </div>
 
@@ -151,9 +151,9 @@
                                     <div class="text-sm text-text-muted mb-1">{{ t('profile.tickets.ticketStatus')
                                         }}</div>
                                     <div>
-                                        <span :class="getStatusClass(selectedTicket.status)"
+                                        <span :class="getStatusClass(selectedTicket.payment?.status)"
                                             class="px-3 py-1 rounded-full text-xs font-medium">
-                                            {{ t(`statuses.ticket.${selectedTicket.status}`) }}
+                                            {{ t(`statuses.payment.${selectedTicket.payment?.status ?? 'WaitingForPayment'}`) }}
                                         </span>
                                     </div>
                                 </div>
@@ -336,8 +336,38 @@ function viewTicketDetails(ticket: TicketResponse) {
     selectedTicket.value = ticket;
 }
 
+function getTicketStatus(ticket: TicketResponse): string {
+    if (!ticket.payment) {
+        return 'Pending';
+    }
+    
+    switch (ticket.payment.status) {
+        case 0:
+            return 'WaitingForPayment';
+        case 1:
+            return 'Successed';
+        case 2:
+            return 'Cancelled';
+        default:
+            return 'Failed';
+    }
+}
+
+function getStatusClass(paymentStatus: number | null): string {
+    switch (paymentStatus) {
+        case 1: // Paid
+            return 'bg-green-100 text-green-800';
+        case 0: // Pending
+            return 'bg-yellow-100 text-yellow-800';
+        case 2: // Cancelled
+            return 'bg-red-100 text-red-800';
+        default:
+            return 'bg-gray-100 text-red-800';
+    }
+}
+
 function canDownload(ticket: TicketResponse): boolean {
-    return ticket.status === TicketStatus.Paid || ticket.status === TicketStatus.Reserved;
+    return ticket.payment?.status === 1; // Only paid tickets can be downloaded
 }
 
 function downloadTicket(ticket: TicketResponse) {
@@ -348,22 +378,6 @@ function downloadTicket(ticket: TicketResponse) {
     setTimeout(() => {
         console.log('Downloading ticket:', ticket.id);
     }, 500);
-}
-
-function getStatusClass(status: TicketStatus): string {
-    switch (status) {
-        case TicketStatus.Paid:
-            return 'bg-green-100 text-green-800';
-        case TicketStatus.Reserved:
-            return 'bg-blue-100 text-blue-800';
-        case TicketStatus.Used:
-            return 'bg-gray-100 text-gray-800';
-        case TicketStatus.Cancelled:
-            return 'bg-red-100 text-red-800';
-        case TicketStatus.Available:
-        default:
-            return 'bg-yellow-100 text-yellow-800';
-    }
 }
 
 function handlePaginationChange(event: { page: number, pageSize: number }) {

@@ -17,27 +17,21 @@
                             required: t('validation.required'),
                             email: t('validation.email.invalid')
                         }" :trigger-validation="form.validationTrigger.email"
-                        @valid="form.updateValidationState('email', $event)" backgroundColor="bg-primary-800"
-                        titleColor="text-accent" textColor="text-white"
-                        placeholderColor="placeholder:text-primary-300" />
+                        @valid="form.updateValidationState('email', $event)"/>
 
                     <ValidationInput id="fullName" v-model="userForm.fullName" :label="t('user.fields.fullName')"
                         validation-rules="required|fullName" :readonly="isReadOnly" :error-messages="{
                             required: t('validation.required'),
                             fullName: t('validation.fullName.pattern')
                         }" :trigger-validation="form.validationTrigger.fullName"
-                        @valid="form.updateValidationState('fullName', $event)" backgroundColor="bg-primary-800"
-                        titleColor="text-accent" textColor="text-white"
-                        placeholderColor="placeholder:text-primary-300" />
+                        @valid="form.updateValidationState('fullName', $event)"/>
 
                     <ValidationInput id="phone" v-model="userForm.phone" :label="t('user.fields.phone')"
                         validation-rules="required|phone" :readonly="isReadOnly" :error-messages="{
                             required: t('validation.required'),
                             phone: t('validation.phone.pattern')
                         }" :trigger-validation="form.validationTrigger.phone"
-                        @valid="form.updateValidationState('phone', $event)" backgroundColor="bg-primary-800"
-                        titleColor="text-accent" textColor="text-white"
-                        placeholderColor="placeholder:text-primary-300" />
+                        @valid="form.updateValidationState('phone', $event)"/>
 
                     <ValidationInput id="birthDate" v-model="userForm.birthDate" type="date"
                         :label="t('user.fields.birthDate')" validation-rules="required|date" :readonly="isReadOnly"
@@ -45,22 +39,19 @@
                             required: t('validation.required'),
                             date: t('validation.date')
                         }" :trigger-validation="form.validationTrigger.birthDate"
-                        @valid="form.updateValidationState('birthDate', $event)" backgroundColor="bg-primary-800"
-                        titleColor="text-accent" textColor="text-white"
-                        placeholderColor="placeholder:text-primary-300" />
+                        @valid="form.updateValidationState('birthDate', $event)"/>
                 </div>
 
                 <!-- Дополнительная информация -->
                 <div class="space-y-6 bg-primary-900/60 rounded-xl p-6 shadow">
                     <div class="form-group">
-                        <label for="role" class="block mb-1 font-medium text-sm text-accent">
+                        <label for="role" class="block mb-1 font-medium text-sm text-text-form">
                             {{ t('user.fields.role') }}
                         </label>
                         <select id="role" v-model="userForm.role"
-                            class="w-full px-3 py-2 border rounded-lg bg-primary-800 text-white" :disabled="isReadOnly">
-                            <option value="User">{{ t('user.roles.user') }}</option>
-                            <option value="Admin">{{ t('user.roles.admin') }}</option>
-                            <option value="Manager">{{ t('user.roles.manager') }}</option>
+                            class="w-full px-3 py-2 border rounded-lg bg-primary-800 text-black" :disabled="isReadOnly">
+                            <option value="0">{{ t('user.roles.user') }}</option>
+                            <option value="1">{{ t('user.roles.admin') }}</option>
                         </select>
                     </div>
 
@@ -70,9 +61,7 @@
                             required: t('validation.required'),
                             password: t('validation.password.pattern')
                         }" :trigger-validation="form.validationTrigger.password"
-                        @valid="form.updateValidationState('password', $event)" backgroundColor="bg-primary-800"
-                        titleColor="text-accent" textColor="text-white"
-                        placeholderColor="placeholder:text-primary-300" />
+                        @valid="form.updateValidationState('password', $event)"/>
                 </div>
             </div>
         </div>
@@ -107,17 +96,16 @@ const isReadOnly = ref(false);
 const initialUserData = ref<UserUpdateRequest | RegisterRequest | null>(null);
 
 // Создаем форму с правильными типами данных
-const userForm = ref<UserUpdateRequest & { password: string; }>({
+const userForm = ref<UserUpdateRequest & { password?: string; }>({
     email: '',
     fullName: '',
     phone: '',
     role: UserRoles.User,
-    password: '',
     birthDate: ''
 });
 
 // Настраиваем валидацию формы - передаем все возможные поля
-const form = useFormValidation(['email', 'fullName', 'phone', 'birthDate', 'password']);
+const form = useFormValidation(['email', 'fullName', 'phone', 'birthDate']); // убрали password из базовой валидации
 
 const hasChanges = computed(() => {
     if (!userForm.value || !initialUserData.value) return false;
@@ -138,10 +126,7 @@ onMounted(async () => {
                         role: user.role,
                         birthDate: user.birthDate
                     };
-                    userForm.value = {
-                        ...initialUserData.value,
-                        password: ''
-                    };
+                    userForm.value = { ...initialUserData.value };
                 } else {
                     notification.error(t('errors.userNotFound'));
                     goBack();
@@ -161,14 +146,7 @@ onMounted(async () => {
             password: '',
             birthDate: ''
         };
-        initialUserData.value = {
-            email: '',
-            fullName: '',
-            phone: '',
-            role: UserRoles.User,
-            password: '',
-            birthDate: ''
-        };
+        initialUserData.value = { ...userForm.value };
     }
 
     isLoading.value = false;
@@ -180,10 +158,7 @@ const goBack = () => {
 
 const resetForm = () => {
     if (initialUserData.value) {
-        userForm.value = {
-            ...(initialUserData.value as typeof userForm.value),
-            password: ''
-        };
+        userForm.value = { ...initialUserData.value };
     }
     form.resetValidation();
     notification.info(t('common.changesDiscarded'));
@@ -211,7 +186,7 @@ const saveUser = async () => {
             email: userForm.value.email,
             fullName: userForm.value.fullName,
             phone: userForm.value.phone,
-            role: userForm.value.role,
+            role: +userForm.value.role,
             birthDate: userForm.value.birthDate
         };
 

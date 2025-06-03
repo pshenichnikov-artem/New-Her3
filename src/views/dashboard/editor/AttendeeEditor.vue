@@ -140,15 +140,23 @@ const minBirthDate = computed(() => {
 
 // Доступные типы документов
 const documentTypeOptions = [
-  { value: DocumentType.Passport, label: "Паспорт" },
-  { value: DocumentType.DriverLicense, label: "Водительское удостоверение" },
-  { value: DocumentType.StudentCard, label: "Студенческий билет" },
-  { value: DocumentType.BirthCertificate, label: "Свидетельство о рождении" },
+  { value: 0, label: t('documentTypes.passport') },
+  { value: 1, label: t('documentTypes.driverLicense') },
+  { value: 2, label: t('documentTypes.foreignPassport') },
+  { value: 3, label: t('documentTypes.studentCard') },
+  { value: 4, label: t('documentTypes.birthCertificate') }
 ];
 
 // Функция для получения локализованного названия типа документа
-function getDocumentTypeLabel(type: DocumentType): string {
-  return t(`attendee.documentTypes.${type.toLowerCase()}`) || type;
+function getDocumentTypeLabel(type: number): string {
+  const typeMap: Record<number, string> = {
+    0: 'passport',
+    1: 'driverLicense',
+    2: 'foreignPassport',
+    3: 'studentCard',
+    4: 'birthCertificate'
+  };
+  return t(`documentTypes.${typeMap[type] || 'unknown'}`);
 }
 
 // Настраиваем валидацию формы

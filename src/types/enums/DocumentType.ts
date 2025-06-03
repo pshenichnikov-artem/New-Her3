@@ -1,6 +1,7 @@
 export enum DocumentType {
-  Passport = 'Passport',
-  DriverLicense = 'DriverLicense',
-  StudentCard = 'StudentCard',
-  BirthCertificate = 'BirthCertificate',
+    Passport = 0,
+    DriverLicense = 1,
+    ForeignPassport = 2,
+    StudentCard = 3,
+    BirthCertificate = 4
 }

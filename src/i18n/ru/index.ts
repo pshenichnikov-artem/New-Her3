@@ -1,3 +1,6 @@
+import { all } from "axios";
+import { stat } from "fs";
+
 export default {
   // UI элементы
   ui: {
@@ -454,27 +457,6 @@ export default {
       },
     },
 
-    // Навигация
-    navbar: {
-      searchEvents: 'Поиск мероприятий',
-      searchHint: 'Быстрый поиск',
-      viewAllResults: 'Показать все результаты',
-      noResults: 'Мероприятий не найдено',
-      events: 'Мероприятия',
-      dashboard: 'Панель управления',
-      profile: 'Профиль',
-      login: 'Войти',
-      logout: 'Выйти',
-      mainSite: 'На главный сайт',
-    },
-
-    // Пагинация
-    basePagination: {
-      show: 'Показать',
-      prev: 'Назад',
-      next: 'Вперед',
-    },
-
     // Футер
     footer: {
       contacts: {
@@ -571,17 +553,24 @@ export default {
   // Кнопки
   common: {
     buttons: {
-      goBack: 'Назад',
+      back: 'Назад',
       register: 'Зарегистрироваться',
       goToLogin: 'Войти',
+      cancel: 'Отмена',
+      save: 'Сохранить',
     },
     errors: {
       error: 'Ошибка',
       formHasErrors: 'Пожалуйста, исправьте ошибки в форме',
+      networkError: 'Ошибка сети',
     },
     success: {
       registerSuccess: 'Регистрация успешно завершена',
     },
+    language: 'Язык',
+    yes: 'Да',
+    no: 'Нет',
+    changesDiscarded: 'Изменения отменены',
   },
 
   // Билеты
@@ -661,5 +650,142 @@ export default {
       user: 'Пользователь',
       unknown: 'Неизвестная роль',
     },
+    id: 'Идентификатор',
+    fullName: 'Полное имя',
+    email: 'Email',
+    role: 'Роль',
+    phone: 'Телефон',
+    birthDate: 'Дата рождения',
+
   },
+
+  // Навигация
+  navbar: {
+    searchEvents: 'Поиск мероприятий',
+    searchHint: 'Быстрый поиск',
+    viewAllResults: 'Показать все результаты',
+    noResults: 'Мероприятий не найдено',
+    events: 'Мероприятия',
+    dashboard: 'Панель управления',
+    profile: 'Профиль',
+    login: 'Войти',
+    logout: 'Выйти',
+    mainSite: 'На главный сайт',
+  },
+
+  //Дашборд
+  dashboard: {
+    title: 'Панель управления',
+    menu: {
+      events: 'Мероприятия',
+      users: 'Пользователи',
+      tickets: 'Билеты',
+      pages: 'Страницы',
+      attendees: 'Посетители',
+      home: 'Главная',
+      logout: 'Выйти',
+    },
+  },
+
+  // Пагинация
+  basePagination: {
+    show: 'Показать',
+    prev: 'Назад',
+    next: 'Вперед',
+  },
+
+  // AdminDataTable
+  adminDataTable: {
+    applyFilters: 'Применить фильтры',
+    resetFilters: 'Сбросить фильтры',
+    noData: 'Нет данных для отображения',
+    loading: 'Загрузка данных...',
+    error: 'Ошибка при загрузке данных',
+    noDataDescription: 'Пожалуйста, проверьте фильтры или добавьте новые данные.',
+    add: 'Добавить',
+  },
+
+  //События
+  event: {
+    id: 'Идентификатор',
+    title: 'Мероприятие',
+    startTime: 'Начало',
+    endTime: 'Окончание',
+    location: 'Место проведения',
+    description: 'Описание',
+    tags: 'Категории',
+    price: 'Цена',
+    active: 'Активное событие',
+    edit: 'Редактировать событие',
+    fields: {
+      title: 'Название мероприятия',
+      description: 'Описание мероприятия',
+      location: 'Место проведения',
+      startDate: 'Дата начала',
+      endDate: 'Дата окончания',
+      tag: 'Категории',
+      price: 'Цена',
+      ticketsCount: 'Количество билетов',
+      isActive: 'Активное событие',
+      images: 'Изображения',
+    },
+    addImage: 'Добавить изображение',
+    updateFailed: 'Не удалось обновить данные',
+  },
+
+  //Билеты
+  ticket: {
+    id: 'Идентификатор',
+    eventId: 'Идентификатор мероприятия',
+    buyerName: 'Имя покупателя',
+    attendeeName: 'Имя посетителя',
+    status: {
+      title: 'Статус',
+    }
+  },
+
+  //Фильтры в дашборде
+  filters: {
+    event: {
+      title: 'Название мероприятия',
+      location: 'Место проведения',
+      tag: 'Категории',
+      dateRange: 'Период проведения',
+      minPrice: 'Цена от',
+      maxPrice: 'Цена до',
+      active: 'Активное событие',
+    },
+    user: {
+      fullName: 'Полное имя',
+      email: 'Email',
+      role: 'Роль',
+      phone: 'Телефон',
+      birthDate: 'Дата рождения',
+      createdAt: 'Дата регистрации',
+    },
+    ticket: {
+      buyerName: 'Имя покупателя',
+      attendeeName: 'Имя посетителя',
+      status: 'Статус билета',
+      eventId: 'Идентификатор мероприятия',
+      buyerId: 'Идентификатор покупателя',
+      attendeeId: 'Идентификатор посетителя',
+      paymentId: 'Идентификатор платежа',
+    },
+    all: 'Все',
+  },
+
+  // Компонент выбора даты
+    datePicker: {
+      selectDate: 'Выберите дату',
+      selectDateRange: 'Выберите диапазон дат',
+      time: 'Время',
+      startTime: 'Время начала',
+      endTime: 'Время окончания',
+      from: 'От',
+      to: 'До',
+      apply: 'Применить',
+      clear: 'Очистить',
+    },
+
 }

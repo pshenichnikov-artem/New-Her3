@@ -91,7 +91,7 @@ const menuItems = computed(() => [
         icon: 'ticket'
     },
     {
-        label: t('dashboard.menu.'),
+        label: t('dashboard.menu.attendees'),
         route: 'attendees',
         icon: 'attendee'
     },

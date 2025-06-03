@@ -44,7 +44,8 @@
 
                 <!-- Дополнительная информация -->
                 <div class="space-y-6 bg-primary-900/60 rounded-xl p-6 shadow">
-                    <div class="form-group">
+                    <!-- Show role select only in edit mode -->
+                    <div v-if="isEditMode" class="form-group">
                         <label for="role" class="block mb-1 font-medium text-sm text-text-form">
                             {{ t('user.fields.role') }}
                         </label>
@@ -105,7 +106,9 @@ const userForm = ref<UserUpdateRequest & { password?: string; }>({
 });
 
 // Настраиваем валидацию формы - передаем все возможные поля
-const form = useFormValidation(['email', 'fullName', 'phone', 'birthDate']); // убрали password из базовой валидации
+const form = useFormValidation(isEditMode.value 
+    ? ['email', 'fullName', 'phone', 'birthDate']
+    : ['email', 'fullName', 'phone', 'birthDate', 'password']);
 
 const hasChanges = computed(() => {
     if (!userForm.value || !initialUserData.value) return false;
@@ -170,16 +173,15 @@ const saveUser = async () => {
         ? ['email', 'fullName', 'phone', 'birthDate']
         : ['email', 'fullName', 'phone', 'birthDate', 'password'];
 
-    const isFormValid = fieldsToValidate.every(field => form.validationState[field]);
+    const isFormValid = fieldsToValidate.every(field => {
+        const isValid = form.validationState[field];
+        if (!isValid && form.validationTrigger[field] !== undefined) {
+            form.validationTrigger[field] += 1;
+        }
+        return isValid;
+    });
 
-    if (!isFormValid) {
-        fieldsToValidate.forEach(field => {
-            if (form.validationTrigger[field] !== undefined) {
-                form.validationTrigger[field] += 1;
-            }
-        });
-        return;
-    }
+    if (!isFormValid) return;
 
     if (isEditMode.value) {
         const updateData: UserUpdateRequest = {
@@ -204,8 +206,9 @@ const saveUser = async () => {
             email: userForm.value.email,
             fullName: userForm.value.fullName,
             phone: userForm.value.phone,
-            password: userForm.value.password!,
-            birthDate: userForm.value.birthDate
+            password: userForm.value.password || '',
+            birthDate: userForm.value.birthDate,
+            role: UserRoles.User // Always set to User role when creating
         };
 
         await authApi.register(registerData, {

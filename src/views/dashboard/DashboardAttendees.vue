@@ -19,6 +19,17 @@
     >
       <template #filters>
         <TextFilter
+          :title="t('filters.attendee.ids')"
+          v-model="filter.attendeeIds"
+          :multiple-select="true"
+          class="compact-filter"
+        >
+          <template #icon>
+            <IconsSet name="hash" class="w-4 h-4 text-primary-400" />
+          </template>
+        </TextFilter>
+
+        <TextFilter
           :title="t('filters.attendee.fullName')"
           v-model="filter.fullName"
           :multiple-select="false"
@@ -136,7 +147,7 @@ const pagination = reactive<PaginationRequest>({
 const sort = ref<SortRequest[]>([]);
 
 const docTypeOptions = [
-  { value: null, label: t("filters.all") },
+  // Убираем опцию "Все"
   { value: 0, label: t("documentTypes.passport") },
   { value: 1, label: t("documentTypes.driverLicense") },
   { value: 2, label: t("documentTypes.foreignPassport") },
@@ -188,8 +199,14 @@ const updateBirthDateDates = (dates: [string | null, string | null] | null) => {
 };
 
 const loadAttendees = async () => {
+  // Если docType пустой, отправляем пустой массив
+  const filterToSend = {
+    ...filter,
+    docType: filter.docType.length > 0 ? filter.docType : [],
+  };
+
   await attendeeApi.searchAttendees({
-    filter,
+    filter: filterToSend,
     sort: sort.value,
     pagination,
   });

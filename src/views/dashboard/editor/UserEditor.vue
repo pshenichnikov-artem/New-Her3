@@ -2,67 +2,109 @@
     <BaseEditor :title="isEditMode ? t('user.edit') : t('user.create')" :back-path="'/dashboard/users'"
         :is-loading="userApi.isLoading" :has-changes="hasChanges" @back="goBack" @cancel="resetForm"
         @save="form.handleSubmit(saveUser)">
-
-        <div v-if="isLoading" class="flex justify-center py-8">
-            <div class="animate-spin text-4xl text-primary-600">
-                <i class="fas fa-spinner"></i>
-            </div>
-        </div>
-        <div v-else-if="userForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Основная информация -->
-                <div class="space-y-6 bg-primary-900/60 rounded-xl p-6 shadow">
-                    <ValidationInput id="email" v-model="userForm.email" type="email" :label="t('user.fields.email')"
-                        validation-rules="required|email" :readonly="isReadOnly" :error-messages="{
-                            required: t('validation.required'),
-                            email: t('validation.email.invalid')
-                        }" :trigger-validation="form.validationTrigger.email"
-                        @valid="form.updateValidationState('email', $event)"/>
-
-                    <ValidationInput id="fullName" v-model="userForm.fullName" :label="t('user.fields.fullName')"
-                        validation-rules="required|fullName" :readonly="isReadOnly" :error-messages="{
-                            required: t('validation.required'),
-                            fullName: t('validation.fullName.pattern')
-                        }" :trigger-validation="form.validationTrigger.fullName"
-                        @valid="form.updateValidationState('fullName', $event)"/>
-
-                    <ValidationInput id="phone" v-model="userForm.phone" :label="t('user.fields.phone')"
-                        validation-rules="required|phone" :readonly="isReadOnly" :error-messages="{
-                            required: t('validation.required'),
-                            phone: t('validation.phone.pattern')
-                        }" :trigger-validation="form.validationTrigger.phone"
-                        @valid="form.updateValidationState('phone', $event)"/>
-
-                    <ValidationInput id="birthDate" v-model="userForm.birthDate" type="date"
-                        :label="t('user.fields.birthDate')" validation-rules="required|date" :readonly="isReadOnly"
-                        :error-messages="{
-                            required: t('validation.required'),
-                            date: t('validation.date')
-                        }" :trigger-validation="form.validationTrigger.birthDate"
-                        @valid="form.updateValidationState('birthDate', $event)"/>
+        <div class="flex flex-col h-full space-y-8">
+            <div v-if="isLoading" class="flex justify-center py-8 flex-grow">
+                <div class="animate-spin text-4xl text-primary-600">
+                    <i class="fas fa-spinner"></i>
                 </div>
+            </div>
+            <div v-else-if="userForm" class="flex-grow flex flex-col h-full">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
+                    <!-- Основная информация -->
+                    <div class="space-y-6 bg-primary-900/60 rounded-xl p-6 shadow h-full">
+                        <ValidationInput id="email" v-model="userForm.email" type="email" :label="t('user.fields.email')"
+                            validation-rules="required|email" :readonly="isReadOnly" :error-messages="{
+                                required: t('validation.required'),
+                                email: t('validation.email.invalid')
+                            }" :trigger-validation="form.validationTrigger.email"
+                            @valid="form.updateValidationState('email', $event)"/>
 
-                <!-- Дополнительная информация -->
-                <div class="space-y-6 bg-primary-900/60 rounded-xl p-6 shadow">
-                    <!-- Show role select only in edit mode -->
-                    <div v-if="isEditMode" class="form-group">
-                        <label for="role" class="block mb-1 font-medium text-sm text-text-form">
-                            {{ t('user.fields.role') }}
-                        </label>
-                        <select id="role" v-model="userForm.role"
-                            class="w-full px-3 py-2 border rounded-lg bg-primary-800 text-black" :disabled="isReadOnly">
-                            <option value="0">{{ t('user.roles.user') }}</option>
-                            <option value="1">{{ t('user.roles.admin') }}</option>
-                        </select>
+                        <ValidationInput id="fullName" v-model="userForm.fullName" :label="t('user.fields.fullName')"
+                            validation-rules="required|fullName" :readonly="isReadOnly" :error-messages="{
+                                required: t('validation.required'),
+                                fullName: t('validation.fullName.pattern')
+                            }" :trigger-validation="form.validationTrigger.fullName"
+                            @valid="form.updateValidationState('fullName', $event)"/>
+
+                        <ValidationInput id="phone" v-model="userForm.phone" :label="t('user.fields.phone')"
+                            validation-rules="required|phone" :readonly="isReadOnly" :error-messages="{
+                                required: t('validation.required'),
+                                phone: t('validation.phone.pattern')
+                            }" :trigger-validation="form.validationTrigger.phone"
+                            @valid="form.updateValidationState('phone', $event)"/>
+
+                        <ValidationInput id="birthDate" v-model="userForm.birthDate" type="date"
+                            :label="t('user.fields.birthDate')" validation-rules="required|date" :readonly="isReadOnly"
+                            :error-messages="{
+                                required: t('validation.required'),
+                                date: t('validation.date')
+                            }" :trigger-validation="form.validationTrigger.birthDate"
+                            @valid="form.updateValidationState('birthDate', $event)"/>
                     </div>
 
-                    <ValidationInput v-if="!isEditMode" id="password" v-model="userForm.password" type="password"
-                        :label="t('user.fields.password')" validation-rules="required|password" :readonly="isReadOnly"
-                        :error-messages="{
-                            required: t('validation.required'),
-                            password: t('validation.password.pattern')
-                        }" :trigger-validation="form.validationTrigger.password"
-                        @valid="form.updateValidationState('password', $event)"/>
+                    <!-- Дополнительная информация -->
+                    <div class="space-y-6 bg-primary-900/60 rounded-xl p-6 shadow h-full">
+                        <!-- Show role select only in edit mode -->
+                        <div v-if="isEditMode" class="form-group">
+                            <label for="role" class="block mb-1 font-medium text-sm text-text-form">
+                                {{ t('user.fields.role') }}
+                            </label>
+                            <select id="role" v-model="userForm.role"
+                                class="w-full px-3 py-2 border rounded-lg bg-primary-800 text-black" :disabled="isReadOnly">
+                                <option value="0">{{ t('user.roles.user') }}</option>
+                                <option value="1">{{ t('user.roles.admin') }}</option>
+                            </select>
+                        </div>
+
+                        <ValidationInput v-if="!isEditMode" id="password" v-model="userForm.password" type="password"
+                            :label="t('user.fields.password')" validation-rules="required|password" :readonly="isReadOnly"
+                            :error-messages="{
+                                required: t('validation.required'),
+                                password: t('validation.password.pattern')
+                            }" :trigger-validation="form.validationTrigger.password"
+                            @valid="form.updateValidationState('password', $event)"/>
+                    </div>
+                </div>
+
+                <!-- Add after the main form grid -->
+                <div v-if="isEditMode" class="flex-shrink-0">
+                    <h3 class="text-xl font-semibold text-text-accent mb-4">{{ t('user.assignedAttendees') }}</h3>
+                    <div class="bg-primary-900/60 rounded-xl p-6 pb-12 mb-8 shadow max-h-[400px] overflow-auto">
+                        <div class="max-h-[400px] overflow-y-auto pr-2">
+                            <div v-if="userAttendees.length === 0" class="text-center text-white py-8">
+                                {{ t('user.noAttendees') }}
+                            </div>
+                            <div v-else class="space-y-4">
+                                <div v-for="attendee in userAttendees" :key="attendee.id" 
+                                    class="flex items-center justify-between p-4 bg-primary-800/50 rounded-lg border border-primary-700">
+                                    <div class="flex-grow">
+                                        <div class="font-medium text-text-accent">{{ attendee.fullName }}</div>
+                                        <div class="text-sm text-white">
+                                            {{ t(`documentTypes.${getDocumentTypeKey(attendee.documentType)}`) }}:
+                                            {{ attendee.documentNumber }}
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-sm text-white">
+                                            {{ formatDate(attendee.birthDate) }}
+                                        </div>
+                                        <button @click="router.push(`/dashboard/attendees/edit/${attendee.id}`)"
+                                            class="p-2 text-white hover:text-primary-200 transition-colors">
+                                            <IconsSet name="edit-pen" class="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Выносим кнопку в отдельный контейнер -->
+                    <div class="relative -mt-20 flex justify-end pr-4">
+                        <button @click="router.push(`/dashboard/attendees/create?userId=${userId}`)"
+                            class="p-3 bg-primary-600 text-white rounded-full hover:bg-primary-500 transition-colors shadow-lg flex items-center justify-center">
+                            <IconsSet name="plus" class="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,10 +117,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { ref, computed, onMounted } from 'vue';
 import { useUserApi } from '@/composables/api/useUserApi';
 import { useAuthApi } from '@/composables/api/useAuthApi';
+import { useAttendeeApi } from '@/composables/api/useAttendeeApi';
+import { formatDate } from '@/utils/formatterUtils';
 import type { UserUpdateRequest } from '@/types/user/UserUpdateRequest';
 import type { RegisterRequest } from '@/types/auth/RegisterRequest';
 import BaseEditor from '@/components/editors/BaseEditor.vue';
 import ValidationInput from '@/components/ui/ValidationInput.vue';
+import IconsSet from '@/components/ui/icons/IconsSet.vue';
 import { useNotification } from '@/composables/useNotification';
 import { useFormValidation } from '@/composables/useFormValidation';
 import { UserRoles } from '@/types/enums/UserRoles';
@@ -88,6 +133,7 @@ const route = useRoute();
 const router = useRouter();
 const userApi = useUserApi();
 const authApi = useAuthApi();
+const attendeeApi = useAttendeeApi();
 const notification = useNotification();
 
 const userId = computed(() => route.params.id as string);
@@ -95,6 +141,7 @@ const isEditMode = computed(() => route.name === 'dashboard-users-edit');
 const isLoading = ref(false);
 const isReadOnly = ref(false);
 const initialUserData = ref<UserUpdateRequest | RegisterRequest | null>(null);
+const userAttendees = ref([]); // Add this line to define userAttendees ref
 
 // Создаем форму с правильными типами данных
 const userForm = ref<UserUpdateRequest & { password?: string; }>({
@@ -114,6 +161,17 @@ const hasChanges = computed(() => {
     if (!userForm.value || !initialUserData.value) return false;
     return JSON.stringify(userForm.value) !== JSON.stringify(initialUserData.value);
 });
+
+function getDocumentTypeKey(type: number): string {
+    const typeMap: Record<number, string> = {
+        0: 'passport',
+        1: 'driverLicense',
+        2: 'foreignPassport',
+        3: 'studentCard',
+        4: 'birthCertificate'
+    };
+    return typeMap[type] || 'unknown';
+}
 
 onMounted(async () => {
     isLoading.value = true;
@@ -140,6 +198,36 @@ onMounted(async () => {
                 goBack();
             }
         });
+
+        // Updated to use POST method
+        await attendeeApi.getAttendeesByUser(
+            userId.value,
+            {
+                filter: {
+                    attendeeIds: [],
+                    fullName: null,
+                    birthDateFrom: null,
+                    birthDateTo: null,
+                    docType: [],
+                    docNumber: null
+                },
+                pagination: {
+                    page: 1,
+                    pageSize: 100
+                },
+                sort: []
+            },
+            {
+                onSuccess: (response) => {
+                    // Changed from response.data?.items to response?.items
+                    userAttendees.value = response?.items || [];
+                    console.log('Attendees loaded:', userAttendees.value); // Add debug log
+                },
+                onError: () => {
+                    notification.error(t('errors.loadingFailed'));
+                }
+            }
+        );
     } else {
         userForm.value = {
             email: '',

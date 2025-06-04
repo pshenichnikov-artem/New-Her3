@@ -143,6 +143,7 @@ export function useAttendeeApi() {
   async function createAttendee(
     request: AttendeeAddRequest,
     options: RequestOptions = {},
+    userId?: string,
   ): Promise<AttendeeResponse | null> {
     const defaultOptions = {
       showSuccessNotification: true,
@@ -156,7 +157,7 @@ export function useAttendeeApi() {
     const response = await baseApi.makeRequest<AttendeeResponse>(
       {
         method: 'POST',
-        url: '',
+        url: `${userId ? `/${userId}` : ''}`, // Add userId to path if provided
         data: request,
       },
       'create',
@@ -215,6 +216,25 @@ export function useAttendeeApi() {
     return response?.data || null
   }
 
+  /**
+   * Получение участников по ID пользователя
+   */
+  const getAttendeesByUser = async (
+    userId: string,
+    request: AttendeeSearchRequest,
+    options?: RequestOptions,
+  ) => {
+    return await baseApi.makeRequest<Response<AttendeeResponse>>(
+      {
+        method: 'POST',
+        url: `/by-user/${userId}`,
+        data: request, // Отправляем полный запрос поиска
+      },
+      'getAttendeesByUser',
+      options,
+    )
+  }
+
   // Создаем и возвращаем единый объект API для участников
   const attendeeApi = reactive({
     // Состояния
@@ -233,6 +253,7 @@ export function useAttendeeApi() {
     createAttendee,
     createAttendeeSelf,
     getMyAttendees,
+    getAttendeesByUser,
     resetState: baseApi.resetState,
   })
 

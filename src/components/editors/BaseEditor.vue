@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-content rounded-xl shadow-md border border-primary-700 p-6 h-full">
+  <div class="bg-primary-800 rounded-xl shadow-md border border-primary-600 p-6 h-full">
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center gap-4">
         <button
@@ -34,8 +34,8 @@
       </div>
     </div>
 
-    <form @submit.prevent="handleSave">
-      <fieldset :disabled="isFormDisabled">
+    <form @submit.prevent="handleSave" class="flex-grow overflow-auto">
+      <fieldset :disabled="isFormDisabled" class="h-full">
         <slot></slot>
       </fieldset>
     </form>

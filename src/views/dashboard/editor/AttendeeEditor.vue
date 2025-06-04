@@ -114,6 +114,7 @@ const attendeeApi = useAttendeeApi();
 const notification = useNotification();
 
 const attendeeId = computed(() => route.params.id as string);
+const userId = computed(() => route.query.userId as string); // Добавляем получение userId из query
 const isEditMode = computed(() => route.name === "dashboard-attendees-edit");
 const isLoading = ref(false);
 const isReadOnly = ref(false);
@@ -324,20 +325,29 @@ const saveAttendee = async () => {
   } else {
     const addData: AttendeeAddRequest = {
       fullName: attendeeForm.value.fullName,
-      birthDate: attendeeForm.value.birthDate, // Просто передаем строку с датой
+      birthDate: attendeeForm.value.birthDate,
       documentType: attendeeForm.value.documentType,
       documentNumber: attendeeForm.value.documentNumber,
     };
 
-    await attendeeApi.createAttendee(addData, {
-      onSuccess: () => {
-        notification.success(t("attendee.createSuccess"));
-        router.push("/dashboard/attendees");
+    await attendeeApi.createAttendee(
+      addData,
+      {
+        onSuccess: () => {
+          notification.success(t("attendee.createSuccess"));
+          // Если был передан userId, возвращаемся на страницу пользователя
+          if (userId.value) {
+            router.push(`/dashboard/users/edit/${userId.value}`);
+          } else {
+            router.push("/dashboard/attendees");
+          }
+        },
+        onError: () => {
+          notification.error(t("attendee.createFailed"));
+        }
       },
-      onError: () => {
-        notification.error(t("attendee.createFailed"));
-      },
-    });
+      userId.value // Передаем userId третьим параметром
+    );
   }
 };
 </script>

@@ -676,6 +676,9 @@ export default {
       birthDate: 'Дата рождения',
       password: 'Пароль',
     },
+    assignedAttendees: 'Назначенные посетители',
+    noAttendees: 'Нет назначенных посетителей',
+    addAttendee: 'Добавить посетителя',
   },
 
   // Навигация

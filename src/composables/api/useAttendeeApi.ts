@@ -143,7 +143,7 @@ export function useAttendeeApi() {
   async function createAttendee(
     request: AttendeeAddRequest,
     options: RequestOptions = {},
-    userId?: string,
+    userId?: string | null
   ): Promise<AttendeeResponse | null> {
     const defaultOptions = {
       showSuccessNotification: true,
@@ -154,10 +154,13 @@ export function useAttendeeApi() {
     // Безопасное форматирование даты рождения
     request.birthDate = safeFormatDate(request.birthDate) || request.birthDate
 
+    // Если передан userId, используем другой endpoint
+    const url = userId ? `/${userId}` : ''
+
     const response = await baseApi.makeRequest<AttendeeResponse>(
       {
         method: 'POST',
-        url: `${userId ? `/${userId}` : ''}`, // Add userId to path if provided
+        url,
         data: request,
       },
       'create',
@@ -235,6 +238,26 @@ export function useAttendeeApi() {
     )
   }
 
+  /**
+   * Удаление связи между пользователем и участником
+   */
+  async function dropUserAttendeeLink(
+    attendeeId: string,
+    userId: string,
+    options: RequestOptions = {},
+  ): Promise<boolean> {
+    const response = await baseApi.makeRequest(
+      {
+        method: 'DELETE',
+        url: `/user-attendee-link/${attendeeId}/by-user/${userId}`,
+      },
+      'delete',
+      options,
+    )
+
+    return response !== null
+  }
+
   // Создаем и возвращаем единый объект API для участников
   const attendeeApi = reactive({
     // Состояния
@@ -254,6 +277,7 @@ export function useAttendeeApi() {
     createAttendeeSelf,
     getMyAttendees,
     getAttendeesByUser,
+    dropUserAttendeeLink,
     resetState: baseApi.resetState,
   })
 

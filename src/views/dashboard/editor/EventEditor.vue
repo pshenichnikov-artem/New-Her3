@@ -1,13 +1,7 @@
 <template>
-  <BaseEditor
-    :title="isEditMode ? t('event.edit') : t('event.create')"
-    :back-path="'/dashboard/events'"
-    :is-loading="eventApi.isLoading"
-    :has-changes="hasChanges"
-    @back="goBack"
-    @cancel="resetForm"
-    @save="form.handleSubmit(saveEvent)"
-  >
+  <BaseEditor :title="isEditMode ? t('event.edit') : t('event.create')" :back-path="'/dashboard/events'"
+    :is-loading="eventApi.isLoading" :has-changes="hasChanges" @back="goBack" @cancel="resetForm"
+    @save="form.handleSubmit(saveEvent)">
     <div v-if="isLoading" class="flex justify-center py-8">
       <div class="animate-spin text-4xl text-primary-600">
         <i class="fas fa-spinner"></i>
@@ -17,166 +11,67 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Основная информация -->
         <div class="space-y-4">
-          <ValidationInput
-            id="title"
-            v-model="eventForm.title"
-            :label="t('event.fields.title')"
-            validation-rules="required|minLength:3"
-            :readonly="isReadOnly"
-            :error-messages="{
+          <ValidationInput id="title" v-model="eventForm.title" :label="t('event.fields.title')"
+            validation-rules="required|minLength:3" :readonly="isReadOnly" :error-messages="{
               required: t('validation.required'),
               minLength: t('validation.minLength', { min: 3 }),
-            }"
-            :trigger-validation="form.validationTrigger.title"
-            @valid="form.updateValidationState('title', $event)"
-            backgroundColor="bg-primary-800"
-            titleColor="text-accent"
-            textColor="text-white"
-            placeholderColor="text-gray-400"
-            borderColor="border-primary-600"
-            borderHoverColor="border-accent"
-          />
+            }" :trigger-validation="form.validationTrigger.title"
+            @valid="form.updateValidationState('title', $event)" />
 
           <!-- Обновление стилей для textarea -->
           <div class="form-group">
             <label for="description" class="block mb-1 font-medium text-sm text-accent">
               {{ t("event.fields.description") }}
             </label>
-            <textarea
-              id="description"
-              v-model="eventForm.description"
+            <textarea id="description" v-model="eventForm.description"
               class="w-full px-3 py-2 border rounded-lg bg-primary-800 text-white border-primary-600 placeholder:text-gray-400"
-              :readonly="isReadOnly"
-            ></textarea>
+              :readonly="isReadOnly"></textarea>
           </div>
 
-          <ValidationInput
-            id="location"
-            v-model="eventForm.location"
-            :label="t('event.fields.location')"
-            validation-rules="required"
-            :readonly="isReadOnly"
-            :error-messages="{ required: t('validation.required') }"
+          <ValidationInput id="location" v-model="eventForm.location" :label="t('event.fields.location')"
+            validation-rules="required" :readonly="isReadOnly" :error-messages="{ required: t('validation.required') }"
             :trigger-validation="form.validationTrigger.location"
-            @valid="form.updateValidationState('location', $event)"
-            backgroundColor="bg-primary-800"
-            titleColor="text-accent"
-            textColor="text-white"
-            placeholderColor="text-gray-400"
-            borderColor="border-primary-600"
-            borderHoverColor="border-accent"
-          />
+            @valid="form.updateValidationState('location', $event)" />
 
-          <ValidationInput
-            id="tag"
-            v-model="eventForm.tag"
-            :label="t('event.fields.tag')"
-            validation-rules="required"
-            :readonly="isReadOnly"
-            :error-messages="{ required: t('validation.required') }"
-            :trigger-validation="form.validationTrigger.tag"
-            @valid="form.updateValidationState('tag', $event)"
-            backgroundColor="bg-primary-800"
-            titleColor="text-accent"
-            textColor="text-white"
-            placeholderColor="text-gray-400"
-            borderColor="border-primary-600"
-            borderHoverColor="border-accent"
-          />
+          <ValidationInput id="tag" v-model="eventForm.tag" :label="t('event.fields.tag')" validation-rules="required"
+            :readonly="isReadOnly" :error-messages="{ required: t('validation.required') }"
+            :trigger-validation="form.validationTrigger.tag" @valid="form.updateValidationState('tag', $event)" />
         </div>
 
         <!-- Дополнительная информация -->
         <div class="space-y-4">
-          <ValidationInput
-            id="startDate"
-            v-model="eventForm.startDate"
-            type="datetime-local"
-            :label="t('event.fields.startDate')"
-            validation-rules="required"
-            :readonly="isReadOnly"
-            :error-messages="{
+          <ValidationInput id="startDate" v-model="eventForm.startDate" type="datetime-local"
+            :label="t('event.fields.startDate')" validation-rules="required" :readonly="isReadOnly" :error-messages="{
               required: t('validation.required'),
               date: t('validation.date'),
-            }"
-            :trigger-validation="form.validationTrigger.startDate"
-            @valid="form.updateValidationState('startDate', $event)"
-            backgroundColor="bg-primary-800"
-            titleColor="text-accent"
-            textColor="text-white"
-            placeholderColor="text-gray-400"
-            borderColor="border-primary-600"
-            borderHoverColor="border-accent"
-          />
+            }" :trigger-validation="form.validationTrigger.startDate"
+            @valid="form.updateValidationState('startDate', $event)" />
 
-          <ValidationInput
-            id="endDate"
-            v-model="eventForm.endDate"
-            type="datetime-local"
-            :label="t('event.fields.endDate')"
-            validation-rules="date"
-            :readonly="isReadOnly"
-            :trigger-validation="form.validationTrigger.endDate"
-            @valid="validateEventDates"
-            backgroundColor="bg-primary-800"
-            titleColor="text-accent"
-            textColor="text-white"
-            placeholderColor="text-gray-400"
-            borderColor="border-primary-600"
-            borderHoverColor="border-accent"
-          />
+          <ValidationInput id="endDate" v-model="eventForm.endDate" type="datetime-local"
+            :label="t('event.fields.endDate')" validation-rules="date" :readonly="isReadOnly"
+            :trigger-validation="form.validationTrigger.endDate" @valid="validateEventDates" />
 
-          <ValidationInput
-            id="ticketCount"
-            v-model.number="eventForm.ticketCount"
-            type="number"
-            :label="t('event.fields.ticketsCount')"
-            validation-rules="required|min:0"
-            :readonly="isReadOnly"
+          <ValidationInput id="ticketCount" v-model.number="eventForm.ticketCount" type="number"
+            :label="t('event.fields.ticketsCount')" validation-rules="required|min:0" :readonly="isReadOnly"
             :error-messages="{
               required: t('validation.required'),
               min: t('validation.positive'),
-            }"
-            :trigger-validation="form.validationTrigger.ticketCount"
-            @valid="form.updateValidationState('ticketCount', $event)"
-            backgroundColor="bg-primary-800"
-            titleColor="text-accent"
-            textColor="text-white"
-            placeholderColor="text-gray-400"
-            borderColor="border-primary-600"
-            borderHoverColor="border-accent"
-          />
+            }" :trigger-validation="form.validationTrigger.ticketCount"
+            @valid="form.updateValidationState('ticketCount', $event)" />
 
-          <ValidationInput
-            id="price"
-            v-model.number="eventForm.price"
-            type="number"
-            :label="t('event.fields.price')"
-            validation-rules="required|min:0"
-            :readonly="isReadOnly"
-            :error-messages="{
+          <ValidationInput id="price" v-model.number="eventForm.price" type="number" :label="t('event.fields.price')"
+            validation-rules="required|min:0" :readonly="isReadOnly" :error-messages="{
               required: t('validation.required'),
               min: t('validation.positive'),
-            }"
-            :trigger-validation="form.validationTrigger.price"
-            @valid="form.updateValidationState('price', $event)"
-            backgroundColor="bg-primary-800"
-            titleColor="text-accent"
-            textColor="text-white"
-            placeholderColor="text-gray-400"
-            borderColor="border-primary-600"
-            borderHoverColor="border-accent"
-          />
+            }" :trigger-validation="form.validationTrigger.price"
+            @valid="form.updateValidationState('price', $event)" />
 
           <!-- Обновление стилей для чекбокса -->
           <div class="form-group">
             <div class="flex items-center">
-              <input
-                id="isActive"
-                type="checkbox"
-                v-model="eventForm.isActive"
+              <input id="isActive" type="checkbox" v-model="eventForm.isActive"
                 class="h-4 w-4 border-primary-600 rounded mr-2 text-accent bg-primary-800 focus:ring-accent"
-                :disabled="isReadOnly"
-              />
+                :disabled="isReadOnly" />
               <label for="isActive" class="font-medium text-sm text-accent">
                 {{ t("event.fields.isActive") }}
               </label>
@@ -190,118 +85,57 @@
         <h3 class="text-lg font-medium mb-4 text-accent">
           {{ t("event.fields.images") }}
         </h3>
-        <div
-          class="flex gap-6 overflow-x-auto pb-2"
-          style="scrollbar-color: #674296 #efe2be; scrollbar-width: thin"
-        >
-          <div
-            v-for="(image, index) in eventForm.images"
-            :key="index"
-            class="relative border rounded-lg overflow-hidden flex-shrink-0 w-64 h-48 group bg-primary-800 flex flex-col items-center justify-center"
-          >
+        <div class="flex gap-6 overflow-x-auto pb-2" style="scrollbar-color: #674296 #efe2be; scrollbar-width: thin">
+          <div v-for="(image, index) in eventForm.images" :key="index"
+            class="relative border rounded-lg overflow-hidden flex-shrink-0 w-64 h-48 group bg-primary-800 flex flex-col items-center justify-center">
+            {{ console.log("Rendering image", index, image) }}
             <!-- Отображение изображения -->
-            <img
-              v-if="getImageUrl(image)"
-              :src="getImageUrl(image)"
-              class="w-full h-full object-cover"
-              :alt="`Image ${index + 1}`"
-            />
-            <div
-              v-else
-              class="w-full h-full bg-primary-700 flex items-center justify-center"
-            >
+            <img v-if="getImageUrl(image)" :src="getImageUrl(image)" class="w-full h-full object-cover"
+              :alt="`Image ${index + 1}`" />
+            <div v-else class="w-full h-full bg-primary-700 flex items-center justify-center">
               <i class="fas fa-image text-primary-300 text-3xl"></i>
             </div>
 
             <!-- Кнопки перемещения -->
-            <div
-              v-if="!isReadOnly"
-              class="absolute bottom-3 left-0 right-0 flex justify-center gap-4 z-20"
-            >
-              <button
-                @click="moveImageLeft(index)"
-                :disabled="index === 0"
+            <div v-if="!isReadOnly" class="absolute bottom-3 left-0 right-0 flex justify-center gap-4 z-20">
+              <button @click="moveImageLeft(index)" :disabled="index === 0" type="button"
                 class="bg-primary-600 hover:bg-primary-700 text-white rounded-full p-3 shadow-lg border-2 border-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-150"
-                :title="t('common.buttons.moveLeft')"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-7 w-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="3"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15 19l-7-7 7-7"
-                  />
+                :title="t('common.buttons.moveLeft')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <button
-                @click="moveImageRight(index)"
-                :disabled="index === eventForm.images.length - 1"
+              <button @click="moveImageRight(index)" :disabled="index === eventForm.images.length - 1" type="button"
                 class="bg-primary-600 hover:bg-primary-700 text-white rounded-full p-3 shadow-lg border-2 border-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-150"
-                :title="t('common.buttons.moveRight')"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-7 w-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="3"
-                >
+                :title="t('common.buttons.moveRight')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" stroke-width="3">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
 
-            <button
-              v-if="!isReadOnly"
-              @click="removeImage(index)"
-              type="button"
+            <button v-if="!isReadOnly" @click="removeImage(index)" type="button"
               class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-3 shadow-lg border-2 border-white z-30 flex items-center justify-center transition-all duration-150"
-              :title="t('common.buttons.delete')"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 font-bold"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="3"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6 6l12 12M6 18L18 6"
-                />
+              :title="t('common.buttons.delete')">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 font-bold" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="3">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
               </svg>
             </button>
           </div>
 
           <!-- Кнопка добавления изображения -->
-          <div
-            v-if="!isReadOnly"
-            @click="triggerImageUpload"
-            class="border-2 border-dashed border-primary-600 rounded-lg flex items-center justify-center w-64 h-48 cursor-pointer hover:bg-primary-800 flex-shrink-0"
-          >
+          <div v-if="!isReadOnly" @click="triggerImageUpload"
+            class="border-2 border-dashed border-primary-600 rounded-lg flex items-center justify-center w-64 h-48 cursor-pointer hover:bg-primary-800 flex-shrink-0">
             <div class="text-center">
               <i class="fas fa-plus text-primary-500 text-2xl mb-1"></i>
               <p class="text-sm text-primary-500">{{ t("event.addImage") }}</p>
             </div>
           </div>
 
-          <input
-            ref="imageInput"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            @change="handleImageUpload"
-            multiple
-          />
+          <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="handleImageUpload" multiple />
         </div>
       </div>
     </div>
@@ -378,19 +212,19 @@ const hasChanges = computed(() => {
   return (
     JSON.stringify(currentWithoutImages) !== JSON.stringify(initialWithoutImages) ||
     eventForm.value.images.length !==
-      ((initialEventData.value as any)?.images?.length || 0)
+    ((initialEventData.value as any)?.images?.length || 0)
   );
 });
 
 // Функция для получения URL изображения
 const getImageUrl = (image: EventImageUpdateRequest): string => {
-  // Проверяем, существующее ли это изображение (с id и url)
-  if (image.id && (image as any).url) {
-    return (image as any).url || "";
+  console.log("Getting image URL for", image);
+  if (image.id && (image as any).imageUrl) {
+    return (image as any).imageUrl || "";
   }
   // Если это новое изображение с файлом
-  if (image.image?.image) {
-    return URL.createObjectURL(image.image.image);
+  if (image.image) {
+    return URL.createObjectURL(image.image);
   }
   return "";
 };
@@ -399,21 +233,19 @@ onMounted(async () => {
   isLoading.value = true;
 
   if (isEditMode.value) {
+    console.log("Loading event data for edit mode", eventId.value);
     await eventApi.getEventById(eventId.value, {
       onSuccess: (event) => {
+        console.log("Event data received:", event);
         if (event) {
+          console.log("Mapping event images for form", event.images);
           // Преобразуем изображения из ответа API в формат для формы
-          const formImages: EventImageUpdateRequest[] = event.images.map(
-            (img: ImageResponse, index: number) =>
-              ({
-                id: img.id,
-                url: img.url,
-                imageType: img.imageType || "image/jpeg",
-                localOrderRank: index,
-                entityId: event.id,
-                entityTarget: "Event",
-              } as any)
-          );
+          const mappedImages = (event.images || []).map((img: any): EventImageUpdateRequest => ({
+            id: img.id,
+            imageUrl: img.imageUrl,
+            localOrderRank: img.localOrderRank,
+            image: undefined,
+          }));
 
           initialEventData.value = {
             title: event.title,
@@ -422,12 +254,13 @@ onMounted(async () => {
             startDate: formatDateTimeForInput(event.startTime),
             endDate: formatDateTimeForInput(event.endTime),
             ticketCount: event.ticketsCount || 0,
-            images: formImages,
+            images: mappedImages,
             price: event.price,
             isActive: event.isActive,
             tag: event.tag || "",
           };
           eventForm.value = { ...initialEventData.value };
+          console.log("Event data loaded:", eventForm.value);
         } else {
           notification.error(t("errors.eventNotFound"));
           goBack();
@@ -439,7 +272,8 @@ onMounted(async () => {
       },
     });
   } else {
-    eventForm.value = {
+    // Для создания события используем EventUpdateRequest-совместимую структуру
+    const addData: EventUpdateRequest = {
       title: "",
       description: "",
       location: "",
@@ -451,7 +285,8 @@ onMounted(async () => {
       isActive: true,
       tag: "",
     };
-    initialEventData.value = { ...eventForm.value };
+    initialEventData.value = addData;
+    eventForm.value = { ...addData };
   }
 
   isLoading.value = false;
@@ -502,14 +337,11 @@ const handleFilesUpload = async (files: FileList) => {
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     try {
+      // Всегда добавляем id: "" для совместимости с EventUpdateRequest
       const newImage: EventImageUpdateRequest = {
-        id: "", // Новое изображение, id пустой
-        image: {
-          image: file,
-          imageType: file.type,
-          localOrderRank: eventForm.value.images.length + i,
-          entityTarget: "Event",
-        },
+        id: "",
+        image: file,
+        localOrderRank: eventForm.value.images.length + i,
       };
       eventForm.value.images.push(newImage);
     } catch (error) {
@@ -533,7 +365,7 @@ const removeImage = (index: number) => {
   eventForm.value.images.splice(index, 1);
   // Пересчитываем порядковые номера после удаления
   eventForm.value.images.forEach((img, idx) => {
-    if (img.image) img.image.localOrderRank = idx;
+    if (img.image) img.localOrderRank = idx;
   });
 };
 
@@ -555,90 +387,45 @@ const saveEvent = async () => {
     validateEventDates(true);
   }
 
+  const formData = new FormData();
+  const data = { ...eventForm.value };
+
+  formData.append("title", data.title);
+  formData.append("description", data.description);
+  formData.append("location", data.location);
+  formData.append("startDate", data.startDate);
+  formData.append("endDate", data.endDate || data.startDate);
+  formData.append("ticketCount", data.ticketCount.toString());
+  formData.append("price", data.price.toString());
+  formData.append("isActive", data.isActive ? "true" : "false");
+  formData.append("tag", data.tag);
+
+  // Картинки
+  data.images.forEach((img, idx) => {
+    formData.append(`images[${idx}].id`, img.id || "");
+    if (img.image) {
+      formData.append(`images[${idx}].image`, img.image);
+    }
+
+    formData.append(
+      `images[${idx}].localOrderRank`,
+      (img.localOrderRank ?? idx).toString()
+    );
+
+  });
+
   if (isEditMode.value) {
-    // Для обновления события с файлами используем FormData
-    const updateData = { ...eventForm.value };
-    const formData = new FormData();
-
-    // Примитивные поля
-    formData.append("title", updateData.title);
-    formData.append("description", updateData.description);
-    formData.append("location", updateData.location);
-    formData.append("startDate", updateData.startDate);
-    formData.append("endDate", updateData.endDate || updateData.startDate);
-    formData.append("ticketCount", updateData.ticketCount.toString());
-    formData.append("price", updateData.price.toString());
-    formData.append("isActive", updateData.isActive ? "true" : "false");
-    formData.append("tag", updateData.tag);
-
-    // Картинки
-    updateData.images.forEach((img, idx) => {
-      formData.append(`images[${idx}].id`, img.id || "");
-      if (img.image?.image) {
-        formData.append(`images[${idx}].image`, img.image.image);
-      }
-      if (img.image?.imageType) {
-        formData.append(`images[${idx}].imageType`, img.image.imageType);
-      }
-      formData.append(
-        `images[${idx}].localOrderRank`,
-        (img.image?.localOrderRank ?? idx).toString()
-      );
-      if (img.image?.entityTarget) {
-        formData.append(`images[${idx}].entityTarget`, img.image.entityTarget);
-      }
-      if (img.image?.entityId) {
-        formData.append(`images[${idx}].entityId`, img.image.entityId);
-      }
-    });
-
     await eventApi.updateEvent(eventId.value, formData, {
       onSuccess: () => {
         initialEventData.value = { ...eventForm.value };
-        notification.success(t("event.updateSuccess"));
       },
       onError: () => {
         notification.error(t("event.updateFailed"));
       },
     });
   } else {
-    // Для создания события с файлами используем FormData
-    const addData = { ...eventForm.value };
-    const formData = new FormData();
-
-    formData.append("title", addData.title);
-    formData.append("description", addData.description);
-    formData.append("location", addData.location);
-    formData.append("startDate", addData.startDate);
-    formData.append("endDate", addData.endDate || addData.startDate);
-    formData.append("ticketCount", addData.ticketCount.toString());
-    formData.append("tag", addData.tag);
-
-    // Только новые картинки (без id)
-    addData.images
-      .filter((img) => !img.id)
-      .forEach((img, idx) => {
-        if (img.image?.image) {
-          formData.append(`images[${idx}].image`, img.image.image);
-        }
-        if (img.image?.imageType) {
-          formData.append(`images[${idx}].imageType`, img.image.imageType);
-        }
-        formData.append(
-          `images[${idx}].localOrderRank`,
-          (img.image?.localOrderRank ?? idx).toString()
-        );
-        if (img.image?.entityTarget) {
-          formData.append(`images[${idx}].entityTarget`, img.image.entityTarget);
-        }
-        if (img.image?.entityId) {
-          formData.append(`images[${idx}].entityId`, img.image.entityId);
-        }
-      });
-
     await eventApi.createEvent(formData, {
       onSuccess: () => {
-        notification.success(t("event.createSuccess"));
         router.push("/dashboard/events");
       },
       onError: () => {
@@ -654,7 +441,7 @@ const moveImageLeft = (index: number) => {
   const images = eventForm.value.images;
   [images[index - 1], images[index]] = [images[index], images[index - 1]];
   images.forEach((img, idx) => {
-    if (img.image) img.image.localOrderRank = idx;
+    if (img.image) img.localOrderRank = idx;
   });
 };
 
@@ -663,7 +450,7 @@ const moveImageRight = (index: number) => {
   if (index >= images.length - 1) return;
   [images[index], images[index + 1]] = [images[index + 1], images[index]];
   images.forEach((img, idx) => {
-    if (img.image) img.image.localOrderRank = idx;
+    if (img.image) img.localOrderRank = idx;
   });
 };
 </script>

@@ -73,24 +73,60 @@
                         <div v-if="userAttendees.length === 0" class="text-center text-white py-8">
                             {{ t('user.noAttendees') }}
                         </div>
-                        <div v-else class="space-y-4">
-                            <div v-for="attendee in userAttendees" :key="attendee.id" 
-                                class="flex items-center justify-between p-4 bg-primary-800/50 rounded-lg border border-primary-700">
-                                <div class="flex-grow">
-                                    <div class="font-medium text-text-accent">{{ attendee.fullName }}</div>
-                                    <div class="text-sm text-white">
-                                        {{ t(`documentTypes.${getDocumentTypeKey(attendee.documentType)}`) }}:
-                                        {{ attendee.documentNumber }}
+                        <div v-else>
+                            <div class="space-y-4 mb-4">
+                                <div v-for="attendee in paginatedAttendees" :key="attendee.id" 
+                                    class="flex items-center justify-between p-4 bg-primary-800/50 rounded-lg border border-primary-700">
+                                    <div class="flex-grow">
+                                        <div class="font-medium text-text-accent">{{ attendee.fullName }}</div>
+                                        <div class="text-sm text-white">
+                                            {{ t(`documentTypes.${getDocumentTypeKey(attendee.documentType)}`) }}:
+                                            {{ attendee.documentNumber }}
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-sm text-white">
+                                            {{ formatDate(attendee.birthDate) }}
+                                        </div>
+                                        <button @click="router.push(`/dashboard/attendees/edit/${attendee.id}`)"
+                                            class="p-2 text-white hover:text-primary-200 transition-colors">
+                                            <IconsSet name="edit-pen" class="w-4 h-4" />
+                                        </button>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-4">
-                                    <div class="text-sm text-white">
-                                        {{ formatDate(attendee.birthDate) }}
+                            </div>
+                            
+                            <!-- Пагинация -->
+                            <div class="flex justify-between items-center mt-4">
+                                <div class="flex items-center gap-4 text-sm text-primary-300">
+                                    <div>
+                                        {{ t('pagination.page') }}
                                     </div>
-                                    <button @click="router.push(`/dashboard/attendees/edit/${attendee.id}`)"
-                                        class="p-2 text-white hover:text-primary-200 transition-colors">
-                                        <IconsSet name="edit-pen" class="w-4 h-4" />
-                                    </button>
+                                    <div class="flex gap-1">
+                                        <button 
+                                            @click="goToPage(currentPage - 1)"
+                                            :disabled="currentPage === 1"
+                                            class="p-2 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <i class="fas fa-chevron-left text-sm"></i>
+                                        </button>
+                                        <div class="px-4 py-2 bg-primary-800/50 rounded">
+                                            {{ currentPage }}
+                                        </div>
+                                        <button 
+                                            @click="goToPage(currentPage + 1)"
+                                            :disabled="currentPage >= totalPages"
+                                            class="p-2 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <i class="fas fa-chevron-right text-sm"></i>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        {{ t('pagination.of') }} {{ totalPages }}
+                                    </div>
+                                </div>
+                                <div class="text-sm text-primary-300">
+                                    {{ t('pagination.total') }}: {{ userAttendees.length }}
                                 </div>
                             </div>
                         </div>
@@ -211,15 +247,13 @@ onMounted(async () => {
                 },
                 pagination: {
                     page: 1,
-                    pageSize: 100
+                    pageSize: 10  // Изменено с 100 на 10
                 },
                 sort: []
             },
             {
                 onSuccess: (response) => {
-                    // Changed from response.data?.items to response?.items
                     userAttendees.value = response?.items || [];
-                    console.log('Attendees loaded:', userAttendees.value); // Add debug log
                 },
                 onError: () => {
                     notification.error(t('errors.loadingFailed'));
@@ -306,6 +340,24 @@ const saveUser = async () => {
                 notification.error(t('user.createFailed'));
             }
         });
+    }
+};
+
+// В script setup добавьте:
+const pageSize = 10; // Увеличим количество элементов на странице
+const currentPage = ref(1);
+
+const totalPages = computed(() => Math.ceil(userAttendees.value.length / pageSize));
+
+const paginatedAttendees = computed(() => {
+    const start = (currentPage.value - 1) * pageSize;
+    const end = start + pageSize;
+    return userAttendees.value.slice(start, end);
+});
+
+const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
     }
 };
 </script>

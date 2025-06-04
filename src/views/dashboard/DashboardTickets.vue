@@ -90,7 +90,7 @@
 
       <template #cell-buyerName="{ item }">
         <div v-if="item.payment?.buyer">
-          <span>{{ item.payment.buyer.fullName }}</span>
+          <span class="text-white">{{ item.payment.buyer.fullName }}</span>
           <div
             class="text-gray-400 text-xs cursor-pointer select-none hover:underline mt-0.5"
             title="Скопировать ID"
@@ -130,7 +130,7 @@
 
       <template #cell-payment="{ item }">
         <div v-if="item.payment" class="flex flex-col">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center justify-between w-full">
             <span class="text-white">{{ item.payment.amount }} ₽</span>
             <span
               :class="{
@@ -142,15 +142,11 @@
               {{ t(`statuses.payment.${item.payment.status}`) }}
             </span>
           </div>
-          <div v-if="item.payment.buyer" class="text-gray-400 text-xs mt-1">
-            {{ item.payment.buyer.fullName }}
-            <div
-              class="cursor-pointer select-none hover:underline"
-              title="Скопировать ID"
-              @click="handleCopy(item.payment.id)"
-            >
-              {{ copiedId === item.payment.id ? "Скопировано!" : item.payment.id }}
-            </div>
+          <div
+            class="text-gray-400 text-xs cursor-pointer hover:underline mt-1"
+            @click="handleCopy(item.payment.id)"
+          >
+            {{ copiedId === item.payment.id ? "Скопировано!" : item.payment.id }}
           </div>
         </div>
         <div v-else class="text-gray-400">{{ t("common.noData") }}</div>
@@ -207,8 +203,11 @@ const pagination = reactive<PaginationRequest>({
   pageSize: 20,
 });
 
-// Изменяем инициализацию sort
-const sort = ref<SortRequest[]>([{ sortBy: "payment", sortDirection: "desc" }]);
+// Добавляем константу для изначальной сортировки
+const initialSort: SortRequest[] = [{ sortBy: "paymentdate", sortDirection: "desc" }];
+
+// Используем её при инициализации
+const sort = ref<SortRequest[]>([...initialSort]);
 
 const statusOptions = [
   { value: null, label: t("filters.all") },
@@ -257,18 +256,36 @@ const columns: Column[] = [
   },
 ];
 
-// Методы
+// При сортировке преобразуем ключи
+const updateSort = (newSort: SortRequest[]) => {
+  if (!newSort || newSort.length === 0) {
+    // Если нет сортировки, возвращаем к дефолтной
+    sort.value = [...initialSort];
+  } else {
+    // Иначе преобразуем ключи для бэкенда
+    sort.value = newSort.map((sort) => {
+      const sortByMap: Record<string, string> = {
+        eventId: "eventid",
+        buyerName: "buyername",
+        attendee: "attendeename",
+        payment: "paymentdate",
+      };
+
+      return {
+        sortBy: sortByMap[sort.sortBy] || sort.sortBy,
+        sortDirection: sort.sortDirection,
+      };
+    });
+  }
+  loadTickets();
+};
+
 const loadTickets = async () => {
   await ticketApi.searchTickets({
     filter,
     sort: sort.value,
     pagination,
   });
-};
-
-const updateSort = (newSort: SortRequest[]) => {
-  sort.value = newSort;
-  loadTickets();
 };
 
 const handlePaginationChange = (paginationData: { page: number; pageSize: number }) => {
@@ -287,8 +304,8 @@ const resetFilters = () => {
     attendeeName: null,
     paymentIds: [],
   });
-  // При сбросе фильтров возвращаем сортировку по умолчанию
-  sort.value = [{ sortBy: "payment", sortDirection: "desc" }];
+  // Возвращаем к изначальной сортировке через копию массива
+  sort.value = [...initialSort];
   pagination.page = 1;
   loadTickets();
 };

@@ -141,6 +141,7 @@ import EntityInfo from "@/components/ui/EntityInfo.vue";
 import { useNotification } from "@/composables/useNotification";
 import { useFormValidation } from "@/composables/useFormValidation";
 import { TicketStatus } from "@/types/enums/TicketStatus";
+import { UserRoles } from "../../../types/enums/UserRoles";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -248,7 +249,7 @@ const loadSelectOptions = async () => {
   // Загружаем пользователей
   await userApi.searchUsers(
     {
-      filter: { userIds: [] },
+      filter: { userIds: [], roles: [] },
       sort: [],
       pagination: { page: 1, pageSize: 100 },
     },

@@ -53,10 +53,16 @@ export default {
     pagination: {
       show: 'Показать',
       prev: 'Назад',
-      next: 'Вперёд',
+      next: 'Далее',
       page: 'Страница',
       of: 'из',
-      perPage: 'На странице',
+      total: 'Всего', // Add this line
+      perPage: 'записей на странице',
+      entries: {
+        one: 'запись',
+        few: 'записи',
+        many: 'записей',
+      },
     },
   },
 
@@ -121,6 +127,7 @@ export default {
     minLength: 'Минимум {length} символов',
     maxLength: 'Максимум {length} символов',
     pattern: 'Неверный формат',
+    date: 'Неверный формат даты', // Add this line
 
     // Специфичные валидации
     name: {
@@ -349,6 +356,7 @@ export default {
       Paid: 'Оплачен',
       Used: 'Использован',
       Cancelled: 'Отменён',
+      Expired: 'Просрочен',
     },
   },
 
@@ -563,6 +571,7 @@ export default {
       'goToRegister': 'Регистрация',
       cancel: 'Отмена',
       save: 'Сохранить',
+      delete: 'Удалить', // Add this line
     },
     errors: {
       error: 'Ошибка',
@@ -579,6 +588,21 @@ export default {
     changesDiscarded: 'Изменения отменены',
     cancel: 'Отмена',
     noData: '-',
+  },
+
+  pagination: {
+    show: 'Показать',
+    prev: 'Назад',
+    next: 'Далее',
+    page: 'Страница',
+    of: 'из',
+    total: 'Всего',
+    perPage: 'записей на странице',
+    entries: {
+      one: 'запись',
+      few: 'записи',
+      many: 'записей',
+    },
   },
 
   // Билеты
@@ -707,10 +731,22 @@ export default {
       home: 'Главная',
       logout: 'Выйти',
     },
+    users: {
+      tableTitle: 'Пользователи системы',
+    },
+    tickets: {
+      tableTitle: 'Управление билетами',
+    },
+    attendees: {
+      tableTitle: 'Управление посетителями',
+    },
+    events: {
+      tableTitle: 'Управление мероприятиями',
+    },
     pages: {
       title: 'Страницы',
-      'description': 'Управление страницами сайта',
-    }
+      description: 'Управление страницами сайта',
+    },
   },
 
   // Пагинация
@@ -729,6 +765,8 @@ export default {
     error: 'Ошибка при загрузке данных',
     noDataDescription: 'Пожалуйста, проверьте фильтры или добавьте новые данные.',
     add: 'Добавить',
+    edit: 'Редактировать',
+    actions: 'Действия',
     confirmDelete: 'Вы уверены, что хотите удалить этот элемент?',
     confirmDeleteDescription: 'Это действие нельзя будет отменить.',
     delete: 'Удалить',
@@ -774,15 +812,19 @@ export default {
     selectEvent: 'Выберите мероприятие',
     payment: 'Платеж',
     fields: {
-      eventId: "Мероприятие",
+      eventId: 'Мероприятие',
       status: 'Статус',
       attendeeId: 'Посетитель',
       buyerId: 'Покупатель',
       qrCode: 'QR-код',
     },
     status: {
+      active: 'Активен',
+      used: 'Использован',
+      cancelled: 'Отменён',
+      expired: 'Просрочен',
       title: 'Статус',
-    }
+    },
   },
 
   attendee: {
@@ -803,7 +845,7 @@ export default {
       passport: 'Паспорт',
       birthCertificate: 'Свидетельство о рождении',
       other: 'Другое',
-    }
+    },
   },
 
   //Фильтры в дашборде
@@ -824,6 +866,7 @@ export default {
       phone: 'Телефон',
       birthDate: 'Дата рождения',
       createdAt: 'Дата регистрации',
+      roles: 'Роли',
     },
     ticket: {
       buyerName: 'Имя покупателя',
@@ -839,6 +882,7 @@ export default {
       birthDate: 'Дата рождения',
       docType: 'Тип документа',
       docNumber: 'Номер документа',
+      ids: 'Идентификаторы', // Add this line
     },
     select: 'Выберите',
     all: 'Все',
@@ -857,71 +901,70 @@ export default {
     clear: 'Очистить',
   },
   // Страницы и заголовки
-    pages: {
-      home: 'Главная',
-      login: 'Авторизация',
-      register: 'Регистрация',
-      profile: 'Профиль',
-      events: 'Мероприятия',
-      eventDetails: 'Детали мероприятия',
-      createEvent: 'Создание мероприятия',
-      tickets: 'Билеты',
-      dashboard: 'Панель управления',
+  pages: {
+    home: 'Главная',
+    login: 'Авторизация',
+    register: 'Регистрация',
+    profile: 'Профиль',
+    events: 'Мероприятия',
+    eventDetails: 'Детали мероприятия',
+    createEvent: 'Создание мероприятия',
+    tickets: 'Билеты',
+    dashboard: 'Панель управления',
+  },
+  auth: {
+    login: {
+      error: 'Ошибка при входе в систему. Проверьте введенные данные и попробуйте снова.',
     },
-    auth: {
-      login: {
-        error: 'Ошибка при входе в систему. Проверьте введенные данные и попробуйте снова.',
-      }
+  },
+
+  // Футер
+  footer: {
+    contacts: {
+      title: 'Контакты',
+      address: 'Российская Федерация,',
+      city: 'г. Москва, ул. Событийная, д. 123',
+      general: 'Общие вопросы, сотрудничество и отзывы:',
+      support: 'Служба поддержки:',
+      website: 'Официальный сайт:',
     },
-
-    // Футер
-    footer: {
-      contacts: {
-        title: 'Контакты',
-        address: 'Российская Федерация,',
-        city: 'г. Москва, ул. Событийная, д. 123',
-        general: 'Общие вопросы, сотрудничество и отзывы:',
-        support: 'Служба поддержки:',
-        website: 'Официальный сайт:',
-      },
-      hours: {
-        title: 'Часы работы',
-        summer: 'С мая по сентябрь:',
-        summerTime: 'С 08:00 до 24:00',
-        summerEntry: 'Вход на территорию возможен до 23:00',
-        winter: 'С октября по апрель:',
-        winterTime: 'С 09:00 до 22:00',
-        winterEntry: 'Вход на территорию возможен до 21:00',
-      },
-      legal: {
-        title: 'Правовая информация',
-        fullName:
-          'Полное наименование: Автономная некоммерческая организация «Центр событийных мероприятий»',
-        shortName: 'Сокращенное наименование: АНО «ЦСМ»',
-        address: 'Адрес: 123456, г. Москва, ул. Событийная, д. 123',
-        ogrnTitle: 'ОГРН:',
-        ogrn: '1234567890123',
-        kppTitle: 'КПП:',
-        kpp: '123456789',
-        innTitle: 'ИНН:',
-        inn: '1234567890',
-      },
-      copyright: 'Все права защищены.',
-      allRightsReserved: 'Все права защищены.',
+    hours: {
+      title: 'Часы работы',
+      summer: 'С мая по сентябрь:',
+      summerTime: 'С 08:00 до 24:00',
+      summerEntry: 'Вход на территорию возможен до 23:00',
+      winter: 'С октября по апрель:',
+      winterTime: 'С 09:00 до 22:00',
+      winterEntry: 'Вход на территорию возможен до 21:00',
     },
-
-    documentType: {
-      passport: 'Паспорт',
-      driverLicense: 'Водительское удостоверение',
-      foreignPassport: 'Заграничный паспорт',
-      studentCard: 'Студенческий билет',
-      birthCertificate: 'Свидетельство о рождении',
+    legal: {
+      title: 'Правовая информация',
+      fullName:
+        'Полное наименование: Автономная некоммерческая организация «Центр событийных мероприятий»',
+      shortName: 'Сокращенное наименование: АНО «ЦСМ»',
+      address: 'Адрес: 123456, г. Москва, ул. Событийная, д. 123',
+      ogrnTitle: 'ОГРН:',
+      ogrn: '1234567890123',
+      kppTitle: 'КПП:',
+      kpp: '123456789',
+      innTitle: 'ИНН:',
+      inn: '1234567890',
     },
+    copyright: 'Все права защищены.',
+    allRightsReserved: 'Все права защищены.',
+  },
 
-    roles: {
-      admin: 'Администратор',
-      user: 'Пользователь',
-    }
+  documentType: {
+    passport: 'Паспорт',
+    driverLicense: 'Водительское удостоверение',
+    foreignPassport: 'Заграничный паспорт',
+    studentCard: 'Студенческий билет',
+    birthCertificate: 'Свидетельство о рождении',
+  },
 
-}
+  roles: {
+    admin: 'Администратор',
+    user: 'Пользователь',
+  },
+};
 

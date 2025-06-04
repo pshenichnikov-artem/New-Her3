@@ -196,15 +196,6 @@ const columns: Column[] = [
         width: 'w-32'
     },
     {
-        key: 'status',
-        label: t('ticket.status.title'),
-        type: 'status',
-        statusContext: 'ticket',
-        sortable: true,
-        align: 'center',
-        width: 'w-24'
-    },
-    {
         key: 'payment',
         label: t('ticket.payment'),
         type: 'text',

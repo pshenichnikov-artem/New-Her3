@@ -141,23 +141,23 @@ const minBirthDate = computed(() => {
 
 // Доступные типы документов
 const documentTypeOptions = [
-  { value: 0, label: t('documentTypes.passport') },
-  { value: 1, label: t('documentTypes.driverLicense') },
-  { value: 2, label: t('documentTypes.foreignPassport') },
-  { value: 3, label: t('documentTypes.studentCard') },
-  { value: 4, label: t('documentTypes.birthCertificate') }
+  { value: DocumentType.Passport, label: "Паспорт" },
+  { value: DocumentType.DriverLicense, label: "Водительское удостоверение" },
+  { value: DocumentType.ForeignPassport, label: "Заграничный паспорт" },
+  { value: DocumentType.StudentCard, label: "Студенческий билет" },
+  { value: DocumentType.BirthCertificate, label: "Свидетельство о рождении" },
 ];
 
 // Функция для получения локализованного названия типа документа
 function getDocumentTypeLabel(type: number): string {
   const typeMap: Record<number, string> = {
-    0: 'passport',
-    1: 'driverLicense',
-    2: 'foreignPassport',
-    3: 'studentCard',
-    4: 'birthCertificate'
+    0: "passport",
+    1: "driverLicense",
+    2: "foreignPassport",
+    3: "studentCard",
+    4: "birthCertificate",
   };
-  return t(`documentTypes.${typeMap[type] || 'unknown'}`);
+  return t(`documentTypes.${typeMap[type] || "unknown"}`);
 }
 
 // Настраиваем валидацию формы
@@ -234,6 +234,8 @@ function getDocumentValidationRules(): string {
       return "required|studentCard"; // Студенческий билет
     case DocumentType.BirthCertificate:
       return "required|birthDocument"; // Свидетельство о рождении
+    case DocumentType.ForeignPassport:
+      return "required|foreignPassport"; // Заграничный паспорт
   }
 }
 
@@ -257,6 +259,9 @@ function getDocumentErrorMessages(): Record<string, string> {
       break;
     case DocumentType.BirthCertificate:
       messages.birthDocument = t("validation.birthDocument.pattern");
+      break;
+    case DocumentType.ForeignPassport:
+      messages.foreignPassport = t("validation.foreignPassport.pattern");
       break;
   }
 
@@ -288,7 +293,12 @@ const validateBirthDate = (isValid: boolean) => {
 };
 
 const goBack = () => {
-  router.push("/dashboard/attendees");
+  // Если пришли со страницы пользователя, возвращаемся на неё
+  if (userId.value) {
+    router.push(`/dashboard/users/edit/${userId.value}`);
+  } else {
+    router.push("/dashboard/attendees");
+  }
 };
 
 const resetForm = () => {
@@ -335,7 +345,7 @@ const saveAttendee = async () => {
       {
         onSuccess: () => {
           notification.success(t("attendee.createSuccess"));
-          // Если был передан userId, возвращаемся на страницу пользователя
+          // Если пришли со страницы пользователя, возвращаемся на неё
           if (userId.value) {
             router.push(`/dashboard/users/edit/${userId.value}`);
           } else {
@@ -344,9 +354,9 @@ const saveAttendee = async () => {
         },
         onError: () => {
           notification.error(t("attendee.createFailed"));
-        }
+        },
       },
-      userId.value // Передаем userId третьим параметром
+      userId.value
     );
   }
 };

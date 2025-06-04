@@ -1,4 +1,4 @@
-import type { ImageAddRequest } from '../image/ImageAddRequest'
+import type { EventImageAddRequest } from './EventImageAddRequest'
 
 export interface EventAddRequest {
   title: string
@@ -10,7 +10,5 @@ export interface EventAddRequest {
   ticketCount: number
   price: number
   isActive: boolean
-
-  image: File[] // В TypeScript/JavaScript IFormFile соответствует File
-  localOrderRank: number[]
-}
+  images: EventImageAddRequest[]
+} 

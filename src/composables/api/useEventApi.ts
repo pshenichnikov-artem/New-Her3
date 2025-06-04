@@ -85,7 +85,7 @@ export function useEventApi() {
    */
   async function updateEvent(
     id: string,
-    request: EventAddRequest | FormData,
+    request: EventUpdateRequest | FormData,
     options: RequestOptions = {},
   ): Promise<EventResponse | null> {
     const defaultOptions = {
@@ -99,25 +99,27 @@ export function useEventApi() {
 
     // Если это не FormData, преобразуем EventUpdateRequest в FormData
     if (!(request instanceof FormData)) {
-      dataToSend = new FormData()
-      dataToSend.append('title', request.title)
-      dataToSend.append('description', request.description)
-      dataToSend.append('location', request.location)
-      dataToSend.append('startDate', request.startDate)
-      dataToSend.append('endDate', request.endDate)
-      dataToSend.append('ticketCount', request.ticketCount)
-      dataToSend.append('price', request.price)
-      dataToSend.append('isActive', request.isActive ? 'true' : 'false')
-      dataToSend.append('tag', request.tag)
+     dataToSend = new FormData()
+      dataToSend.append("title", request.title);
+      dataToSend.append("description", request.description);
+      dataToSend.append("location", request.location);
+      dataToSend.append("startDate", request.startDate);
+      dataToSend.append("endDate", request.endDate || request.startDate);
+      dataToSend.append("ticketCount", request.ticketCount.toString());
+      dataToSend.append("price", request.price.toString());
+      dataToSend.append("isActive", request.isActive ? "true" : "false");
+      dataToSend.append("tag", request.tag);
 
-      if (request.image.length !== request.localOrderRank.length) {
-        throw new Error('Количество изображений и рангов должно совпадать')
-      }
-
-      for (let i = 0; i < request.image.length; i++) {
-        dataToSend.append(`image`, request.image[i])
-        dataToSend.append(`localOrderRank`, request.localOrderRank[i])
-      }
+      // Картинки (без id)
+      request.images.forEach((img, idx) => {
+        if (img.image) {
+          dataToSend.append(`images[${idx}].image`, img.image);
+        }
+        dataToSend.append(
+          `images[${idx}].localOrderRank`,
+          (img?.localOrderRank ?? idx).toString()
+        );
+      });
 
       headers = { 'Content-Type': 'multipart/form-data' }
     }
@@ -177,22 +179,27 @@ export function useEventApi() {
     // Если это не FormData, преобразуем EventAddRequest в FormData
     if (!(request instanceof FormData)) {
       dataToSend = new FormData()
-      dataToSend.append('title', request.title)
-      dataToSend.append('description', request.description)
-      dataToSend.append('location', request.location)
-      dataToSend.append('startDate', request.startDate)
-      dataToSend.append('endDate', request.endDate)
-      dataToSend.append('ticketCount', request.ticketCount.toString())
-      dataToSend.append('tag', request.tag)
+      dataToSend.append("title", request.title);
+      dataToSend.append("description", request.description);
+      dataToSend.append("location", request.location);
+      dataToSend.append("startDate", request.startDate);
+      dataToSend.append("endDate", request.endDate || request.startDate);
+      dataToSend.append("ticketCount", request.ticketCount.toString());
+      dataToSend.append("price", request.price.toString());
+      dataToSend.append("isActive", request.isActive ? "true" : "false");
+      dataToSend.append("tag", request.tag);
 
-      if (request.image.length !== request.localOrderRank.length) {
-        throw new Error('Количество изображений и рангов должно совпадать')
-      }
+      // Картинки (без id)
+      request.images.forEach((img, idx) => {
+        if (img.image) {
+          dataToSend.append(`images[${idx}].image`, img.image);
+        }
+        dataToSend.append(
+          `images[${idx}].localOrderRank`,
+          (img?.localOrderRank ?? idx).toString()
+        );
+      });
 
-      for (let i = 0; i < request.image.length; i++) {
-        dataToSend.append(`image`, request.image[i])
-        dataToSend.append(`localOrderRank`, request.localOrderRank[i])
-      }
       headers = { 'Content-Type': 'multipart/form-data' }
     }
 

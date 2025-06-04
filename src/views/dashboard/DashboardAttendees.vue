@@ -2,9 +2,10 @@
     <div v-if="!route.params.id && route.name !== 'dashboard-attendees-create'">
         <AdminDataTable :title="t('dashboard.attendees.tableTitle')" :columns="columns" :items="attendeeApi.attendees"
             :loading="attendeeApi.loading.search" :total-count="attendeeApi.totalCount" :current-page="pagination.page"
-            :page-size="pagination.pageSize" @update:sort="updateSort" @pagination-change="handlePaginationChange"
-            @apply-filters="loadAttendees" @reset-filters="resetFilters" @add="openAddAttendeeModal"
-            @edit="openEditAttendeeModal" @delete="showDeleteConfirmation">
+            :page-size="pagination.pageSize" :show-add-button="false"
+            @update:sort="updateSort" @pagination-change="handlePaginationChange"
+            @apply-filters="loadAttendees" @reset-filters="resetFilters" @edit="openEditAttendeeModal" 
+            @delete="showDeleteConfirmation">
             <template #filters>
                 <TextFilter :title="t('filters.attendee.fullName')" v-model="filter.fullName" :multiple-select="false"
                     class="compact-filter">

@@ -81,7 +81,7 @@
 
             <template #cell-eventId="{ item }">
                 <span class="text-white cursor-pointer select-none hover:underline transition duration-200"
-                    title="Скопировать eventId" @click="handleCopy(item.eventId)">
+                    title="Скопировать ID" @click="handleCopy(item.eventId)">
                     {{ copiedId === item.eventId ? 'Скопировано!' : item.eventId }}
                 </span>
             </template>

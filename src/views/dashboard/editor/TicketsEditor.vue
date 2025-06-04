@@ -203,7 +203,7 @@ onMounted(async () => {
           initialTicketData.value = {
             attendeeId: ticket.attendee?.id || null,
             qrCode: ticket.qrCode,
-            paymentId: ticket.payment?.id || null,
+            userId: ticket.payment?.buyer?.id || null,
           };
         } else {
           notification.error(t("errors.ticketNotFound"));
@@ -302,7 +302,7 @@ const resetForm = () => {
       ticketForm.value = {
         eventId: ticketData.value?.eventId || "",
         attendeeId: ticketData.value?.attendee?.id || null,
-        buyerId: ticketData.value?.payment?.buyer?.id || null,
+        buyerId: ticketData.value?.payment?.buyer?.id || null, // Changed to match new DTO
         qrCode: ticketData.value?.qrCode || "",
       };
     } else {
@@ -320,8 +320,8 @@ const resetForm = () => {
 const saveTicket = async () => {
   const updateData: TicketUpdateRequest = {
     attendeeId: ticketForm.value.attendeeId,
-    qrCode: ticketForm.value.qrCode,
-    paymentId: ticketData.value?.payment?.id || null,
+    qrCode: ticketData.value?.qrCode || "",
+    userId: ticketForm.value.buyerId, // Changed from paymentId to userId
   };
 
   await ticketApi.updateTicket(ticketId.value, updateData, {

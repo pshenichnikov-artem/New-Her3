@@ -69,30 +69,28 @@
                 <!-- Add after the main form grid -->
                 <div v-if="isEditMode" class="flex-shrink-0">
                     <h3 class="text-xl font-semibold text-text-accent mb-4">{{ t('user.assignedAttendees') }}</h3>
-                    <div class="bg-primary-900/60 rounded-xl p-6 pb-12 mb-8 shadow max-h-[400px] overflow-auto">
-                        <div class="max-h-[400px] overflow-y-auto pr-2">
-                            <div v-if="userAttendees.length === 0" class="text-center text-white py-8">
-                                {{ t('user.noAttendees') }}
-                            </div>
-                            <div v-else class="space-y-4">
-                                <div v-for="attendee in userAttendees" :key="attendee.id" 
-                                    class="flex items-center justify-between p-4 bg-primary-800/50 rounded-lg border border-primary-700">
-                                    <div class="flex-grow">
-                                        <div class="font-medium text-text-accent">{{ attendee.fullName }}</div>
-                                        <div class="text-sm text-white">
-                                            {{ t(`documentTypes.${getDocumentTypeKey(attendee.documentType)}`) }}:
-                                            {{ attendee.documentNumber }}
-                                        </div>
+                    <div class="bg-primary-900/60 rounded-xl p-6 pb-12 mb-8 shadow">
+                        <div v-if="userAttendees.length === 0" class="text-center text-white py-8">
+                            {{ t('user.noAttendees') }}
+                        </div>
+                        <div v-else class="space-y-4">
+                            <div v-for="attendee in userAttendees" :key="attendee.id" 
+                                class="flex items-center justify-between p-4 bg-primary-800/50 rounded-lg border border-primary-700">
+                                <div class="flex-grow">
+                                    <div class="font-medium text-text-accent">{{ attendee.fullName }}</div>
+                                    <div class="text-sm text-white">
+                                        {{ t(`documentTypes.${getDocumentTypeKey(attendee.documentType)}`) }}:
+                                        {{ attendee.documentNumber }}
                                     </div>
-                                    <div class="flex items-center space-x-4">
-                                        <div class="text-sm text-white">
-                                            {{ formatDate(attendee.birthDate) }}
-                                        </div>
-                                        <button @click="router.push(`/dashboard/attendees/edit/${attendee.id}`)"
-                                            class="p-2 text-white hover:text-primary-200 transition-colors">
-                                            <IconsSet name="edit-pen" class="w-4 h-4" />
-                                        </button>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-sm text-white">
+                                        {{ formatDate(attendee.birthDate) }}
                                     </div>
+                                    <button @click="router.push(`/dashboard/attendees/edit/${attendee.id}`)"
+                                        class="p-2 text-white hover:text-primary-200 transition-colors">
+                                        <IconsSet name="edit-pen" class="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
                         </div>

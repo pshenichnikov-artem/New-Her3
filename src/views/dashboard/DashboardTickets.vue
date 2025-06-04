@@ -9,12 +9,12 @@
       :current-page="pagination.page"
       :page-size="pagination.pageSize"
       :show-add-button="false"
+      :show-delete-button="false"
       @update:sort="updateSort"
       @pagination-change="handlePaginationChange"
       @apply-filters="loadTickets"
       @reset-filters="resetFilters"
       @edit="openEditTicketModal"
-      @delete="showDeleteConfirmation"
     >
       <template #filters>
         <TextFilter
@@ -57,7 +57,7 @@
         </TextFilter>
         <TextFilter
           :title="t('filters.ticket.attendeeId')"
-          v-model="filter.attendeeId"
+          v-model="filter.attendeeIds"
           :multiple-select="true"
           class="compact-filter"
         >
@@ -167,16 +167,6 @@
         <div v-else class="text-gray-400">{{ t("common.noData") }}</div>
       </template>
     </AdminDataTable>
-
-    <ConfirmModal
-      v-if="isDeleteConfirmationVisible"
-      :title="t('dashboard.tickets.deleteConfirmTitle')"
-      :message="t('dashboard.tickets.deleteConfirmMessage')"
-      :confirm-text="t('common.buttons.delete')"
-      :cancel-text="t('common.buttons.cancel')"
-      @confirm="confirmDelete"
-      @cancel="cancelDelete"
-    />
   </div>
   <router-view v-else />
 </template>
@@ -189,7 +179,6 @@ import AdminDataTable from "@/components/adminLayout/AdminDataTable.vue";
 import IconsSet from "@/components/ui/icons/IconsSet.vue";
 import TextFilter from "@/components/ui/filters/TextFilter.vue";
 import SelectFilter from "@/components/ui/filters/SelectFilter.vue";
-import ConfirmModal from "@/components/ui/ConfirmModal.vue";
 import { useTicketApi } from "@/composables/api/useTicketApi";
 import type { TicketFilterRequest } from "@/types/ticket/TicketFilterRequest";
 import type { SortRequest } from "@/types/common/SortRequest";
@@ -208,7 +197,7 @@ const filter = reactive<TicketFilterRequest>({
   eventIds: [],
   buyerIds: [],
   buyerName: null,
-  attendeeId: [],
+  attendeeIds: [], // Изменено с attendeeId на attendeeIds
   attendeeName: null,
   paymentIds: [],
 });
@@ -315,7 +304,7 @@ const resetFilters = () => {
     eventIds: [],
     buyerIds: [],
     buyerName: null,
-    attendeeId: [],
+    attendeeIds: [], // Изменено с attendeeId на attendeeIds
     attendeeName: null,
     paymentIds: [],
   });
@@ -331,28 +320,6 @@ const openAddTicketModal = () => {
 
 const openEditTicketModal = (ticket: any) => {
   router.push(`/dashboard/tickets/edit/${ticket.id}`);
-};
-
-const isDeleteConfirmationVisible = ref(false);
-const ticketToDelete = ref<any>(null);
-
-const showDeleteConfirmation = (ticket: any) => {
-  ticketToDelete.value = ticket;
-  isDeleteConfirmationVisible.value = true;
-};
-
-const confirmDelete = async () => {
-  if (ticketToDelete.value && ticketToDelete.value.id) {
-    await ticketApi.deleteTicket(ticketToDelete.value.id);
-    isDeleteConfirmationVisible.value = false;
-    ticketToDelete.value = null;
-    loadTickets();
-  }
-};
-
-const cancelDelete = () => {
-  isDeleteConfirmationVisible.value = false;
-  ticketToDelete.value = null;
 };
 
 onMounted(() => {

@@ -6,7 +6,7 @@
     :has-changes="hasChanges"
     @back="goBack"
     @cancel="resetForm"
-    @save="form.handleSubmit(saveAttendee)"
+    @save="saveAttendee"
   >
     <!-- Удалена кнопка переключения режима просмотра/редактирования -->
 

@@ -141,6 +141,7 @@ import EntityInfo from "@/components/ui/EntityInfo.vue";
 import { useNotification } from "@/composables/useNotification";
 import { useFormValidation } from "@/composables/useFormValidation";
 import { TicketStatus } from "@/types/enums/TicketStatus";
+import { UserRoles } from "../../../types/enums/UserRoles";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -203,7 +204,7 @@ onMounted(async () => {
           initialTicketData.value = {
             attendeeId: ticket.attendee?.id || null,
             qrCode: ticket.qrCode,
-            paymentId: ticket.payment?.id || null,
+            userId: ticket.payment?.buyer?.id || null,
           };
         } else {
           notification.error(t("errors.ticketNotFound"));
@@ -248,7 +249,7 @@ const loadSelectOptions = async () => {
   // Загружаем пользователей
   await userApi.searchUsers(
     {
-      filter: { userIds: [] },
+      filter: { userIds: [], roles: [] },
       sort: [],
       pagination: { page: 1, pageSize: 100 },
     },
@@ -302,7 +303,7 @@ const resetForm = () => {
       ticketForm.value = {
         eventId: ticketData.value?.eventId || "",
         attendeeId: ticketData.value?.attendee?.id || null,
-        buyerId: ticketData.value?.payment?.buyer?.id || null,
+        buyerId: ticketData.value?.payment?.buyer?.id || null, // Changed to match new DTO
         qrCode: ticketData.value?.qrCode || "",
       };
     } else {
@@ -320,8 +321,8 @@ const resetForm = () => {
 const saveTicket = async () => {
   const updateData: TicketUpdateRequest = {
     attendeeId: ticketForm.value.attendeeId,
-    qrCode: ticketForm.value.qrCode,
-    paymentId: ticketData.value?.payment?.id || null,
+    qrCode: ticketData.value?.qrCode || "",
+    userId: ticketForm.value.buyerId, // Changed from paymentId to userId
   };
 
   await ticketApi.updateTicket(ticketId.value, updateData, {

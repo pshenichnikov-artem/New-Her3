@@ -6,7 +6,7 @@
     :has-changes="hasChanges"
     @back="goBack"
     @cancel="resetForm"
-    @save="form.handleSubmit(saveUser)"
+    @save="saveUser"
   >
     <div class="flex flex-col h-full space-y-8">
       <div v-if="isLoading" class="flex justify-center py-8 flex-grow">
@@ -247,7 +247,7 @@ const getDocumentTypeKey = (type: number): string => {
     1: "driverLicense",
     2: "foreignPassport",
     3: "studentCard",
-    4: "birthCertificate"
+    4: "birthCertificate",
   };
   return documentTypes[type] || "unknown";
 };

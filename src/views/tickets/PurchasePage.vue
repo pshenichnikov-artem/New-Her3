@@ -271,7 +271,6 @@ function createEmptyAttendee(): AttendeeAddRequest {
         birthDate: '',
         documentType: DocumentType.Passport, // Паспорт по умолчанию
         documentNumber: '',
-        ticketId: '' // Будет заполнено после загрузки события
     };
 }
 
@@ -438,8 +437,9 @@ function goBack() {
 async function reserveTicket(eventId: string): Promise<string | null> {
 
     const result = await ticketApi.reserveTicket(eventId, {
-        showSuccessNotification: false, // Отключаем авто-уведомления
-        showErrorNotification: false // Отключаем авто-уведомления об ошибках
+        onSuccess: (data) => {
+            console.log('Ticket reserved successfully:', data);
+        },
     });
 
     if (result) {
@@ -527,8 +527,6 @@ async function loadEventData() {
 
     const eventId = route.params.eventId as string;
 
-    try {
-        // Получаем данные о мероприятии
         const eventData = await eventApi.getEventById(eventId);
 
         if (!eventData) {
@@ -538,23 +536,17 @@ async function loadEventData() {
 
         event.value = eventData;
 
-        // Заполняем ticketId для всех посетителей
-        attendees.value.forEach(attendee => {
-            attendee.ticketId = eventData.id;
-        });
-
         // Бронируем первый билет при загрузке страницы
-        const ticketKey = await reserveTicket(eventData.id);
+        const ticketKey = await reserveTicket(eventData.id, {
+            onSucc
+        });
 
         if (!ticketKey) {
             error.value = t('tickets.purchase.noAvailableTickets');
         }
-    } catch (e) {
-        console.error('Error loading event:', e);
+
         error.value = t('errors.entities.event.loadError');
-    } finally {
-        isLoading.value = false;
-    }
+
 }
 
 // Инициализация страницы

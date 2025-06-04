@@ -278,9 +278,8 @@ async function loadTickets() {
             eventIds: [], // массив Guid в виде строк
             buyerIds: [], // массив Guid в виде строк
             buyerName: null,
-            attendeeId: [], // массив Guid в виде строк
+            attendeeIds: [], // массив Guid в виде строк
             attendeeName: null,
-            status: [],
             paymentIds: [] // массив Guid в виде строк
         },
         pagination: {
@@ -292,6 +291,7 @@ async function loadTickets() {
         ]
     };
 
+    console.log('Loading tickets with request:', request);
     const result = await ticketApi.getMyTickets(request);
 
     if (result) {

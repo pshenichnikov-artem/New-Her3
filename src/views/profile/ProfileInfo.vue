@@ -25,6 +25,12 @@
                         <h3 class="text-sm text-text-muted mb-1">{{ t('fields.phone') }}</h3>
                         <p class="text-text-accent">{{ userData?.phone || '—' }}</p>
                     </div>
+
+                    <!-- Новое поле для даты рождения -->
+                    <div class="bg-primary-700 rounded-lg p-4 border border-primary-500">
+                        <h3 class="text-sm text-text-muted mb-1">{{ t('fields.birthDate') }}</h3>
+                        <p class="text-text-accent">{{ formatDate( userData?.birthDate  || '—' ) }}</p>
+                    </div>
                 </div>
             </div>
 
@@ -46,7 +52,7 @@
                             required: t('validation.password.required'),
                             password: t('validation.password.pattern'),
                         }" @valid="(valid) => passwordForm.updateValidationState('oldPassword', valid)"
-                        :triggerValidation="passwordForm.validationTrigger.oldPassword" />
+                        :triggerValidation="passwordForm.validationTrigger.oldPassword"/>
 
                     <ValidationInput id="newPassword" :label="t('fields.newPassword')" type="password"
                         v-model="passwordData.newPassword" validationRules="required|password" :error-messages="{
@@ -54,14 +60,6 @@
                             password: t('validation.password.pattern'),
                         }" @valid="(valid) => passwordForm.updateValidationState('newPassword', valid)"
                         :triggerValidation="passwordForm.validationTrigger.newPassword" />
-
-                    <ValidationInput id="confirmPassword" :label="t('fields.confirmPassword')" type="password"
-                        v-model="confirmPassword" validationRules="required|match"
-                        :compareWith="passwordData.newPassword" :error-messages="{
-                            required: t('validation.password.confirmRequired'),
-                            match: t('validation.password.mismatch'),
-                        }" @valid="(valid) => passwordForm.updateValidationState('confirmPassword', valid)"
-                        :triggerValidation="passwordForm.validationTrigger.confirmPassword" />
                 </div>
 
                 <div class="flex justify-end">
@@ -98,6 +96,13 @@
                         phone: t('validation.phone.pattern'),
                     }" @valid="(valid) => form.updateValidationState('phone', valid)"
                     :triggerValidation="form.validationTrigger.phone" />
+
+                <!-- Новое поле для даты рождения -->
+                <ValidationInput id="birthDate" :label="t('fields.birthDate')" type="date" v-model="formData.birthDate"
+                    validationRules="required" :error-messages="{
+                        required: t('validation.birthDate.required'),
+                    }" @valid="(valid) => form.updateValidationState('birthDate', valid)"
+                    :triggerValidation="form.validationTrigger.birthDate" />
             </div>
 
             <div class="flex space-x-4">
@@ -131,6 +136,7 @@ import IconsSet from '@/components/ui/icons/IconsSet.vue';
 import type { UserUpdateRequest } from '@/types/user/UserUpdateRequest';
 import type { ChangePasswordRequest } from '@/types/auth/ChangePasswordRequest';
 import type { UserResponse } from '@/types/user/UserResponse';
+import { formatDate } from '@/utils/formatterUtils';
 
 const { t } = useI18n();
 const authStore = useAuthStore();
@@ -150,6 +156,8 @@ const formData = reactive<UserUpdateRequest>({
     fullName: '',
     email: '',
     phone: '',
+    birthDate: '',
+    role: null
 });
 
 // Данные формы смены пароля
@@ -159,10 +167,10 @@ const passwordData = reactive<ChangePasswordRequest>({
 });
 
 // Инициализация формы профиля с валидацией
-const form = useFormValidation(['fullName', 'email', 'phone']);
+const form = useFormValidation(['fullName', 'email', 'phone', 'birthDate']);
 
 // Инициализация формы пароля с валидацией
-const passwordForm = useFormValidation(['oldPassword', 'newPassword', 'confirmPassword']);
+const passwordForm = useFormValidation(['oldPassword', 'newPassword']);
 
 // Загрузка данных пользователя
 async function loadUserData() {
@@ -186,6 +194,7 @@ function startEditing() {
         formData.fullName = userData.value.fullName || '';
         formData.email = userData.value.email || '';
         formData.phone = userData.value.phone || '';
+        formData.birthDate = userData.value.birthDate || '';
     }
     isEditing.value = true;
 }
@@ -235,7 +244,7 @@ async function changePassword() {
 
     isChangingPassword.value = true;
 
-    const success = await authApi.changePassword(passwordData, {
+    await authApi.changePassword(passwordData, {
         showSuccessNotification: false,
         showErrorNotification: false,
         onSuccess: () => {
@@ -244,7 +253,6 @@ async function changePassword() {
             // Сбрасываем форму
             passwordData.oldPassword = '';
             passwordData.newPassword = '';
-            confirmPassword.value = '';
         },
         onError: (error) => {
             if (error.code === 401) {

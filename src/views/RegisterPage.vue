@@ -29,6 +29,12 @@
             }" @valid="form.updateValidationState('phone', $event)"
             :triggerValidation="form.validationTrigger.phone" />
 
+          <ValidationInput id="birthDate" :label="t('fields.birthDate')" type="date" v-model="formData.birthDate"
+            validationRules="required" :error-messages="{
+              required: t('validation.birthDate.required')
+            }" @valid="form.updateValidationState('birthDate', $event)"
+            :triggerValidation="form.validationTrigger.birthDate" />
+
           <ValidationInput id="password" :label="t('fields.password')" type="password" v-model="formData.password"
             validationRules="required|password" :error-messages="{
               required: t('validation.password.required'),
@@ -89,14 +95,15 @@ const formData = reactive<RegisterRequest>({
   fullName: '',
   email: '',
   phone: '',
-  password: ''
+  password: '',
+  birthDate: ""
 });
 
 // Дополнительные поля
 const confirmPassword = ref('');
 
 // Инициализируем форму с валидацией
-const form = useFormValidation(['fullName', 'email', 'phone', 'password', 'confirmPassword']);
+const form = useFormValidation(['fullName', 'email', 'phone', 'birthDate', 'password', 'confirmPassword']);
 
 // Обработчик отправки формы
 const onSubmit = async () => {

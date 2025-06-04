@@ -145,7 +145,7 @@ const performSearch = () => {
     filter: {
       eventIds: [],
       title: [searchQuery.value],
-      location: null,
+      location: [],
       dateFrom: null,
       dateTo: null,
       minPrice: null,

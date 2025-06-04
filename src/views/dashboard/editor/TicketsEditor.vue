@@ -6,7 +6,7 @@
     :has-changes="hasChanges"
     @back="goBack"
     @cancel="resetForm"
-    @save="form.handleSubmit(saveTicket)"
+    @save="saveTicket"
   >
     <div v-if="isLoading" class="flex justify-center py-8">
       <div class="animate-spin text-4xl text-primary-600">
@@ -171,9 +171,6 @@ const ticketForm = ref<{
   qrCode: "",
 });
 
-// Настраиваем валидацию формы
-const form = useFormValidation(["eventId"]);
-
 // Данные для выпадающих списков
 const events = ref<EventResponse[]>([]);
 const users = ref<UserResponse[]>([]);
@@ -317,7 +314,6 @@ const resetForm = () => {
       };
     }
   }
-  form.resetValidation();
   notification.info(t("common.changesDiscarded"));
 };
 

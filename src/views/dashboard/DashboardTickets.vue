@@ -80,8 +80,8 @@
       <!-- Кастомная колонка для ticketId -->
       <template #cell-id="{ item }">
         <span
-          class="text-white cursor-pointer select-none hover:underline transition duration-200"
-          title="Скопировать ticketId"
+          class="text-white cursor-pointer select-none hover:text-accent transition-colors duration-200 truncate text-sm font-medium"
+          :title="item.id"
           @click="handleCopy(item.id)"
         >
           {{ copiedId === item.id ? "Скопировано!" : item.id }}
@@ -92,8 +92,8 @@
         <div v-if="item.payment?.buyer">
           <span class="text-white">{{ item.payment.buyer.fullName }}</span>
           <div
-            class="text-gray-400 text-xs cursor-pointer select-none hover:underline mt-0.5"
-            title="Скопировать ID"
+            class="text-gray-500 hover:text-accent cursor-pointer transition-colors duration-200 truncate text-[11px] mt-0.5"
+            :title="item.payment.buyer.id"
             @click="handleCopy(item.payment.buyer.id)"
           >
             {{
@@ -106,10 +106,10 @@
 
       <template #cell-attendee="{ item }">
         <div v-if="item.attendee">
-          <span>{{ item.attendee.fullName }}</span>
+          <span class="text-white">{{ item.attendee.fullName }}</span>
           <div
-            class="text-gray-400 text-xs cursor-pointer select-none hover:underline mt-0.5"
-            title="Скопировать ID"
+            class="text-gray-500 hover:text-accent cursor-pointer transition-colors duration-200 truncate text-[11px] mt-0.5"
+            :title="item.attendee.id"
             @click="handleCopy(item.attendee.id)"
           >
             {{ copiedId === item.attendee.id ? "Скопировано!" : item.attendee.id }}
@@ -119,13 +119,27 @@
       </template>
 
       <template #cell-eventId="{ item }">
-        <span
-          class="text-white cursor-pointer select-none hover:underline transition duration-200"
-          title="Скопировать ID"
-          @click="handleCopy(item.eventId)"
-        >
-          {{ copiedId === item.eventId ? "Скопировано!" : item.eventId }}
-        </span>
+        <div v-if="item.event" class="flex flex-col space-y-1">
+          <span class="text-white font-medium">{{ item.event.title }}</span>
+          <div class="text-sm text-gray-400">{{ formatDate(item.event.startTime) }}</div>
+          <div class="flex flex-col text-[11px] space-y-0.5">
+            <span
+              class="text-gray-500 hover:text-accent cursor-pointer transition-colors duration-200 truncate"
+              :title="item.event.id"
+              @click="handleCopy(item.event.id)"
+            >
+              {{ copiedId === item.event.id ? "Скопировано!" : item.event.id }}
+            </span>
+            <span
+              class="text-gray-500 hover:text-accent cursor-pointer transition-colors duration-200 truncate"
+              :title="item.eventId"
+              @click="handleCopy(item.eventId)"
+            >
+              {{ copiedId === item.eventId ? "Скопировано!" : item.eventId }}
+            </span>
+          </div>
+        </div>
+        <div v-else class="text-gray-400">{{ t("common.noData") }}</div>
       </template>
 
       <template #cell-payment="{ item }">
@@ -143,7 +157,8 @@
             </span>
           </div>
           <div
-            class="text-gray-400 text-xs cursor-pointer hover:underline mt-1"
+            class="text-gray-500 hover:text-accent cursor-pointer transition-colors duration-200 truncate text-[11px] mt-0.5"
+            :title="item.payment.id"
             @click="handleCopy(item.payment.id)"
           >
             {{ copiedId === item.payment.id ? "Скопировано!" : item.payment.id }}
@@ -224,35 +239,35 @@ const columns: Column[] = [
     label: t("ticket.id"),
     type: "text",
     sortable: true,
-    width: "w-32",
+    width: "w-48", // Увеличили для ID билета
   },
   {
     key: "eventId",
     label: t("ticket.eventId"),
     type: "text",
     sortable: true,
-    width: "w-32",
+    width: "w-48", // Увеличили для данных о событии
   },
   {
     key: "buyerName",
     label: t("ticket.buyerName"),
     type: "text",
     sortable: true,
-    width: "w-32",
+    width: "w-40", // Уменьшили для покупателя
   },
   {
     key: "attendee",
     label: t("ticket.attendeeName"),
     type: "text",
     sortable: true,
-    width: "w-32",
+    width: "w-40", // Уменьшили для посетителя
   },
   {
     key: "payment",
     label: t("ticket.payment"),
     type: "text",
     sortable: true,
-    width: "w-48",
+    width: "w-40", // Уменьшили для оплаты
   },
 ];
 
@@ -345,6 +360,10 @@ onMounted(() => {
 });
 
 const { copiedId, handleCopy } = useCopyWithFeedback();
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString();
+};
 </script>
 
 <style scoped>

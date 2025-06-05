@@ -867,28 +867,55 @@ watch([currentMonth, currentYear], () => {
   }
 }
 
-/* Стили для оверлея выбора даты */
-.date-picker-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
+/* --- Адаптивные стили для мобильных устройств --- */
+@media (max-width: 640px) {
+  .grid.grid-cols-7.gap-1 > div {
+    min-height: 2.5rem !important;
+    padding: 0.25rem !important;
+  }
+  .grid.grid-cols-7.gap-1 {
+    gap: 0.25rem !important;
+  }
+  .bg-primary-700.rounded-lg.p-4.border {
+    padding: 0.75rem !important;
+  }
+  .mt-6.flex.flex-wrap.items-center.gap-6.p-4.bg-primary-700.rounded-lg.border {
+    gap: 0.5rem !important;
+    padding: 0.75rem !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .text-xl.font-semibold {
+    font-size: 1.1rem !important;
+  }
+  .text-xl.font-bold {
+    font-size: 1.1rem !important;
+  }
+  .p-6 {
+    padding: 1rem !important;
+  }
+  .max-w-2xl {
+    max-width: 98vw !important;
+  }
+  .rounded-xl {
+    border-radius: 0.75rem !important;
+  }
+  .calendar-popup {
+    min-width: 90vw !important;
+    max-width: 98vw !important;
+  }
 }
 
-.date-picker-container {
-  position: relative;
-  z-index: 101;
-}
-
-.calendar-popup {
-  border-radius: 0.5rem;
-  border: 1px solid theme("colors.primary.500");
+/* --- Уменьшаем высоту ячеек календаря на мобильных устройствах --- */
+@media (max-width: 480px) {
+  .grid.grid-cols-7.gap-1 > div {
+    min-height: 2rem !important;
+    padding: 0.1rem !important;
+  }
+  .calendar-popup {
+    min-width: 98vw !important;
+    max-width: 100vw !important;
+  }
 }
 </style>
 

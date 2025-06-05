@@ -3,7 +3,7 @@
  * @param date Дата для форматирования
  * @returns Отформатированная дата (YYYY-MM-DD)
  */
-export function formatDate(date: Date | string | null): string {
+export function formatDate(date: Date | string | null | undefined): string {
   if (!date) return ''
   const dateObj = typeof date === 'string' ? new Date(date) : date
   return dateObj.toISOString().slice(0, 10)

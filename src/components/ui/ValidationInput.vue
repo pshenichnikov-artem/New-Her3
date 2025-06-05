@@ -34,7 +34,7 @@
         @click="togglePasswordVisibility"
       >
         <img
-          :src="showPassword ? '/images/open_eye.png' : 'images/close_eye.png'"
+          :src="showPassword ? '/images/open_eye.png' : '/images/close_eye.png'"
           alt="eye icon"
           class="w-6 h-6"
         />

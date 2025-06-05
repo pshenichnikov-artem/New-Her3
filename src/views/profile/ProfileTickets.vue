@@ -29,12 +29,13 @@
                         <div class="p-5 flex-1">
                             <div class="flex justify-between items-start mb-3">
                                 <h3 class="text-lg font-bold text-text-accent line-clamp-1">
-                                    {{ getEventTitle(ticket.id) || t('profile.tickets.unknownEvent') }}
+                                    {{ ticket.event?.title || t('profile.tickets.unknownEvent') }}
                                     <!-- Индикатор неактивного или прошедшего события -->
-                                    <span v-if="isEventInactive(ticket.id)"
+                                    <span v-if="!ticket.event?.isActive || isEventPassed(ticket.event)"
                                         class="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-md">
-                                        {{ isEventPassed(ticket.id) ? t('profile.tickets.eventPassed') :
-                                            t('profile.tickets.eventInactive') }}
+                                        {{ isEventPassed(ticket.event)
+                                            ? t('profile.tickets.eventPassed')
+                                            : t('profile.tickets.eventInactive') }}
                                     </span>
                                 </h3>
                                 <span :class="getStatusClass(ticket.payment?.status)"
@@ -47,14 +48,13 @@
                                 <!-- Дата и время мероприятия -->
                                 <div class="flex items-center text-sm text-text-muted">
                                     <IconsSet name="calendar" class="h-4 w-4 mr-2 text-primary-300" />
-                                    <span>{{ formatDateTime(getEventStartTime(ticket.id)) }}</span>
+                                    <span>{{ formatDateTime(ticket.event?.startTime) }}</span>
                                 </div>
 
                                 <!-- Место проведения -->
                                 <div class="flex items-center text-sm text-text-muted">
                                     <IconsSet name="location" class="h-4 w-4 mr-2 text-primary-300" />
-                                    <span class="line-clamp-1">{{ getEventLocation(ticket.id) ||
-                                        t('profile.tickets.locationUnknown') }}</span>
+                                    <span class="line-clamp-1">{{ ticket.event?.location || t('profile.tickets.locationUnknown') }}</span>
                                 </div>
 
                                 <!-- Владелец билета -->
@@ -125,11 +125,11 @@
                                 <div class="bg-primary-700 rounded-lg p-3 border border-primary-600">
                                     <div class="text-sm text-text-muted mb-1">{{ t('fields.title') }}</div>
                                     <div class="text-white">
-                                        {{ getEventTitle(selectedTicket.id) || t('profile.tickets.unknownEvent') }}
+                                        {{ selectedTicket.event.title || t('profile.tickets.unknownEvent') }}
                                         <!-- Индикатор неактивного или прошедшего события в модальном окне -->
-                                        <span v-if="isEventInactive(selectedTicket.id)"
+                                        <span v-if="isEventPassed(selectedTicket.event)"
                                             class="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-md">
-                                            {{ isEventPassed(selectedTicket.id) ? t('profile.tickets.eventPassed') :
+                                            {{ isEventPassed(selectedTicket.event) ? t('profile.tickets.eventPassed') :
                                                 t('profile.tickets.eventInactive') }}
                                         </span>
                                     </div>
@@ -138,12 +138,12 @@
                                 <div class="bg-primary-700 rounded-lg p-3 border border-primary-600">
                                     <div class="text-sm text-text-muted mb-1">{{ t('fields.date') }}</div>
                                     <div class="text-white">{{
-                                        formatDateTime(getEventStartTime(selectedTicket.id)) }}</div>
+                                        formatDateTime(selectedTicket.event?.startTime) }}</div>
                                 </div>
 
                                 <div class="bg-primary-700 rounded-lg p-3 border border-primary-600">
                                     <div class="text-sm text-text-muted mb-1">{{ t('fields.location') }}</div>
-                                    <div class="text-white">{{ getEventLocation(selectedTicket.id) ||
+                                    <div class="text-white">{{ selectedTicket.event?.location ||
                                         t('profile.tickets.locationUnknown') }}</div>
                                 </div>
 
@@ -153,7 +153,8 @@
                                     <div>
                                         <span :class="getStatusClass(selectedTicket.payment?.status)"
                                             class="px-3 py-1 rounded-full text-xs font-medium">
-                                            {{ t(`statuses.payment.${selectedTicket.payment?.status ?? 'WaitingForPayment'}`) }}
+                                            {{ t(`statuses.payment.${selectedTicket.payment?.status ??
+                                            'WaitingForPayment'}`) }}
                                         </span>
                                     </div>
                                 </div>
@@ -217,10 +218,11 @@ import { formatDateTime } from '@/utils/formatterUtils';
 import { notificationService } from '@/composables/useNotification';
 import type { TicketResponse } from '@/types/ticket/TicketResponse';
 import type { EventResponse } from '@/types/event/EventResponse';
-import { TicketStatus } from '@/types/enums/TicketStatus';
+import { PaymentStatus } from '@/types/enums/PaymentStatus';
 import type { TicketSearchRequest } from '@/types/ticket/TicketSearchRequest';
 import IconsSet from '@/components/ui/icons/IconsSet.vue';
 import BasePagination from '@/components/ui/BasePagination.vue';
+import type { EventSearchRequest } from '@/types/event/EventSearchRequest';
 
 const { t } = useI18n();
 const ticketApi = useTicketApi();
@@ -236,35 +238,11 @@ const selectedTicket = ref<TicketResponse | null>(null);
 const tickets = ref<TicketResponse[]>([]);
 const events = ref<Map<string, EventResponse>>(new Map());
 
-// Методы для получения данных о событиях
-function getEventTitle(eventId: string): string | null {
-    return events.value.get(eventId)?.title || null;
-}
-
-function getEventStartTime(eventId: string): string | null {
-    return events.value.get(eventId)?.startTime || null;
-}
-
-function getEventLocation(eventId: string): string | null {
-    return events.value.get(eventId)?.location || null;
-}
-
-// Проверка активности события
-function isEventInactive(eventId: string): boolean {
-    const event = events.value.get(eventId);
-    if (!event) return false;
-
-    return !event.isActive || isEventPassed(eventId);
-}
-
 // Проверка, прошло ли событие
-function isEventPassed(eventId: string): boolean {
-    const event = events.value.get(eventId);
+function isEventPassed(event: EventResponse | undefined): boolean {
     if (!event || !event.startTime) return false;
-
     const eventDate = new Date(event.startTime);
     const now = new Date();
-
     return eventDate < now;
 }
 
@@ -278,9 +256,8 @@ async function loadTickets() {
             eventIds: [], // массив Guid в виде строк
             buyerIds: [], // массив Guid в виде строк
             buyerName: null,
-            attendeeId: [], // массив Guid в виде строк
+            attendeeIds: [], // массив Guid в виде строк
             attendeeName: null,
-            status: [],
             paymentIds: [] // массив Guid в виде строк
         },
         pagination: {
@@ -297,17 +274,6 @@ async function loadTickets() {
     if (result) {
         tickets.value = result.items || [];
         totalCount.value = result.totalCount || 0;
-
-        // Собираем все уникальные eventId из билетов
-        const eventIds = new Set<string>();
-        tickets.value.forEach(ticket => {
-            if (ticket.id) {
-                eventIds.add(ticket.id);
-            }
-        });
-
-        // Загружаем детали событий
-        await loadEventDetails(Array.from(eventIds));
     } else {
         tickets.value = [];
         totalCount.value = 0;
@@ -316,50 +282,18 @@ async function loadTickets() {
     isLoading.value = false;
 }
 
-async function loadEventDetails(eventIds: string[]) {
-    if (eventIds.length === 0) return;
-
-    // Загружаем данные о каждом событии отдельно
-    for (const eventId of eventIds) {
-        const event = await eventApi.getEventById(eventId, {
-            showSuccessNotification: false,
-            showErrorNotification: false
-        });
-
-        if (event) {
-            events.value.set(eventId, event);
-        }
-    }
-}
-
 function viewTicketDetails(ticket: TicketResponse) {
     selectedTicket.value = ticket;
 }
 
-function getTicketStatus(ticket: TicketResponse): string {
-    if (!ticket.payment) {
-        return 'Pending';
-    }
-    
-    switch (ticket.payment.status) {
-        case 0:
-            return 'WaitingForPayment';
-        case 1:
-            return 'Successed';
-        case 2:
-            return 'Cancelled';
-        default:
-            return 'Failed';
-    }
-}
-
-function getStatusClass(paymentStatus: number | null): string {
+function getStatusClass(paymentStatus: PaymentStatus | undefined | null): string {
     switch (paymentStatus) {
-        case 1: // Paid
+        case PaymentStatus.Successed:
             return 'bg-green-100 text-green-800';
-        case 0: // Pending
+        case PaymentStatus.WaitingForPayment:
             return 'bg-yellow-100 text-yellow-800';
-        case 2: // Cancelled
+        case PaymentStatus.Canceled:
+        case PaymentStatus.Failed:
             return 'bg-red-100 text-red-800';
         default:
             return 'bg-gray-100 text-red-800';
@@ -367,7 +301,7 @@ function getStatusClass(paymentStatus: number | null): string {
 }
 
 function canDownload(ticket: TicketResponse): boolean {
-    return ticket.payment?.status === 1; // Only paid tickets can be downloaded
+    return ticket.payment?.status === PaymentStatus.Successed;
 }
 
 function downloadTicket(ticket: TicketResponse) {

@@ -590,6 +590,7 @@ export default {
   // Кнопки
   common: {
     buttons: {
+      goBack: 'Вернуться назад',
       back: 'Назад',
       register: 'Зарегистрироваться',
       goToLogin: 'Авторизация',
@@ -694,6 +695,8 @@ export default {
       locationUnknown: 'Место проведения не указано',
       attendeeUnknown: 'Посетитель не указан',
       ticketStatus: 'Статус билета',
+      eventInactive: 'Событие неактивно',
+      eventPassed: 'Событие прошло',
     },
     calendar: {
       title: 'Мой календарь событий',

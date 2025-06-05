@@ -20,7 +20,7 @@
             <div class="md:w-1/4">
               <img
                 v-if="event.images && event.images.length > 0"
-                :src="event.images[0].url"
+                :src="event.images[0].imageUrl"
                 :alt="event.title"
                 class="w-full h-40 object-cover rounded-lg"
               />
@@ -66,6 +66,7 @@
           <h3 class="font-bold text-lg mb-2">{{ t("common.errors.error") }}</h3>
           <p>{{ error }}</p>
           <button
+          type="button"
             @click="goBack"
             class="mt-4 px-4 py-2 bg-notification-error text-white rounded-lg hover:bg-opacity-90"
           >
@@ -549,7 +550,7 @@ function goBack() {
 
 // Функция для бронирования билета
 async function reserveTicket(eventId: string): Promise<string | null> {
-  const result = await ticketApi.reserveTicket(eventId, {
+  const result = await ticketApi.reserveTicket(eventId, attendees.value, {
     showSuccessNotification: false, // Отключаем авто-уведомления
     showErrorNotification: false, // Отключаем авто-уведомления об ошибках
   });
@@ -594,6 +595,7 @@ async function cancelAllReservations(): Promise<void> {
 
 // Отправка формы
 async function submitForm() {
+    console.log("Submitting form with attendees:", attendees.value);
   form.handleSubmit(async () => {
     isSubmitting.value = true;
     try {

@@ -46,7 +46,7 @@
           :class="{ 'bg-indigo-50': activeIndex === index }">
           <!-- Изображение мероприятия (если есть) -->
           <div class="h-10 w-10 flex-shrink-0 mr-3 rounded border border-gray-200 overflow-hidden">
-            <img v-if="event.images && event.images.length > 0" :src="event.images[0].url" :alt="event.title"
+            <img v-if="event.images && event.images.length > 0" :src="event.images[0].imageUrl" :alt="event.title"
               class="h-full w-full object-cover">
             <div v-else class="h-full w-full bg-gray-100 flex items-center justify-center text-gray-400">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -144,13 +144,15 @@ const performSearch = () => {
   eventApi.searchEvents({
     filter: {
       eventIds: [],
-      title: [searchQuery.value],
-      location: null,
-      dateFrom: null,
-      dateTo: null,
-      minPrice: null,
-      maxPrice: null,
-      isActive: true
+  dateFrom:  null,
+  dateTo:  null,
+  minPrice: null,
+  maxPrice: null,
+  title: [searchQuery.value],
+  location: [],
+  tag: [],
+  isActive: null,
+  description: null
     },
     sort: [{ sortBy: 'startTime', sortDirection: 'asc' }],
     pagination: { page: 1, pageSize: 5 } // Ограничиваем количество результатов для дропдауна

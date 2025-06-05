@@ -1,6 +1,6 @@
 export interface ImageResponse {
   id: string // Guid как строка
-  url: string
+  imageUrl: string
   imageType?: string
   localOrderRank: number
 }

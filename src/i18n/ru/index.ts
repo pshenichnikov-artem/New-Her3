@@ -716,6 +716,7 @@ export default {
       save: 'Сохранить',
       setReminder: 'Установить напоминание',
       eventAddSuccess: 'Событие успешно добавлено',
+      eventAdded: 'Событие добавлено в календарь',
     }
   },
 

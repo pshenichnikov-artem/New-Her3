@@ -716,6 +716,7 @@ export default {
       save: 'Save',
       setReminder: 'Set reminder',
       eventAddSuccess: 'Event added successfully',
+      eventAdded: 'Event added to calendar',
     }
   },
 

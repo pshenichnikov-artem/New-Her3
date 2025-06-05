@@ -188,6 +188,32 @@ export default {
 
     // Дополнительные валидации
     maxDate: 'Дата не может быть в будущем',
+
+    // Add birthDate validation messages
+    birthDate: {
+      range: 'Возраст должен быть от {min} до {max} лет',
+      invalid: 'Неверная дата рождения',
+      min: 'Минимальный возраст - {min} лет',
+      max: 'Максимальный возраст - {max} лет'
+    },
+
+    // Add document pattern validations
+    passport: {
+      pattern: 'Неверный формат паспорта (пример: 1234 567890)'
+    },
+    driverLicense: {
+      pattern: 'Неверный формат водительского удостоверения'
+    },
+    foreignPassport: {
+      pattern: 'Неверный формат заграничного паспорта'
+    },
+    studentCard: {
+      pattern: 'Неверный формат студенческого билета'
+    },
+    birthDocument: {
+      pattern: 'Неверный формат свидетельства о рождении'
+    },
+    positive: 'Значение должно быть больше 0',
   },
 
   // Ошибки (объединены)
@@ -509,7 +535,7 @@ export default {
   errorPages: {
     notFound: {
       title: 'Страница не найдена',
-      message: 'Извините, запрошенная вами страница не существует или была перемещена.',
+      message: 'К сожалению, запрошенная страница не существует',
       returnHome: 'Вернуться на главную',
     },
     unauthorized: {
@@ -733,15 +759,21 @@ export default {
     },
     users: {
       tableTitle: 'Пользователи системы',
+      deleteConfirmTitle: 'Удаление пользователя',
+      deleteConfirmMessage: 'Вы действительно хотите удалить этого пользователя? Это действие нельзя будет отменить.',
     },
     tickets: {
       tableTitle: 'Управление билетами',
     },
     attendees: {
       tableTitle: 'Управление посетителями',
+      deleteConfirmTitle: 'Удаление посетителя',
+      deleteConfirmMessage: 'Вы действительно хотите удалить этого посетителя? Это действие нельзя будет отменить.',
     },
     events: {
       tableTitle: 'Управление мероприятиями',
+      deleteConfirmTitle: 'Удаление мероприятия',
+      deleteConfirmMessage: 'Вы действительно хотите удалить это мероприятие? Это действие нельзя будет отменить.',
     },
     pages: {
       title: 'Страницы',
@@ -825,6 +857,8 @@ export default {
       expired: 'Просрочен',
       title: 'Статус',
     },
+    noAttendee: 'Посетитель не выбран',
+    noBuyer: 'Покупатель не выбран',
   },
 
   attendee: {
@@ -966,5 +1000,17 @@ export default {
     admin: 'Администратор',
     user: 'Пользователь',
   },
+
+  notFound: {
+      title: 'Страница не найдена',
+      message: 'К сожалению, запрошенная страница не существует',
+      returnHome: 'Вернуться на главную',
+    },
+    unauthorized: {
+      title: 'Доступ запрещён',
+      message: 'У вас нет прав для доступа к этой странице.',
+      returnHome: 'Вернуться на главную',
+      logout: 'Выйти',
+    },
 };
 

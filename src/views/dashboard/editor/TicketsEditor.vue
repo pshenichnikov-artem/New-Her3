@@ -233,7 +233,18 @@ const loadSelectOptions = async () => {
   // Загружаем события
   await eventApi.searchEvents(
     {
-      filter: { eventIds: [], isActive: true },
+      filter: {
+        eventIds: [],
+        isActive: true,
+        dateFrom: null,
+        dateTo: null,
+        minPrice: null,
+        maxPrice: null,
+        title: [],
+        location: [],
+        tag: [],
+        description: null,
+      },
       sort: [],
       pagination: { page: 1, pageSize: 100 },
     },

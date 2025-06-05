@@ -698,7 +698,23 @@ export default {
     calendar: {
       title: 'Мой календарь событий',
       comingSoon: 'Календарь событий будет доступен скоро!',
-    },
+      today: 'Сегодня',
+      withReminder: 'С напоминанием',
+      withNote: 'С заметкой',
+      standard: 'Стандартное',
+      inactive: 'Неактивное',
+      active: 'Активное',
+      description: 'Описание',
+      note: 'Заметка',
+      notePlaceholder: 'Введите заметку...',
+      reminder: 'Напоминание',
+      enableReminder: 'Включить напоминание',
+      goToEvent: 'Перейти к событию',
+      save: 'Сохранить',
+      setReminder: 'Установить напоминание',
+      eventAddSuccess: 'Событие в календаре успено обновлёно', // Added this line
+      eventAdded: 'Событие обновлено',
+    }
   },
 
   // Пользователи
@@ -1012,5 +1028,24 @@ export default {
       returnHome: 'Вернуться на главную',
       logout: 'Выйти',
     },
+    calendar: {
+      title: 'Мой календарь событий',
+      comingSoon: 'Календарь событий будет доступен скоро!',
+      today: 'Сегодня',
+      withReminder: 'С напоминанием',
+      withNote: 'С заметкой',
+      standard: 'Стандартное',
+      inactive: 'Неактивное',
+      active: 'Активное',
+      description: 'Описание',
+      note: 'Заметка',
+      notePlaceholder: 'Введите заметку...',
+      reminder: 'Напоминание',
+      enableReminder: 'Включить напоминание',
+      goToEvent: 'Перейти к событию',
+      save: 'Сохранить',
+      setReminder: 'Установить напоминание',
+      eventAddSuccess: 'Событие в календаре успено обновлёно', // Added this line
+    }
 };
 

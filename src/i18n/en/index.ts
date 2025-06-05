@@ -695,6 +695,8 @@ export default {
       locationUnknown: 'Location not specified',
       attendeeUnknown: 'Attendee not specified',
       ticketStatus: 'Ticket status',
+      eventInactive: 'Event inactive',
+      eventPassed: 'Event passed',
     },
     calendar: {
       title: 'My event calendar',

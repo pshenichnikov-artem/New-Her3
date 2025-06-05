@@ -152,13 +152,15 @@ const dateRange = ref<[Date | null, Date | null] | null>(null);
 // Начальное состояние фильтров (с пустыми массивами для мультивыборных фильтров)
 const defaultFilters: EventFilterRequest = {
     eventIds: [],
-    title: [],
     dateFrom: null,
     dateTo: null,
     minPrice: null,
     maxPrice: null,
+    title: [],
     location: [],
-    tag: []
+    tag: [],
+    isActive: null,
+    description: null
 };
 
 // Рабочая копия фильтров
@@ -183,8 +185,15 @@ const getSuggestedTitles = async (input: string): Promise<string[]> => {
     const suggestRequest: EventSearchRequest = {
         filter: {
             eventIds: [],
-            title: [input], // Используем входной текст как фильтр
-            location: []
+            dateFrom: null,
+            dateTo: null,
+            minPrice: null,
+            maxPrice: null,
+            title: [input],
+            location: [],
+            tag: [],
+            isActive: null,
+            description: null
         },
         pagination: {
             page: 0,
@@ -212,8 +221,15 @@ const getSuggestedLocations = async (input: string): Promise<string[]> => {
     const suggestRequest: EventSearchRequest = {
         filter: {
             eventIds: [],
-            location: [input], // Используем входной текст как фильтр
-            title: []
+            dateFrom: null,
+            dateTo: null,
+            minPrice: null,
+            maxPrice: null,
+            title: [],
+            location: [input],
+            tag: [],
+            isActive: null,
+            description: null
         },
         pagination: {
             page: 0,
@@ -391,7 +407,9 @@ const loadEvents = async () => {
             pageSize: pageSize.value
         },
         sort: [
+            { sortBy: 'isActive', sortDirection: 'desc' },
             { sortBy: 'startTime', sortDirection: 'asc' }
+             // Сортировка по заголовку
         ]
     };
 

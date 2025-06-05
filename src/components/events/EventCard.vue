@@ -2,8 +2,8 @@
     <div
         class="event-card bg-primary-800 rounded-xl overflow-hidden shadow-xl border border-primary-500 flex flex-col h-full hover:shadow-2xl transition-all transform hover:scale-[1.02] hover:border-primary-400 group">
         <!-- Изображение с градиентной накладкой и кликабельностью -->
-        <div class="relative h-52 sm:h-56 md:h-64 overflow-hidden cursor-pointer" @click="navigateToEvent">
-            <img v-if="event.images && event.images.length > 0" :src="event.images[0].url" :alt="event.title"
+        <div class="relative h-72 sm:h-80 md:h-96 overflow-hidden cursor-pointer" @click="navigateToBuyTicket">
+            <img v-if="event.images && event.images.length > 0" :src="event.images[0].imageUrl" :alt="event.title"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
             <div v-else class="w-full h-full bg-primary-700 flex items-center justify-center">
                 <IconsSet name="image" class="h-16 w-16 text-primary-300" />
@@ -100,6 +100,10 @@ const router = useRouter(); // Используем router
 // Добавляем функцию для перехода на страницу события
 const navigateToEvent = () => {
     router.push(`/events/${props.event.id}`);
+};
+
+const navigateToBuyTicket = () => {
+    router.push(`/by-ticket/${props.event.id}`);
 };
 
 // Форматированная цена

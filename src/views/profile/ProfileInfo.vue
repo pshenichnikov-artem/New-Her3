@@ -25,6 +25,11 @@
                         <h3 class="text-sm text-text-muted mb-1">{{ t('fields.phone') }}</h3>
                         <p class="text-text-accent">{{ userData?.phone || '—' }}</p>
                     </div>
+
+                    <div class="bg-primary-700 rounded-lg p-4 border border-primary-500">
+                        <h3 class="text-sm text-text-muted mb-1">{{ t('fields.birthDate') }}</h3>
+                        <p class="text-text-accent">{{ formatDate(userData?.birthDate) }}</p>
+                    </div>
                 </div>
             </div>
 
@@ -98,6 +103,16 @@
                         phone: t('validation.phone.pattern'),
                     }" @valid="(valid) => form.updateValidationState('phone', valid)"
                     :triggerValidation="form.validationTrigger.phone" />
+
+                <ValidationInput id="birthDate" :label="t('fields.birthDate')" type="date" v-model="formData.birthDate"
+                    validationRules="required|date"
+                    :error-messages="{
+                        required: t('validation.required'),
+                        date: t('validation.date'),
+                    }"
+                    @valid="(valid) => form.updateValidationState('birthDate', valid)"
+                    :triggerValidation="form.validationTrigger.birthDate"
+                />
             </div>
 
             <div class="flex space-x-4">
@@ -131,6 +146,7 @@ import IconsSet from '@/components/ui/icons/IconsSet.vue';
 import type { UserUpdateRequest } from '@/types/user/UserUpdateRequest';
 import type { ChangePasswordRequest } from '@/types/auth/ChangePasswordRequest';
 import type { UserResponse } from '@/types/user/UserResponse';
+import { formatDate } from '@/utils/formatterUtils';
 
 const { t } = useI18n();
 const authStore = useAuthStore();
@@ -150,6 +166,8 @@ const formData = reactive<UserUpdateRequest>({
     fullName: '',
     email: '',
     phone: '',
+    birthDate: '',
+    role: null
 });
 
 // Данные формы смены пароля
@@ -159,7 +177,7 @@ const passwordData = reactive<ChangePasswordRequest>({
 });
 
 // Инициализация формы профиля с валидацией
-const form = useFormValidation(['fullName', 'email', 'phone']);
+const form = useFormValidation(['fullName', 'email', 'phone', 'birthDate']);
 
 // Инициализация формы пароля с валидацией
 const passwordForm = useFormValidation(['oldPassword', 'newPassword', 'confirmPassword']);
@@ -186,6 +204,7 @@ function startEditing() {
         formData.fullName = userData.value.fullName || '';
         formData.email = userData.value.email || '';
         formData.phone = userData.value.phone || '';
+        formData.birthDate = userData.value.birthDate || '';
     }
     isEditing.value = true;
 }

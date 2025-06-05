@@ -6,6 +6,7 @@ import type { TicketSearchRequest } from '@/types/ticket/TicketSearchRequest'
 import type { TicketResponse } from '@/types/ticket/TicketResponse'
 import type { Response } from './useBaseApi'
 import { reactive } from 'vue'
+import type { AttendeeAddRequest } from '@/types/attendee/AttendeeAddRequest'
 
 /**
  * Composable для работы с API билетов
@@ -163,6 +164,7 @@ export function useTicketApi() {
    */
   async function reserveTicket(
     eventId: string,
+    attendees: AttendeeAddRequest[],
     options: RequestOptions = {},
   ): Promise<string | null> {
     const defaultOptions = {
@@ -175,6 +177,7 @@ export function useTicketApi() {
       {
         method: 'POST',
         url: `/reserve/${eventId}`,
+
       },
       'update',
       defaultOptions,

@@ -20,9 +20,7 @@
           >
             <IconsSet name="arrowLeft" class="h-5 w-5 text-text-muted" />
           </button>
-          <div class="text-xl font-semibold text-text-accent">
-            {{ currentMonthName }} {{ currentYear }}
-          </div>
+
           <button
             @click="nextMonth"
             class="p-2 rounded-full hover:bg-primary-600 focus:outline-none"

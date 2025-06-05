@@ -73,7 +73,7 @@
                 :key="option.value"
                 :value="option.value"
               >
-                {{ getDocumentTypeLabel(option.value) }}
+                {{ getDocumentTypeLabel(Number(option.value)) }}
               </option>
             </select>
           </div>
@@ -139,13 +139,13 @@ const minBirthDate = computed(() => {
   return date.toISOString().split("T")[0]; // Формат YYYY-MM-DD
 });
 
-// Доступные типы документов
+// Обновляем опции для типа документа
 const documentTypeOptions = [
-  { value: DocumentType.Passport, label: "Паспорт" },
-  { value: DocumentType.DriverLicense, label: "Водительское удостоверение" },
-  { value: DocumentType.ForeignPassport, label: "Заграничный паспорт" },
-  { value: DocumentType.StudentCard, label: "Студенческий билет" },
-  { value: DocumentType.BirthCertificate, label: "Свидетельство о рождении" },
+  { value: "0", label: t("documentTypes.passport") },
+  { value: "1", label: t("documentTypes.driverLicense") },
+  { value: "2", label: t("documentTypes.foreignPassport") },
+  { value: "3", label: t("documentTypes.studentCard") },
+  { value: "4", label: t("documentTypes.birthCertificate") },
 ];
 
 // Функция для получения локализованного названия типа документа

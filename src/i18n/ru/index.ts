@@ -346,7 +346,7 @@ export default {
         deleteSuccess: 'Изображение удалено',
       },
       calendar: {
-        eventAddSuccess: 'Событие успешно добавлено в календарь',
+        eventAddSuccess: 'Событие успешно добавлено',
         eventUpdateSuccess: 'Событие в календаре обновлено',
         eventDeleteSuccess: 'Событие удалено из календаря',
       },
@@ -712,8 +712,7 @@ export default {
       goToEvent: 'Перейти к событию',
       save: 'Сохранить',
       setReminder: 'Установить напоминание',
-      eventAddSuccess: 'Событие в календаре успено обновлёно', // Added this line
-      eventAdded: 'Событие обновлено',
+      eventAddSuccess: 'Событие успешно добавлено',
     }
   },
 
@@ -1029,8 +1028,7 @@ export default {
       logout: 'Выйти',
     },
     calendar: {
-      title: 'Мой календарь событий',
-      comingSoon: 'Календарь событий будет доступен скоро!',
+      eventAddSuccess: 'Событие успешно добавлено',
       today: 'Сегодня',
       withReminder: 'С напоминанием',
       withNote: 'С заметкой',
@@ -1045,7 +1043,6 @@ export default {
       goToEvent: 'Перейти к событию',
       save: 'Сохранить',
       setReminder: 'Установить напоминание',
-      eventAddSuccess: 'Событие в календаре успено обновлёно', // Added this line
     }
 };
 

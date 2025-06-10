@@ -348,7 +348,7 @@ const saveUser = async () => {
       email: userForm.value.email,
       fullName: userForm.value.fullName,
       phone: userForm.value.phone,
-      role: +userForm.value.role,
+      role: userForm.value.role ? +userForm.value.role : null,
       birthDate: userForm.value.birthDate,
     };
     await userApi.updateUser(userId.value, updateData, {

@@ -1,11 +1,12 @@
 import { fileURLToPath, URL } from 'node:url'
-
+import fs from 'fs'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [vue(), vueDevTools()],
   resolve: {
     alias: {
@@ -15,8 +16,14 @@ export default defineConfig({
     },
   },
   server: {
-    host: 'localhost',
+    host: true,
     port: 5555,
+    strictPort: true,
+    https: {
+      key: fs.readFileSync('./localhost-key.pem'),
+      cert: fs.readFileSync('./localhost.pem'),
+    },
+    origin: 'https://7e3f-159-69-36-23.ngrok-free.app'
   },
   css: {
     preprocessorOptions: {

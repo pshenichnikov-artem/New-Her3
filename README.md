@@ -1,33 +1,68 @@
-# client-app
+# New Khersones — сайт для Нового Херсонеса в Севастополе
 
-This template should help get you started developing with Vue 3 in Vite.
+Этот проект был создан в рамках проектной деятельности и представляет собой веб-приложение, посвящённое Новому Херсонесу в Севастополе. Приложение разработано с использованием Vue 3, TailwindCSS и PWA для поддержки мобильной версии и офлайн-режима.
 
-## Recommended IDE Setup
+## О проекте
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Сайт позволяет пользователю:
 
-## Type Support for `.vue` Imports in TS
+- просматривать список актуальных событий;
+- оформлять покупку билетов (без интеграции с онлайн-оплатой);
+- зарегистрироваться и авторизоваться в системе;
+- управлять своими билетами в личном кабинете;
+- использовать встроенный календарь событий с возможностью добавления заметок.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+Для администраторов реализована отдельная панель управления, включающая:
 
-## Customize configuration
+- полную работу с событиями (создание, редактирование, удаление);
+- управление билетами;
+- фильтрацию и просмотр данных пользователей и посещаемости.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Используемые технологии
 
-## Project Setup
+- Vue 3
+- TailwindCSS
+- Pinia
+- Vue Router
+- PWA (Progressive Web App)
 
-```sh
-npm install
+## Требования
+
+- Node.js версии 16 или выше
+- npm версии 8 или выше
+- Vue 3
+
+
+## Настройка API и домена
+
+Перед запуском в продакшене необходимо указать адрес backend-сервера и домен, с которого работает клиентское приложение.
+Гитхаб backend: https://github.com/pshenichnikov-artem/New-Khersones-backend
+
+1. Откройте файл: src/constants/api.ts
+
+Замените значение `API_BASE_URL` на актуальный адрес вашего backend:
+
+```ts
+export const API_BASE_URL = "https://your-backend-url.com/api";
 ```
 
-### Compile and Hot-Reload for Development
+2. Откройте файл: vite.config.ts
 
-```sh
-npm run dev
+В настройках сервера (server.origin) укажите домен, на котором будет размещено клиентское приложение:
+
+```json
+server: {
+  origin: 'https://your-frontend-domain.com',
+  ...
+}
 ```
 
-### Type-Check, Compile and Minify for Production
+![alt text](image-3.png)
 
-```sh
-npm run build
-```
+![alt text](image-4.png)
+
+![alt text](image-6.png)
+
+![alt text](image.png)
+
+![alt text](image-2.png)
